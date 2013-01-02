@@ -1,0 +1,23 @@
+{  
+	"name"				: "ShareMetric",
+ 	"version"			: "1.0",
+ 	"manifest_version"  : 2,
+ 	"description"		: "Social Metrics",
+	"icons"				: { 
+			"16": "images/icons/sharemetric-16.png",
+          	"48": "images/icons/sharemetric-48.png",
+         	"128": "images/icons/sharemetric-128.png" 
+		},
+	"browser_action"	: {     
+ 			"default_icon"	: "images/icons/sharemetric-16.png",
+ 			"default_popup" : "popup.html",
+			"default_title" : ""
+ 		},
+	"background"		: {
+			"scripts": ["background.js", "jquery-1.8.3.js"]
+		},
+	"permissions"		: [
+		"http://*/*", "https://*/*", "tabs"
+	]
+ } 
+ 
