@@ -3,6 +3,7 @@
  	"version"			: "1.0",
  	"manifest_version"  : 2,
  	"description"		: "Social Metrics",
+	"options_page"		: "options.html",
 	"icons"				: { 
 			"16": "images/icons/sharemetric-16.png",
           	"48": "images/icons/sharemetric-48.png",
@@ -17,7 +18,7 @@
 			"scripts": ["background.js", "jquery-1.8.3.js"]
 		},
 	"permissions"		: [
-		"http://*/*", "https://*/*", "tabs"
+		"http://*/*", "https://*/*", "tabs", "storage"
 	]
  } 
  

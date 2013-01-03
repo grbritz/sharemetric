@@ -1,0 +1,24 @@
+/* CSS Document */
+
+#head{
+	margin:10px 0px;
+}
+
+.social-source{
+	padding:5px;	
+}
+
+.social-source img{
+	padding-right:5px;	
+}
+
+.social-source span.total-count, .child-metric{
+	color:#999;	
+}
+
+#facebook > span{
+	padding-bottom:15px;
+}
+.child-metric{
+	margin-left: 35px;	
+}
