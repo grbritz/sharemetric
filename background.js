@@ -1,92 +1,69 @@
-var url = "";
-var results = {};
-var totalCount = 0;
 
-
-chrome.tabs.onActivated.addListener(function(activeInfo) {
-	chrome.tabs.get(activeInfo.tabId, function(tab){
-		update(tab.url);
-	});
-});
-
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	//Load social metrics after page is finished loading
-	if(changeInfo.status == "complete"){
-		update(tab.url);
-	}
-})
-
-//Gets a new batch of social metrics for currently viewed page
-function update(newUrl){
-	chrome.browserAction.setBadgeText({'text' : ""});
-	
-	//More natural updating speed
-	setTimeout(function(){
-		totalCount = 0;
-		url = newUrl;
-		console.log(url);
-		fetch();
-	}, 200);
-
-	
-}
-
-
-//Fetches the social metrics from all chosen sources
-function fetch(){
+//Master object
+var settings = {
+	"facebook" : {
+		"official" : true,
+		"active" : true,
+		"query" : function(){
+			$.ajax({
+				type: "GET",
+				dataType : "xml",
+				data: {
+					"query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+url+'"'
+				},
+				url : "https://api.facebook.com/method/fql.query",
+				success: function(data){
 		
-		//Facebook
-		$.ajax({
-			type: "GET",
-			dataType : "xml",
-			data: {"query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+url+'"'},
-			url : "https://api.facebook.com/method/fql.query",
-			success: function(data){
-
-				results.facebook = {};
-				
-				
-				results.facebook.likes = parseInt($(data).find("like_count").text());
-				results.facebook.shares = parseInt($(data).find("share_count").text());
-				results.facebook.comments = parseInt($(data).find("comment_count").text());
-				results.facebook.total = parseInt($(data).find("total_count").text());
-			
-				if(isNaN(results.facebook.total)){
-					results.facebook.total = 0;	
-				}
-				
-				console.log("facebook:");
-				console.log(data);
-				
-				totalCount += results.facebook.total;
-				updateBadge();
-				
-				
-			}
-		});
-		
-		//Twitter
-		$.ajax({
-			type:"GET",
-			dataType : "json",
-			data : {"url" : url},
-			url: "http://urls.api.twitter.com/1/urls/count.json",
-			success: function(data){
-
-				data.count = parseInt(data.count);
-				results.twitter = !isNaN(data.count) ? data.count : 0;
-				
-				console.log("twitter:")
-				console.log(data);	
-				
-				totalCount += results.twitter;
-				updateBadge();	
-				
+					results.facebook = {};
 						
-			}
-			
-		});
+					results.facebook.likes = parseInt($(data).find("like_count").text());
+					results.facebook.shares = parseInt($(data).find("share_count").text());
+					results.facebook.comments = parseInt($(data).find("comment_count").text());
+					results.facebook.total = parseInt($(data).find("total_count").text());
+				
+					if(isNaN(results.facebook.total)){
+						results.facebook.total = 0;	
+					}
+					
+					console.log("facebook:");
+					console.log(data);
+					
+					totalCount += results.facebook.total;
+					updateBadge();
+				}
+			});
+		}
+	},
+	"twitter" : {
+		"official" : true,
+		"active" : true,
+		"query" : function(){
+			$.ajax({
+				type:"GET",
+				dataType : "json",
+				data : {"url" : url},
+				url: "http://urls.api.twitter.com/1/urls/count.json",
+				success: function(data){
 		
+					data.count = parseInt(data.count);
+					results.twitter = !isNaN(data.count) ? data.count : 0;
+					
+					console.log("twitter:")
+					console.log(data);	
+					
+					totalCount += results.twitter;
+					updateBadge();			
+				}
+			});	
+		}
+	},
+	"google" : {
+		"official": false,
+		"active" : false,
+		"query" : function(){
+			console.log("Google Plus not yet implemented");
+			
+				
 		
 		//Google +1's ** API NOT OFFICIALLY SUPPORTED
 	/*	
@@ -138,9 +115,13 @@ function fetch(){
 				console.log(data);	
 			}
 		});*/
-		
-		//LinkedIn
-		$.ajax({
+		}
+	},
+	"linkedIn" : {
+		"official": true,
+		"active" : true,
+		"query" : function(){
+			$.ajax({
 				type: "GET",
 				dataType: "json",
 				data: {"url" : url, "format" : "json"},
@@ -155,76 +136,157 @@ function fetch(){
 					
 					totalCount += results.linkedIn;
 					updateBadge();
-						
-					
 				}
-		});
-	
-	/*
-		//Reddit
-		$.ajax({
-			type: "GET",
-			dataType: "json",
-			data: {"url" : url},
-			url: "http://buttons.reddit.com/button_info.json",
-			success: function(data){
-				results.reddit = data;
-				console.log("reddit:");
-				console.log(data);
-			}
-		});*/
+			});
+		}
+	},
+	"reddit" : {
+		"official" : false,
+		"active" : false,
+		"query" : function(){
+			console.log("reddit not yet implemented");	
+				/*
+				//Reddit
+				$.ajax({
+					type: "GET",
+					dataType: "json",
+					data: {"url" : url},
+					url: "http://buttons.reddit.com/button_info.json",
+					success: function(data){
+						results.reddit = data;
+						console.log("reddit:");
+						console.log(data);
+					}
+				});*/
 		
-	
-			
-		//StumbleUpon
-		$.ajax({
-			type:"GET",
-			dataType: "json",
-			data : {"url" : url},
-			url: "http://www.stumbleupon.com/services/1.01/badge.getinfo",
-			success: function(data){
-
-				data.result.views = parseInt(data.result.views);
-				results.stumbleUpon = !isNaN(data.result.views) ? data.result.views : 0;
-			
-				console.log("StumbleUpon:");
-				console.log(data);
+		}
+	},
+	"stumbleUpon" : {
+		"official" : true,
+		"active" : true,
+		"query" : function(){
+			$.ajax({
+				type:"GET",
+				dataType: "json",
+				data : {"url" : url},
+				url: "http://www.stumbleupon.com/services/1.01/badge.getinfo",
+				success: function(data){
+		  
+					data.result.views = parseInt(data.result.views);
+					results.stumbleUpon = !isNaN(data.result.views) ? data.result.views : 0;
 				
-				totalCount += results.stumbleUpon;
-				updateBadge();
-				
-				
+					console.log("StumbleUpon:");
+					console.log(data);
 					
-			}
-		});
-		
-		//Pinterest ** API NOT OFFICIALLY RELEASEED
-		
-			
-		//Delicious ** API NOT OFFICIALLY RELEASED
-		$.ajax({
-			type: "GET",
-			dataType: "json",
-			data: {"url" : url},
-			url: "http://feeds.delicious.com/v2/json/urlinfo/data",
-			success: function(data){
+					totalCount += results.stumbleUpon;
+					updateBadge();
+				}
+			});
 
-				data.total_posts = parseInt(data.total_posts);
-				results.delicious = !isNaN(data.total_posts) ? data.total_posts : 0;
-				
-				console.log("delicious:");
-				console.log(data);	
-				
-				totalCount += results.delicious;
-				updateBadge();
-				
-				
-			}
-		});
-		
-		
-		
+		}
+	},
+	"pinterest" : {
+		"official" : false,
+		"active" : true	,
+		"query" : function(){
+			$.ajax({
+				type: "GET",
+				dataType: "text",
+				data: {
+					"url" : url,
+					"callback" : ""
+				},
+				url: "http://api.pinterest.com/v1/urls/count.json",
+				success: function(data){
+					var newData = JSON.parse(data.substring(1, data.length-1));
+					var count = parseInt(newData.count);
+					results.pinterest = !isNaN(count) ? count : 0;
+					
+					console.log("pinterest");
+					console.log(results.pinterest);
+					
+					totalCount += results.pinterest;
+					updateBadge();
+				}
+			});		
+		}
+	},
+	"delicious" : {
+		"official" : false,
+		"active" : true,
+		"query" : function(){
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				data: {"url" : url},
+				url: "http://feeds.delicious.com/v2/json/urlinfo/data",
+				success: function(data){
+	
+					data.total_posts = parseInt(data.total_posts);
+					results.delicious = !isNaN(data.total_posts) ? data.total_posts : 0;
+					
+					console.log("delicious:");
+					console.log(data);	
+					
+					totalCount += results.delicious;
+					updateBadge();
+				}
+			});
+		}
+	}	
+};
+
+var url = "";
+var results = {};
+var totalCount = 0;
+
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+	chrome.tabs.get(activeInfo.tabId, function(tab){
+		update(tab.url);
+	});
+});
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+	//Load social metrics after page is finished loading
+	if(changeInfo.status == "complete"){
+		update(tab.url);
+	}
+})
+
+//Gets a new batch of social metrics for currently viewed page
+function update(newUrl){
+	chrome.browserAction.setBadgeText({'text' : ""});
+	prerenderResults();
+	
+	//More natural updating speed
+	setTimeout(function(){
+		totalCount = 0;
+		url = newUrl;
+		fetch();
+	}, 200);
+
+	
 }
+
+//Makes sure that view will be rendered in ideal order
+function prerenderResults(){
+	$.each(settings, function(key, value){
+		if(settings[key].active){
+			results[key] = "";	
+		}	
+	});
+}
+
+
+//Fetchs all social metrics that the user has selected via the options page
+function fetch(){
+	$.each(settings, function(key, value){
+		if(settings[key].active){
+			settings[key].query();	
+		}
+	});
+}
+
 
 //Updates the browser icon with a badge giving a rough
 //look at the total share metrics for the currently viewed page

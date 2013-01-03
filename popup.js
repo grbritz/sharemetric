@@ -1,9 +1,13 @@
 $(document).ready(function(){
-	//$("h1").text("Help me Graeme");
 	
 	var bg = chrome.extension.getBackgroundPage();
 	
 	$.each(bg.results, function(key, value){
+		if(bg.results[key].active){
+				
+		}
+		
+		
 		var curr = $("<div/>", {id : key, class : "social-source"});
 		
 		$("<img/>", {src : "images/icons/"+key+"-16x16.png"}).appendTo(curr);
