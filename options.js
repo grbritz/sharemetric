@@ -1,4 +1,5 @@
 $(document).ready(function(){
+	defaultSettings();
 	if(localStorage["facebook"] == undefined){
 		defaultSettings();	
 	}
@@ -53,7 +54,7 @@ function defaultSettings(){
 	localStorage["google"] = "false";
 	localStorage["reddit"] = "false";
 	localStorage["stumbleUpon"] = "false";
-	localStorage["linkedIn"] = "false";
+	localStorage["linkedIn"] = "true";
 	localStorage["delicious"] = "true";
 	localStorage["pinterest"] = "true";
 }
