@@ -5,7 +5,6 @@ $(document).ready(function(){
 	if($.isEmptyObject(bg.results)){
 		var toWrite = 'There are no social metrics active! Please return to the options page via the <a href="#">options page</a> to reactivate some metrics.';
 		
-		
 		$("#metrics").html(toWrite);
 		$("#metrics a").click(function(){
 			goToOptions();
@@ -18,24 +17,19 @@ $(document).ready(function(){
 		$("<img/>", {src : "images/icons/"+key+"-16x16.png"}).appendTo(curr);
 		
 		$("<span/>", {text : properCapital(key)+": "}).appendTo(curr);
-		
-		
-		
-		
+			
 		if(key == "facebook"){
-			//$("<span/>", {text: bg.results.facebook.total, class:"total-count"}).appendTo(curr);
 			$.each(bg.results[key], function(key, value){
 				
-				$("<div/>", {class: "child-metric", text: properCapital(key)+": " + value}).appendTo(curr);
-				
+				$("<div/>", {class: "child-metric", text: properCapital(key)+": " + value}).appendTo(curr);			
 			});	
 		}
 		else{
+			
 			$("<span/>",{text: value, class : "total-count"}).appendTo(curr);	
 		}
 		
 		$(curr).appendTo("#metrics");
-		
 	});
 });
 

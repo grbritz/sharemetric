@@ -1,4 +1,3 @@
-// JavaScript Document
 $(document).ready(function(){
 	if(localStorage["facebook"] == undefined){
 		defaultSettings();	
@@ -8,10 +7,6 @@ $(document).ready(function(){
 	$("#update").click(function(){
 		saveOptions();	
 	});
-	
-	
-	
-	//allFalse();
 });
 
 //Saves user's options for use throughout extension
@@ -51,6 +46,7 @@ function renderOptions(){
 	});
 }
 
+//Default settings when application is first installed
 function defaultSettings(){
 	localStorage["facebook"] = "true";
 	localStorage["twitter"] = "true";
@@ -62,6 +58,7 @@ function defaultSettings(){
 	localStorage["pinterest"] = "true";
 }
 
+//TESTING
 function allFalse(){
 	localStorage["facebook"] = "false";
 	localStorage["twitter"] = "false";

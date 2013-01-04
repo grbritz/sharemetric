@@ -1,5 +1,3 @@
-
-
 //Master object
 var sharemetric = {
 	"facebook" : {
@@ -63,9 +61,7 @@ var sharemetric = {
 		"active" : localStorage["google"],
 		"query" : function(){
 			console.log("Google Plus not yet implemented");
-			
-				
-		
+
 		//Google +1's ** API NOT OFFICIALLY SUPPORTED
 	/*	
 		$.ajax({
@@ -214,7 +210,6 @@ var sharemetric = {
 var url = "";
 var results = {};
 var totalCount = 0;
-console.log("bg");
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab){
