@@ -2,11 +2,16 @@ $(document).ready(function(){
 	
 	var bg = chrome.extension.getBackgroundPage();
 	
-	$.each(bg.results, function(key, value){
-		if(bg.results[key].active){
-				
-		}
+	if($.isEmptyObject(bg.results)){
+		var toWrite = 'There are no social metrics active! Please return to the options page via the <a href="#">options page</a> to reactivate some metrics.';
 		
+		
+		$("#metrics").html(toWrite);
+		$("#metrics a").click(function(){
+			goToOptions();
+		});
+	}
+	$.each(bg.results, function(key, value){
 		
 		var curr = $("<div/>", {id : key, class : "social-source"});
 		
@@ -33,6 +38,11 @@ $(document).ready(function(){
 		
 	});
 });
+
+function goToOptions(){
+	var url = chrome.extension.getURL("options.html");
+	chrome.tabs.create({"url" : url});
+}
 
 function properCapital(string){
 	return string.charAt(0).toUpperCase() + string.substr(1);	

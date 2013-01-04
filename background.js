@@ -1,9 +1,10 @@
 
+
 //Master object
-var settings = {
+var sharemetric = {
 	"facebook" : {
 		"official" : true,
-		"active" : true,
+		"active" : localStorage["facebook"], // "true" || "false"
 		"query" : function(){
 			$.ajax({
 				type: "GET",
@@ -36,7 +37,7 @@ var settings = {
 	},
 	"twitter" : {
 		"official" : true,
-		"active" : true,
+		"active" : localStorage["twitter"],
 		"query" : function(){
 			$.ajax({
 				type:"GET",
@@ -59,7 +60,7 @@ var settings = {
 	},
 	"google" : {
 		"official": false,
-		"active" : false,
+		"active" : localStorage["google"],
 		"query" : function(){
 			console.log("Google Plus not yet implemented");
 			
@@ -88,38 +89,12 @@ var settings = {
 			}
 		});
 		
-		$.ajax({
-			type: "POST",
-			dataType: "json",
-			headers: {
-				"Content-Type" : "application/json"
-			},
-			data: {
-				"key" : "AIzaSyCKSbrvQasunBoV16zDH9R33D88CeLr9gQ",
-				"method":"pos.plusones.get",
-				"id":"p",
-				"params":{
-					"nolog":true,
-					"id": url,
-					"source":"widget",
-					"userId":"@viewer",
-					"groupId":"@self"
-				},
-				"jsonrpc":"2.0",
-				"apiVersion":"v1"
-
-			},
-			url: "https://clients6.google.com/rpc",
-			success: function(data){
-				console.log("Google Plus");
-				console.log(data);	
-			}
-		});*/
+	*/
 		}
 	},
 	"linkedIn" : {
 		"official": true,
-		"active" : true,
+		"active" : localStorage["linkedIn"],
 		"query" : function(){
 			$.ajax({
 				type: "GET",
@@ -142,7 +117,7 @@ var settings = {
 	},
 	"reddit" : {
 		"official" : false,
-		"active" : false,
+		"active" : localStorage["reddit"],
 		"query" : function(){
 			console.log("reddit not yet implemented");	
 				/*
@@ -163,7 +138,7 @@ var settings = {
 	},
 	"stumbleUpon" : {
 		"official" : true,
-		"active" : true,
+		"active" : localStorage["stumbleUpon"],
 		"query" : function(){
 			$.ajax({
 				type:"GET",
@@ -187,7 +162,7 @@ var settings = {
 	},
 	"pinterest" : {
 		"official" : false,
-		"active" : true	,
+		"active" : localStorage["pinterest"],
 		"query" : function(){
 			$.ajax({
 				type: "GET",
@@ -213,7 +188,7 @@ var settings = {
 	},
 	"delicious" : {
 		"official" : false,
-		"active" : true,
+		"active" : localStorage["delicious"],
 		"query" : function(){
 			$.ajax({
 				type: "GET",
@@ -239,6 +214,7 @@ var settings = {
 var url = "";
 var results = {};
 var totalCount = 0;
+console.log("bg");
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab){
@@ -270,8 +246,8 @@ function update(newUrl){
 
 //Makes sure that view will be rendered in ideal order
 function prerenderResults(){
-	$.each(settings, function(key, value){
-		if(settings[key].active){
+	$.each(sharemetric, function(key, value){
+		if(sharemetric[key].active == "true"){
 			results[key] = "";	
 		}	
 	});
@@ -280,9 +256,9 @@ function prerenderResults(){
 
 //Fetchs all social metrics that the user has selected via the options page
 function fetch(){
-	$.each(settings, function(key, value){
-		if(settings[key].active){
-			settings[key].query();	
+	$.each(sharemetric, function(key, value){
+		if(sharemetric[key].active == "true"){
+			sharemetric[key].query();	
 		}
 	});
 }
