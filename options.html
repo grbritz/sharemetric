@@ -8,20 +8,39 @@
 	<script type="text/javascript" src="options.js"></script>
 </head>
 <body>
-	<div id="head">
-    	<img src="images/content-harmony-sharemetric-200w.png" alt="Content Harmony's ShareMetric Extension" />
-    </div>
-    <p>
-    	Use this page to set which social services you'd like to get metrics for. Some of the available metrics are not fully supported by their service providers, e.g. google plus, and when using them you may get unusual behavior.
-        <br />
-        <br/>
-        Please select the metrics you'd like to receive.
-    </p>
-    <div id="options">
+	<div id="wrapper">
+        <div id="head">
+            <img src="images/content-harmony-sharemetric-400w.png" alt="Content Harmony's ShareMetric Extension" />
+        </div>
+        <hr />
+        <p>
+            Use this page to set which social services you'd like to get metrics for. Some of the available metrics are not fully supported by their service providers, e.g. Pinterest. If you get any unusual behavior while using these services, please contact us at <a href="mailto:tools@contentharmony.com">tools@contentharmony.com</a>.
+        </p>
+        <div id="options">
+     		<p>
+                <label>
+                    <input type="radio" name="autoLoad" value="false" />
+                    Check share counts when icon is clicked
+                </label>
+            </p>
+            <p>
+            	<label>
+                    <input type="radio" name="autoLoad" value="true" />
+                    Check share counts on page load (may slow down broswer performance)
+                </label>
+                <br />
+            </p>
+            
+        </div>
+        <button id="update">Update</button>
     
-    </div>
-    <button id="update">Update</button>
-
+        <hr />
+        
+        <div id="branding">
+            <h2>Credits:</h2>
+            <p>The ShareMetric extension was created by <a href="http://graemebritz.com">Graeme Britz</a> and <a href="http://kanejamison.com">Kane Jamison</a> at <a href="http://contentharmony.com">Content Harmony</a>. Full documentation for this extension can be found at <a href="http://contentharmony.com/tools/sharemetric">here</a>.</p>
+        </div>
+	</div>
 
 </body>
 </html>

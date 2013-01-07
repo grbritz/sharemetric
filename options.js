@@ -1,8 +1,4 @@
 $(document).ready(function(){
-	defaultSettings();
-	if(localStorage["facebook"] == undefined){
-		defaultSettings();	
-	}
 	renderOptions();
 	
 	$("#update").click(function(){
@@ -12,20 +8,28 @@ $(document).ready(function(){
 
 //Saves user's options for use throughout extension
 function saveOptions(){
-	$("#options input").each(function(index, ele){
+	$("#options input[type=checkbox]").each(function(index, ele){
 		localStorage[$(ele).attr("name")] = $(ele).attr("checked") == "checked";
 	});
+	
+	localStorage["autoLoad"] = $("#options input[name=autoLoad]:checked").val();
+	
 	chrome.extension.getBackgroundPage().window.location.reload();
+	window.location.reload();
 }
 
 //Builds interface for updating options, prepopulates inputs with existing preferences
 function renderOptions(){
 	var sharemetric = chrome.extension.getBackgroundPage().sharemetric;
 	
+	//Choose default behavior
+	$("#options input[value="+localStorage["autoLoad"]+"]").attr("checked", true);
+	
+	//Pull and output settings for social metrics
 	$.each(sharemetric, function(key, value){	
 		var label = $("<label/>", {
 			"for" : key,
-			"text" : key	
+			"text" : properCapital(key)
 		});
 		
 		var input = $("<input />", {
@@ -36,7 +40,7 @@ function renderOptions(){
 		});
 		
 		if(!value.official){
-			var warning = $("<span/>").css("color", "red").text("**Not supported");
+			var warning = $("<span/>", {"class" : "error"}).text("**Not officially supported");
 			$(warning).appendTo(label);
 		}
 		
@@ -45,28 +49,12 @@ function renderOptions(){
 		$(label).appendTo(boxCont);
 		$(boxCont).appendTo("#options");
 	});
+	
+	
+	
 }
 
-//Default settings when application is first installed
-function defaultSettings(){
-	localStorage["facebook"] = "true";
-	localStorage["twitter"] = "true";
-	localStorage["google"] = "false";
-	localStorage["reddit"] = "false";
-	localStorage["stumbleUpon"] = "false";
-	localStorage["linkedIn"] = "true";
-	localStorage["delicious"] = "true";
-	localStorage["pinterest"] = "true";
-}
 
-//TESTING
-function allFalse(){
-	localStorage["facebook"] = "false";
-	localStorage["twitter"] = "false";
-	localStorage["google"] = "false";
-	localStorage["reddit"] = "false";
-	localStorage["stumbleUpon"] = "false";
-	localStorage["linkedIn"] = "false";
-	localStorage["delicious"] = "false";
-	localStorage["pinterest"] = "false";
+function properCapital(string){
+	return string.charAt(0).toUpperCase() + string.substr(1);	
 }

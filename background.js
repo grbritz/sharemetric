@@ -13,7 +13,12 @@ var sharemetric = {
 				url : "https://api.facebook.com/method/fql.query",
 				success: function(data){
 		
-					results.facebook = {};
+					results.facebook = {
+						"likes" : 0,
+						"shares" : 0,
+						"comments" : 0,
+						"total" : 0	
+					};
 						
 					results.facebook.likes = parseInt($(data).find("like_count").text());
 					results.facebook.shares = parseInt($(data).find("share_count").text());
@@ -23,12 +28,10 @@ var sharemetric = {
 					if(isNaN(results.facebook.total)){
 						results.facebook.total = 0;	
 					}
-					
-					console.log("facebook:");
-					console.log(data);
-					
+			
 					totalCount += results.facebook.total;
 					updateBadge();
+					testO.goodbye = results.facebook.total;
 				}
 			});
 		}
@@ -46,24 +49,23 @@ var sharemetric = {
 		
 					data.count = parseInt(data.count);
 					results.twitter = !isNaN(data.count) ? data.count : 0;
-					
-					console.log("twitter:")
-					console.log(data);	
-					
+	
 					totalCount += results.twitter;
 					updateBadge();			
 				}
 			});	
 		}
-	},
+	},/*
 	"google" : {
 		"official": false,
 		"active" : localStorage["google"],
 		"query" : function(){
 			console.log("Google Plus not yet implemented");
 
+
+
 		//Google +1's ** API NOT OFFICIALLY SUPPORTED
-	/*	
+	/
 		$.ajax({
 			type: "GET",
 			dataType: "html",
@@ -85,9 +87,9 @@ var sharemetric = {
 			}
 		});
 		
-	*/
+	
 		}
-	},
+	},*/
 	"linkedIn" : {
 		"official": true,
 		"active" : localStorage["linkedIn"],
@@ -102,9 +104,6 @@ var sharemetric = {
 					data.count = parseInt(data.count);
 					results.linkedIn = !isNaN(data.count) ? data.count : 0;
 					
-					console.log("LinkedIn:");
-					console.log(data);
-					
 					totalCount += results.linkedIn;
 					updateBadge();
 				}
@@ -112,23 +111,38 @@ var sharemetric = {
 		}
 	},
 	"reddit" : {
-		"official" : false,
+		"official" : true,
 		"active" : localStorage["reddit"],
-		"query" : function(){
-			console.log("reddit not yet implemented");	
-				/*
-				//Reddit
-				$.ajax({
-					type: "GET",
-					dataType: "json",
-					data: {"url" : url},
-					url: "http://buttons.reddit.com/button_info.json",
-					success: function(data){
-						results.reddit = data;
-						console.log("reddit:");
-						console.log(data);
-					}
-				});*/
+		"query" : function(){	
+			//Reddit
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				data: {"url" : url},
+				url: "http://www.reddit.com/api/info.json",
+				success: function(data){
+										
+					var score = 0;
+					var ups = 0;
+					var downs = 0;
+
+					$(data.data.children).each(function(index, obj){
+						score += obj.data.score;
+						ups += obj.data.ups;
+						downs += obj.data.downs;
+					});
+					
+					results.reddit = {
+						"score" : score,
+						"ups" : ups,
+						"downs" : downs	
+					};
+					
+					totalCount += score;
+					updateBadge();
+					
+				}
+			});
 		
 		}
 	},
@@ -145,9 +159,6 @@ var sharemetric = {
 		  
 					data.result.views = parseInt(data.result.views);
 					results.stumbleUpon = !isNaN(data.result.views) ? data.result.views : 0;
-				
-					console.log("StumbleUpon:");
-					console.log(data);
 					
 					totalCount += results.stumbleUpon;
 					updateBadge();
@@ -173,8 +184,8 @@ var sharemetric = {
 					var count = parseInt(newData.count);
 					results.pinterest = !isNaN(count) ? count : 0;
 					
-					console.log("pinterest");
-					console.log(results.pinterest);
+					/*console.log("pinterest");
+					console.log(results.pinterest);*/
 					
 					totalCount += results.pinterest;
 					updateBadge();
@@ -196,8 +207,8 @@ var sharemetric = {
 					data.total_posts = parseInt(data.total_posts);
 					results.delicious = !isNaN(data.total_posts) ? data.total_posts : 0;
 					
-					console.log("delicious:");
-					console.log(data);	
+					/*console.log("delicious:");
+					console.log(results.delicious);	*/
 					
 					totalCount += results.delicious;
 					updateBadge();
@@ -211,22 +222,38 @@ var url = "";
 var results = {};
 var totalCount = 0;
 
+if(localStorage["autoLoad"] == undefined){
+	defaultSettings();	
+}
+
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab){
-		update(tab.url);
+		if (localStorage["autoLoad"] == "true"){
+			update(tab.url);
+		}
+		else{
+			clearBadge();	
+		}
 	});
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	//Load social metrics after page is finished loading
-	if(changeInfo.status == "complete"){
-		update(tab.url);
+	if (localStorage["autoLoad"] == "true"){
+		//Load social metrics after page is finished loading
+		if(changeInfo.status == "complete"){
+			update(tab.url);
+		}
 	}
-})
+	else{
+		clearBadge();	
+	}
+})	
+
+
 
 //Gets a new batch of social metrics for currently viewed page
 function update(newUrl){
-	chrome.browserAction.setBadgeText({'text' : ""});
+	clearBadge();
 	prerenderResults();
 	
 	//More natural updating speed
@@ -235,7 +262,6 @@ function update(newUrl){
 		url = newUrl;
 		fetch();
 	}, 200);
-
 	
 }
 
@@ -246,6 +272,10 @@ function prerenderResults(){
 			results[key] = "";	
 		}	
 	});
+}
+
+function clearBadge(){
+	chrome.browserAction.setBadgeText({'text' : ""});
 }
 
 
@@ -285,5 +315,30 @@ function updateBadge(){
 function setBadge(factor, symbol){
 	var abbrCount = parseInt(totalCount / factor);
 	chrome.browserAction.setBadgeText({'text' : abbrCount + symbol});
+}
+
+
+//Default settings when application is first installed
+function defaultSettings(){
+	localStorage["facebook"] = "true";
+	localStorage["twitter"] = "true";
+	localStorage["google"] = "false";
+	localStorage["reddit"] = "false";
+	localStorage["stumbleUpon"] = "false";
+	localStorage["linkedIn"] = "true";
+	localStorage["delicious"] = "true";
+	localStorage["pinterest"] = "true";
+	localStorage["autoLoad"] = "false";
+}
+
+var testO = {
+	"hello" : "world",
+	"goodbye" : "graeme"	
+}
+
+function test(){
+	testO.hello = "goodbye"
+	sharemetric.facebook.query();
+	console.log(testO.goodbye);
 }
 
