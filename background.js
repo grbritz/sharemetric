@@ -249,8 +249,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	}
 })	
 
-
-
 //Gets a new batch of social metrics for currently viewed page
 function update(newUrl){
 	clearBadge();
@@ -329,16 +327,5 @@ function defaultSettings(){
 	localStorage["delicious"] = "true";
 	localStorage["pinterest"] = "true";
 	localStorage["autoLoad"] = "false";
-}
-
-var testO = {
-	"hello" : "world",
-	"goodbye" : "graeme"	
-}
-
-function test(){
-	testO.hello = "goodbye"
-	sharemetric.facebook.query();
-	console.log(testO.goodbye);
 }
 

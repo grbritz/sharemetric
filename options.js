@@ -49,11 +49,7 @@ function renderOptions(){
 		$(label).appendTo(boxCont);
 		$(boxCont).appendTo("#options");
 	});
-	
-	
-	
 }
-
 
 function properCapital(string){
 	return string.charAt(0).toUpperCase() + string.substr(1);	

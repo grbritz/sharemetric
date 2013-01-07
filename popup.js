@@ -12,7 +12,6 @@ $(document).ready(function(){
 			
 			bg.update(url);
 			
-			bg = chrome.extension.getBackgroundPage();
 			if(!emptyResults(bg)){
 				displayMetrics(bg);	
 			}
@@ -73,22 +72,6 @@ function displayMetrics(bg){
 		}).appendTo("#options");
 
 	}, 500);
-	
-/*	var results = bg.results;
-	console.log(bg.results);
-	console.log(results);
-	console.log(Object.keys(results));
-	*/
-	/*console.log(results.delicious);
-	console.log(results.facebook);
-	console.log(bg.results["facebook"]);
-	
-	Object.keys(bg.results).forEach(function(key){
-		console.log(bg.results);
-		console.log(key + "->" + bg.results[key]);
-	});
-	*/
-	
 }
 
 function goToOptions(){
