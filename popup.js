@@ -28,7 +28,7 @@ $(document).ready(function(){
 function emptyResults(bg){
 
 	if($.isEmptyObject(bg.results)){
-		var toWrite = 'There are no social metrics active! Please return to the options page via the <a href="#">options page</a> to reactivate some metrics.';
+		var toWrite = 'There are no social metrics active! Please return to the <a href="#">options page</a> to reactivate some metrics.';
 		$("#metrics").html(toWrite);
 		$("#metrics a").click(function(){
 			goToOptions();
@@ -41,8 +41,32 @@ function emptyResults(bg){
 
 //Displays the metrics
 function displayMetrics(bg){
+	checkLoaded(bg.results, 1);
+}
+
+function checkLoaded(results, num){
+	var isLoaded = true;
+	$.each(results, function(key, value){
+		if(value === "" || value === undefined){
+			isLoaded = false;	
+		}
+	});
+	
 	setTimeout(function(){
-		$.each(bg.results, function(key, value){
+		console.log(num)
+		if(!isLoaded){
+		checkLoaded(results, num+1);
+		}
+		else{
+			displayHandler(results);
+		}
+	}, 500);
+	
+}
+
+function displayHandler(results){
+	$("#metrics").html("");
+	$.each(results, function(key, value){
 		
 			var curr = $("<div/>", {id : key, class : "social-source"});
 			
@@ -51,7 +75,7 @@ function displayMetrics(bg){
 			$("<span/>", {text : properCapital(key)+": "}).appendTo(curr);
 			if(typeof(value) == "object"){
 				
-				$.each(bg.results[key], function(key, value){
+				$.each(results[key], function(key, value){
 					
 					$("<div/>", {class: "child-metric", text: properCapital(key)+": " + value}).appendTo(curr);			
 				});	
@@ -70,8 +94,6 @@ function displayMetrics(bg){
 		}).click(function(){
 			goToOptions()
 		}).appendTo("#options");
-
-	}, 500);
 }
 
 function goToOptions(){

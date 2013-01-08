@@ -31,7 +31,6 @@ var sharemetric = {
 			
 					totalCount += results.facebook.total;
 					updateBadge();
-					testO.goodbye = results.facebook.total;
 				}
 			});
 		}
@@ -290,7 +289,6 @@ function fetch(){
 //Updates the browser icon with a badge giving a rough
 //look at the total share metrics for the currently viewed page
 function updateBadge(){
-	console.log("total count : "+totalCount);
 
 	if(totalCount < 1000){
 		setBadge(1, "");
@@ -326,6 +324,6 @@ function defaultSettings(){
 	localStorage["linkedIn"] = "true";
 	localStorage["delicious"] = "true";
 	localStorage["pinterest"] = "true";
-	localStorage["autoLoad"] = "false";
+	localStorage["autoLoad"] = "true";
 }
 
