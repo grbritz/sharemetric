@@ -74,22 +74,7 @@ var sharemetric = {
 		"active" : localStorage["google"],
 		"query" : function(){
 
-			//Google +1's ** API NOT OFFICIALLY SUPPORTED
-	
-			/*$.ajax({
-				type: "POST",
-				contentType: "application/json-rpc",
-				dataType: "text",
-				data: {"method":"pos.plusones.get","id":"p","params":{"nolog":true,"id": url,"source":"widget","userId":"@viewer","groupId":"@self"},"jsonrpc":"2.0","key":"p","apiVersion":"v1"},
-				url: "https://clients6.google.com/rpc",
-				success: function(data){
-					console.log("google plus: ");
-					console.log(data);
-					
-					results.google = 5;	
-				}
-			});*/
-			
+			//Google +1's
 			$.ajax({
 				type: "GET",
 				url: "http://sharemetric.com",
