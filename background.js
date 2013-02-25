@@ -55,10 +55,14 @@ var sharemetric = {
 				data : {"url" : url},
 				url: "http://urls.api.twitter.com/1/urls/count.json",
 				success: function(data){
-		
-					data.count = parseInt(data.count);
-					results.twitter = !isNaN(data.count) ? data.count : 0;
-	
+					if(data == undefined){
+						results.twitter = 0;	
+					}
+					else{
+						data.count = parseInt(data.count);
+						results.twitter = !isNaN(data.count) ? data.count : 0;
+					}
+					
 					totalCount += results.twitter;
 					updateBadge();			
 				}
@@ -116,10 +120,13 @@ var sharemetric = {
 				data: {"url" : url, "format" : "json"},
 				url: "http://www.linkedin.com/countserv/count/share",
 				success: function(data){
-					
-					data.count = parseInt(data.count);
-					results.linkedIn = !isNaN(data.count) ? data.count : 0;
-					
+					if(data == undefined){
+						results.linkedIn = 0;	
+					}
+					else{
+						data.count = parseInt(data.count);
+						results.linkedIn = !isNaN(data.count) ? data.count : 0;
+					}
 					totalCount += results.linkedIn;
 					updateBadge();
 				}
@@ -172,9 +179,13 @@ var sharemetric = {
 				data : {"url" : url},
 				url: "http://www.stumbleupon.com/services/1.01/badge.getinfo",
 				success: function(data){
-		  
-					data.result.views = parseInt(data.result.views);
-					results.stumbleUpon = !isNaN(data.result.views) ? data.result.views : 0;
+					if(data == undefined || data.result == undefined){
+						results.stumbleUpon = 0;
+					}
+					else{
+						data.result.views = parseInt(data.result.views);
+						results.stumbleUpon = !isNaN(data.result.views) ? data.result.views : 0;
+					}
 					
 					totalCount += results.stumbleUpon;
 					updateBadge();
@@ -196,9 +207,14 @@ var sharemetric = {
 				},
 				url: "http://api.pinterest.com/v1/urls/count.json",
 				success: function(data){
-					var newData = JSON.parse(data.substring(1, data.length-1));
-					var count = parseInt(newData.count);
-					results.pinterest = !isNaN(count) ? count : 0;
+					if(data != undefined){
+						var newData = JSON.parse(data.substring(1, data.length-1));
+						var count = parseInt(newData.count);
+						results.pinterest = !isNaN(count) ? count : 0;
+					}
+					else{
+						results.pinterest = 0;	
+					}
 					
 					/*console.log("pinterest");
 					console.log(results.pinterest);*/
@@ -273,6 +289,9 @@ function update(newUrl){
 	clearBadge();
 	prerenderResults();
 	
+	//Push to analytics
+	_gaq.push(['_trackEvent', 'background','updated']);
+	
 	//More natural updating speed
 	setTimeout(function(){
 		totalCount = 0;
@@ -338,9 +357,9 @@ function setBadge(factor, symbol){
 function defaultSettings(){
 	localStorage["facebook"] = "true";
 	localStorage["twitter"] = "true";
-	localStorage["google"] = "false";
-	localStorage["reddit"] = "false";
-	localStorage["stumbleUpon"] = "false";
+	localStorage["google"] = "true";
+	localStorage["reddit"] = "true";
+	localStorage["stumbleUpon"] = "true";
 	localStorage["linkedIn"] = "true";
 	localStorage["delicious"] = "true";
 	localStorage["pinterest"] = "true";
