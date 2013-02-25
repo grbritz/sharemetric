@@ -349,9 +349,6 @@ function defaultSettings(){
 	localStorage["delicious"] = "true";
 	localStorage["pinterest"] = "true";
 	localStorage["autoLoad"] = "true";
-	var n = new Date() / 1000 * Math.random();
-	
-	localStorage["key"] = n;
 }
 
 function cleanUrl(url){
