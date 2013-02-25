@@ -1,3 +1,13 @@
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-38625564-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = 'https://ssl.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
 $(document).ready(function(){
 	var bg = chrome.extension.getBackgroundPage();
 	
@@ -41,10 +51,10 @@ function emptyResults(bg){
 
 //Displays the metrics
 function displayMetrics(bg){
-	checkLoaded(bg.results, 1);
+	checkLoaded(bg.results);
 }
 
-function checkLoaded(results, num){
+function checkLoaded(results){
 	var isLoaded = true;
 	$.each(results, function(key, value){
 		if(value === "" || value === undefined){
@@ -53,9 +63,8 @@ function checkLoaded(results, num){
 	});
 	
 	setTimeout(function(){
-		console.log(num)
 		if(!isLoaded){
-		checkLoaded(results, num+1);
+			checkLoaded(results);
 		}
 		else{
 			displayHandler(results);

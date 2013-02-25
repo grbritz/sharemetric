@@ -1,4 +1,14 @@
-//Master object
+//Analytics
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-38625564-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = 'https://ssl.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
 var sharemetric = {
 	"facebook" : {
 		"official" : true,
@@ -54,41 +64,48 @@ var sharemetric = {
 				}
 			});	
 		}
-	},/*
+	},
 	"google" : {
 		"official": false,
 		"active" : localStorage["google"],
 		"query" : function(){
-			console.log("Google Plus not yet implemented");
 
-
-
-		//Google +1's ** API NOT OFFICIALLY SUPPORTED
-	/
-		$.ajax({
-			type: "GET",
-			dataType: "html",
-			data: {"url" : url},
-			success: function(data){
-				//var html = $(data);
-				
-				//var count = $(html).find("#aggregateCount").html();
-				//results.google = !isNaN(count) ? count : 0;
-				//results.google = count;
-				var html = data;
-				
-				console.log("google plus:");
-				console.log(data);
-				
-				totalCount += results.google;
-				updateBadge();
-			
-			}
-		});
-		
+			//Google +1's ** API NOT OFFICIALLY SUPPORTED
 	
+			/*$.ajax({
+				type: "POST",
+				contentType: "application/json-rpc",
+				dataType: "text",
+				data: {"method":"pos.plusones.get","id":"p","params":{"nolog":true,"id": url,"source":"widget","userId":"@viewer","groupId":"@self"},"jsonrpc":"2.0","key":"p","apiVersion":"v1"},
+				url: "https://clients6.google.com/rpc",
+				success: function(data){
+					console.log("google plus: ");
+					console.log(data);
+					
+					results.google = 5;	
+				}
+			});*/
+			
+			$.ajax({
+				type: "GET",
+				url: "http://sharemetric.com",
+				dataType: "text",
+				data: {"url" : url, "callType" : "extension"},
+				success: function(data){
+					
+					results.google = !isNaN(data) ? parseInt(data) : 0;
+					
+					/*console.log("google plus:");
+					console.log(data);
+					*/
+					
+					totalCount += results.google;
+					updateBadge();
+				
+				}
+			});
 		}
-	},*/
+	},
 	"linkedIn" : {
 		"official": true,
 		"active" : localStorage["linkedIn"],
@@ -202,10 +219,13 @@ var sharemetric = {
 				data: {"url" : url},
 				url: "http://feeds.delicious.com/v2/json/urlinfo/data",
 				success: function(data){
-	
-					data.total_posts = parseInt(data.total_posts);
-					results.delicious = !isNaN(data.total_posts) ? data.total_posts : 0;
-					
+										
+					if(data == undefined || data.length == 0){
+						results.delicious = 0;
+					}
+					else{
+						results.delicious = !isNaN(data[0].total_posts) ? parseInt(data[0].total_posts) : 0;
+					}
 					/*console.log("delicious:");
 					console.log(results.delicious);	*/
 					
@@ -325,5 +345,11 @@ function defaultSettings(){
 	localStorage["delicious"] = "true";
 	localStorage["pinterest"] = "true";
 	localStorage["autoLoad"] = "true";
+	var n = new Date() / 1000 * Math.random();
+	
+	localStorage["key"] = n;
 }
 
+function cleanUrl(url){
+	return cleanUrl;	
+}
