@@ -31,3 +31,8 @@ a{
 	text-decoration:none;
 }
 
+.alert{
+	background-color: #c60f13;
+	border-color: #970b0e;
+	color: white;
+}

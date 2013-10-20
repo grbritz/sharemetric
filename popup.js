@@ -55,35 +55,51 @@ function displayMetrics(bg){
 	displayOptions();
 }
 
-function checkLoaded(results){
+function checkLoaded(results, count){
 	var isLoaded = true;
-	console.log(results);
+	var slowLoaders = {};
 	$.each(results, function(key, value){
 		if(value === "" || value === undefined){
-			isLoaded = false;	
+			isLoaded = false;
+			slowLoaders[key] = value;
 		}
 	});
-	
-	setTimeout(function(){
-		if(!isLoaded){
-			checkLoaded(results);
-		}
-		else{
-			displayHandler(results);
-		}
-	}, 500);
+
+	if(count < 21){
+		setTimeout(function(){
+			if(!isLoaded){
+				checkLoaded(results);
+			}
+			else{
+				displayHandler(results, slowLoaders);
+			}
+		}, 500);
+	}
+	else{
+		displayHandler(results, slowLoaders);
+	}
 	
 }
 
-function displayHandler(results){
+function displayHandler(results, slowLoaders){
 	$("#metrics").html("");
+
+	if(!$.isEmptyObject(slowLoaders)){
+		$("#metrics").append($("<p>").text("APIs marked in red are loading slowly and may no longer be active."));
+	}
+
 	$.each(results, function(key, value){
 		
 			var curr = $("<div/>", {id : key, class : "social-source"});
 			
 			$("<img/>", {src : "images/icons/"+key+"-16x16.png"}).appendTo(curr);
 			
-			$("<span/>", {text : properCapital(key)+": "}).appendTo(curr);
+			var span = $("<span/>", {text : properCapital(key)+": "}).appendTo(curr);
+			
+			if(slowLoaders[key] != undefined){
+				span.addClass("alert");
+			}
+			
 			if(typeof(value) == "object"){
 				
 				$.each(results[key], function(key, value){

@@ -1,0 +1,842 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"paddig-",
+				"padding-bottom"
+			],
+			[
+				"scroll",
+				"scroll-indicator"
+			],
+			[
+				"scrol",
+				"scroll-indicator"
+			],
+			[
+				"scr",
+				"scroll-indicator"
+			],
+			[
+				"splash",
+				"home-splash"
+			],
+			[
+				"testi",
+				"testimonials"
+			],
+			[
+				"stylshee",
+				"stylesheet_directory"
+			],
+			[
+				"com",
+				"connect_timeout"
+			],
+			[
+				"msg",
+				"msg"
+			],
+			[
+				"viewRental",
+				"viewRentalSimple"
+			],
+			[
+				"view",
+				"viewRentalOther"
+			],
+			[
+				"true",
+				"true"
+			],
+			[
+				"approa",
+				"approvalsStr"
+			],
+			[
+				"locker-",
+				"lockers-container"
+			],
+			[
+				"qur",
+				"quarter	Default"
+			],
+			[
+				"id",
+				"id"
+			],
+			[
+				"quarter",
+				"quarterCont	Default"
+			],
+			[
+				"options",
+				"options	Select"
+			],
+			[
+				"user",
+				"user_for_invalid_password"
+			],
+			[
+				"pass",
+				"password_confirmation"
+			],
+			[
+				"hea",
+				"heap-footer"
+			],
+			[
+				"sie",
+				"sizeAndTags"
+			],
+			[
+				"mem_heap",
+				"mem_heap_hi"
+			],
+			[
+				"PRECE",
+				"TAG_PRECEDING_USED"
+			],
+			[
+				"preced",
+				"precedingBlockUseTag"
+			],
+			[
+				"next",
+				"nextFree"
+			],
+			[
+				"freeBlock",
+				"freeBlock"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 147.0,
+		"selected_items":
+		[
+			[
+				"set sy ja",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"set sy blade",
+				"Set Syntax: PHP - Laravel Blade"
+			],
+			[
+				"set syntax html",
+				"Set Syntax: HTML"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"sftp",
+				"Preferences: SFTP Settings"
+			],
+			[
+				"install ",
+				"Package Control: Install Package"
+			],
+			[
+				"pac",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 467.0
+	},
+	"console":
+	{
+		"height": 147.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/graemebritz/projects/ShareMetric/popup.js",
+		"/Users/graemebritz/projects/ShareMetric/popup.css",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/style.css",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/header.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/js/home.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/functions.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/home.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/js/general.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/plugins/woocommerce/woocommerce-template.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/template-blog.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/content.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/mystile/content.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/sidebar.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/js/peace.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/header.bak.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/footer.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/sftp-config.json",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/sftp-config.json",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/page.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/woocommerce/single-product-reviews.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/shottek/woocommerce/single-product/tabs/tabs.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/mystile/sidebar.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/mystile-child/header.php",
+		"/Users/graemebritz/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/mystile-child/style.css",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/mystile-child/js/peace.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/mystile-child/home.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content/themes/mystile-child/index.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/PeaceShooter/public_html/wp-config.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/assets/js/lockerWidget.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/controllers/ContactController.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/assets/css/style.css",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/templates/master.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/controllers/RentalController.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/routes.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/composer.json",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/lib/MenuItem.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/controllers/BaseController.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/contacts/contacts.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/locker_widget/rentals.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/dialog_content/new_rental.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/Contact.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/dialog_content/close_rental.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/lib/AjaxResponse.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/dialog_content/old_rental.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/Quarter.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/Admin.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/templates/dialog.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/assets/js/general.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/locker_widget/viewSimple.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/RentalClosure.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/Rental.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/filters.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/macros.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/storage/views/64e234e1df66f872fd72ef88c3f4f2a5",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/dialog_content/locker.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/locker_widget/old.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/controllers/LockerController.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/controllers/QuarterController.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/locker_widget/new.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/storage/views/5436351b6189a16e2250ddee279ab50c",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/locker_widget/view.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/locker_widget/locker.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/contacts/view.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/config/auth.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/assets/js/lockerWidgetTest.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/sftp-config.json",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/locker.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/Locker.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/assets/js/jquery.searchabledropdown-1.0.8.src.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/rentals/new.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/dialog-content/new_rental.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/dialog-content/locker.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/dialog-content/close_rental.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/dialog-content/old_rental.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/rentals/view.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/database/production.sqlite",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/QuarterName.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/storage/sessions/sess_84c71a466ca5ce6f5212019fd8e4bbf4",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/database/seeds/ContactSeeder.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/venueOperators.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/assets/js/formMethods.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/uuf_form_steps/step6.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/banquet_form_steps/step2.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/banquet_form_steps/step5.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/models/admins.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/logs/log-2013-08-29.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/libraries/authenticate.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/controllers/admin.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/application_details_archive/main.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/application_details_archive/instanceDetails.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/models/archive.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/helpers/common_helper.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/controllers/search_archive.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/libraries/application_details_generator.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/application_details/main.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/assets/css/style.css",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/search_archive/index.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/controllers/application_details.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/application_details/approvalStatus.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/sftp-config.json",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/application_details_archive/applicant.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/application_details_archive/event.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/application_details/applicant.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/sprogram/public_html/admin/application/views/application_details/instanceDetails.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/AcademicYear.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/rentals/rentals.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/controllers/SettingsController.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/readme.md",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/start/local.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/assets/foundation-4.3.1/js/foundation/foundation.reveal.js",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/bootstrap/start.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/LockerType.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/views/rentals.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/database/seeds/DatabaseSeeder.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/QuarterRental.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/RentalQuarter.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Info/public_html/locker_manager/app/models/Log.php",
+		"/Users/graemebritz/Library/Application Support/Sublime Text 2/Packages/SFTP/SFTP.sublime-settings",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Testing Server/public_html/frat_events/app/filters.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Testing Server/public_html/frat_events/app/views/layouts/master.blade.php",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Testing Server/public_html/frat_events/assets/foundation-4.3.1/css/foundation.min.css",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Testing Server/public_html/frat_events/assets/foundation-4.3.1/css/foundation.css",
+		"/Users/graemebritz/Documents/Web Development/local backups/Hub Testing Server/public_html/frat_events/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php",
+		"/Users/graemebritz/.ssh/config",
+		"/Users/graemebritz/Documents/Web Development/local backups/Unnamed Site 2/public_html/admin/.htaccess",
+		"/Users/graemebritz/Documents/Web Development/local backups/pristine-dev/public_html/.htaccess",
+		"/Users/graemebritz/Documents/Web Development/local backups/pristine-dev/public_html/application/controllers/testing.php"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			"/Users/graemebritz/Documents/Web Development/local backups/graemebritz/public_html/projects/peaceshooter/wp-content",
+			"",
+			"general.js",
+			"",
+			"quarter.php",
+			"instanceDetails.php",
+			"style.css",
+			"general.js",
+			"lockerWidget.js",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"navigat",
+			"h1",
+			"<?",
+			"</",
+			"class",
+			">\n",
+			"?>",
+			">\n",
+			"                ",
+			"\n            ",
+			");\n",
+			"template_single_add_to_cart",
+			"add_to",
+			"woocommerce_default_product_tabs()",
+			"woocommerce_product_tabs",
+			"function apply_filters",
+			"apply_filters",
+			"woo_head",
+			"function wp_link_pages",
+			"wp_link_pages",
+			".page",
+			"woo_top",
+			"woo_do_atomic",
+			"woo_head",
+			"wp_head",
+			"loading",
+			"click",
+			"acti",
+			".aci",
+			"menu",
+			"console.lo",
+			"'quarters",
+			"'quarter",
+			"defaults",
+			"lastquarter",
+			"opts.start",
+			"viewren",
+			"destination",
+			"leftjoin",
+			"auth",
+			"try",
+			"$.browser",
+			"#cancel",
+			"rentals",
+			"container",
+			"content",
+			"Models\\Quarter",
+			"name",
+			"sao",
+			"sponsors",
+			"sponsor",
+			"instance[",
+			"with",
+			"view",
+			"center",
+			".center",
+			"console",
+			"console.log",
+			"console",
+			"consle",
+			"this",
+			"opts.quarter[0]",
+			"quarters",
+			"clearLoc",
+			"modal",
+			"rental",
+			"Rental",
+			"rental",
+			"Rental",
+			"rental",
+			"Rental",
+			"rental",
+			"Rental",
+			"<?",
+			"zepto",
+			"paths",
+			"i + j",
+			"protected $timestamps",
+			"getSAO",
+			"getAdminsByType",
+			"getAdminsByType(7",
+			"getAdvisors",
+			"getVenueOperators",
+			"redirect",
+			"sess_destroy",
+			"session",
+			"last_url",
+			"session->userdata('last_url')",
+			"$this->CI->session->userdata('last_url')",
+			"session",
+			"model",
+			"heap-footer",
+			"freeblock"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"callback",
+			"static",
+			"centered",
+			"str",
+			"opts.quarter",
+			"ind",
+			"public $timestamps"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 136.0
+	},
+	"output.sftp":
+	{
+		"height": 62.0
+	},
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"header",
+				"public_html/projects/peaceshooter/wp-content/themes/shottek/header.php"
+			],
+			[
+				"peace",
+				"public_html/projects/peaceshooter/wp-content/themes/shottek/js/peace.js"
+			],
+			[
+				"cont",
+				"app/views/contacts/contacts.blade.php"
+			],
+			[
+				"rentals",
+				"app/views/locker_widget/rentals.blade.php"
+			],
+			[
+				"style",
+				"assets/css/style.css"
+			],
+			[
+				"contac",
+				"app/controllers/ContactController.php"
+			],
+			[
+				"contact",
+				"app/models/Contact.php"
+			],
+			[
+				"lockerwid",
+				"assets/js/lockerWidget.js"
+			],
+			[
+				"conta",
+				"app/models/Contact.php"
+			],
+			[
+				"rentalc",
+				"app/controllers/RentalController.php"
+			],
+			[
+				"routes",
+				"app/routes.php"
+			],
+			[
+				"master",
+				"app/views/templates/master.blade.php"
+			],
+			[
+				"admin",
+				"app/models/Admin.php"
+			],
+			[
+				"lockerw",
+				"assets/js/lockerWidget.js"
+			],
+			[
+				"quarter",
+				"app/models/Quarter.php"
+			],
+			[
+				"dialog",
+				"app/views/templates/dialog.blade.php"
+			],
+			[
+				"general",
+				"assets/js/general.js"
+			],
+			[
+				"rentalcl",
+				"app/models/RentalClosure.php"
+			],
+			[
+				"rental",
+				"app/models/Rental.php"
+			],
+			[
+				"route",
+				"app/routes.php"
+			],
+			[
+				"rrentalc",
+				"app/controllers/RentalController.php"
+			],
+			[
+				"quat",
+				"app/models/Quarter.php"
+			],
+			[
+				"close",
+				"app/views/dialog_content/close_rental.blade.php"
+			],
+			[
+				"old",
+				"app/views/dialog_content/old_rental.blade.php"
+			],
+			[
+				"routs",
+				"app/routes.php"
+			],
+			[
+				"macros",
+				"app/macros.php"
+			],
+			[
+				"old_",
+				"app/views/dialog_content/old_rental.blade.php"
+			],
+			[
+				"64e23",
+				"app/storage/views/64e234e1df66f872fd72ef88c3f4f2a5"
+			],
+			[
+				"new",
+				"app/views/dialog_content/new_rental.blade.php"
+			],
+			[
+				"gne",
+				"assets/js/general.js"
+			],
+			[
+				"lockerwidget",
+				"assets/js/lockerWidget.js"
+			],
+			[
+				"locker",
+				"app/views/dialog_content/locker.blade.php"
+			],
+			[
+				"lockerc",
+				"app/controllers/LockerController.php"
+			],
+			[
+				"clos",
+				"app/views/dialog_content/close_rental.blade.php"
+			],
+			[
+				"filters",
+				"app/filters.php"
+			],
+			[
+				"lockerwi",
+				"assets/js/lockerWidget.js"
+			],
+			[
+				"quart",
+				"app/controllers/QuarterController.php"
+			],
+			[
+				"renta",
+				"app/models/Rental.php"
+			],
+			[
+				"closure",
+				"app/models/RentalClosure.php"
+			],
+			[
+				"adm",
+				"app/models/Admin.php"
+			],
+			[
+				"odl",
+				"app/views/dialog_content/old_rental.blade.php"
+			],
+			[
+				"genera",
+				"assets/js/general.js"
+			],
+			[
+				"5436351b6189a16e2250ddee279ab50c",
+				"app/storage/views/5436351b6189a16e2250ddee279ab50c"
+			],
+			[
+				"locewid",
+				"assets/js/lockerWidget.js"
+			],
+			[
+				"newre",
+				"app/views/dialog_content/new_rental.blade.php"
+			],
+			[
+				"view",
+				"app/views/locker_widget/view.blade.php"
+			],
+			[
+				"locker.bla",
+				"app/views/locker.blade.php"
+			],
+			[
+				"",
+				"app/controllers/RentalController.php"
+			],
+			[
+				"nre",
+				"app/views/dialog_content/new_rental.blade.php"
+			],
+			[
+				"rentalcon",
+				"app/controllers/RentalController.php"
+			],
+			[
+				"locekr",
+				"app/views/dialog_content/locker.blade.php"
+			],
+			[
+				"lockercont",
+				"app/controllers/LockerController.php"
+			],
+			[
+				"dia",
+				"app/views/templates/dialog.blade.php"
+			],
+			[
+				"mac",
+				"app/macros.php"
+			],
+			[
+				"quar",
+				"app/models/Quarter.php"
+			],
+			[
+				"quartercon",
+				"app/controllers/QuarterController.php"
+			],
+			[
+				"seed",
+				"app/database/seeds/ContactSeeder.php"
+			],
+			[
+				"rntal",
+				"app/models/Rental.php"
+			],
+			[
+				"rentalco",
+				"app/controllers/RentalController.php"
+			],
+			[
+				"step2",
+				"admin/application/views/banquet_form_steps/step2.php"
+			],
+			[
+				"step5",
+				"admin/application/views/banquet_form_steps/step5.php"
+			],
+			[
+				"uuffor",
+				"admin/application/views/uuf_form_steps/step6.php"
+			],
+			[
+				"forme",
+				"admin/assets/js/formMethods.js"
+			],
+			[
+				"venue",
+				"admin/application/views/venueOperators.php"
+			],
+			[
+				"applicant",
+				"admin/application/views/application_details/applicant.php"
+			],
+			[
+				"new.",
+				"app/views/rentals/new.blade.php"
+			],
+			[
+				"lockercon",
+				"app/controllers/LockerController.php"
+			],
+			[
+				"vie",
+				"app/views/rentals/view.blade.php"
+			],
+			[
+				"rentalcont",
+				"app/controllers/RentalController.php"
+			],
+			[
+				"gener",
+				"assets/js/general.js"
+			],
+			[
+				"academ",
+				"app/models/AcademicYear.php"
+			],
+			[
+				"quartercontr",
+				"app/controllers/QuarterController.php"
+			],
+			[
+				"lockerwide",
+				"assets/js/lockerWidget.js"
+			],
+			[
+				"quarrte",
+				"app/controllers/QuarterController.php"
+			],
+			[
+				"settings",
+				"app/controllers/SettingsController.php"
+			],
+			[
+				"routes.",
+				"app/routes.php"
+			],
+			[
+				"style.css",
+				"assets/css/style.css"
+			],
+			[
+				"local",
+				"app/start/local.php"
+			],
+			[
+				"comp",
+				"composer.json"
+			],
+			[
+				"model",
+				"vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php"
+			],
+			[
+				"f",
+				"config/initializers/filter_parameter_logging.rb"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 187.0,
+	"status_bar_visible": true
+}
