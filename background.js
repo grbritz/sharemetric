@@ -347,7 +347,7 @@ function defaultSettings(){
 	localStorage["stumbleUpon"] = "true";
 	localStorage["linkedIn"] = "true";
 	localStorage["delicious"] = "true";
-	localStorage["pinterest"] = "true";
+	localStorage["pinterest"] = "false";
 	localStorage["autoLoad"] = "true";
 }
 

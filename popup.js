@@ -52,10 +52,12 @@ function emptyResults(bg){
 //Displays the metrics
 function displayMetrics(bg){
 	checkLoaded(bg.results);
+	displayOptions();
 }
 
 function checkLoaded(results){
 	var isLoaded = true;
+	console.log(results);
 	$.each(results, function(key, value){
 		if(value === "" || value === undefined){
 			isLoaded = false;	
@@ -97,12 +99,16 @@ function displayHandler(results){
 		});
 	
 	
-		$("<a/>", {
+		
+}
+
+function displayOptions(){
+	$("<a/>", {
 			"href" : "#",
 			"text" : "Options"	
 		}).click(function(){
 			goToOptions()
-		}).appendTo("#options");
+		}).appendTo("#options");	
 }
 
 function goToOptions(){
