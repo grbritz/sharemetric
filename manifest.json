@@ -1,8 +1,8 @@
 {  
-	"name"				: "ShareMetric by ContentHarmony",
- 	"version"			: "1.1.1",
+	"name"				: "ShareMetric",
+ 	"version"			: "1.2",
  	"manifest_version"  : 2,
-	"homepage_url"		: "http://contentharmony.com",
+	"homepage_url"		: "http://contentharmony.com/tools/sharemetric/",
  	"description"		: "Social share counts for your current browser URL",
 	"options_page"		: "options.html",
 	"icons"				: { 
