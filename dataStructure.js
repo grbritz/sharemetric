@@ -8,31 +8,53 @@ localstorage = {
 	social : {
 		autoLoad : true|false,
 		apis : {
-			facebook 	: true|false,
-			google 		: true|false,
-			linkedIn	: true|false,
-			pinterest 	: true|false,
-			deliciious	: true|false,
-			reddit		: true|false,
-			stumbleUpon : true|false,
-			twitter		: true|false
+			facebook 	: {
+				isOfficial : true|false,
+				isActive : true|false
+			},
+			google 		: {
+				isOfficial : true|false,
+				isActive : true|false
+			},
+			linkedIn	: {
+				isOfficial : true|false,
+				isActive : true|false
+			},
+			pinterest 	: {
+				isOfficial : true|false,
+				isActive : true|false
+			},
+			deliciious	: {
+				isOfficial : true|false,
+				isActive : true|false
+			},
+			reddit		: {
+				isOfficial : true|false,
+				isActive : true|false
+			},
+			stumbleUpon : {
+				isOfficial : true|false,
+				isActive : true|false
+			},
+			twitter		: {
+				isOfficial : true|false,
+				isActive : true|false
+			}
 		}
 	},
 	links 	: {
 		moz		: {
-			id			: "string",
-			secret		: "string"
+			id			: "",
+			secret		: ""
 		},
 		ahrefs 	: {
-			token		: "string"
+			token		: ""
 		}
 	},
 	keywords	: {
 		semrush	: {
-			token		: "string"
+			token		: ""
 		}
 	},
-	research	: {
-		isEnabled : true|false
-	}
+	showResearch	: true|false
 }

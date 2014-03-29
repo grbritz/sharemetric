@@ -11,7 +11,7 @@ _gaq.push(['_trackPageview']);
 $(document).ready(function(){
 	var bg = chrome.extension.getBackgroundPage();
 	
-	if(localStorage["autoLoad"] == "false"){
+	if(!bg.getOptions().social.autoLoad)
 		var queryO = {
 			"active" : true,
 			"currentWindow" : true
@@ -20,33 +20,40 @@ $(document).ready(function(){
 		chrome.tabs.query(queryO, function(tabs){
 			var url = tabs[0].url;
 			
-			bg.update(url);
-			
-			if(!emptyResults(bg)){
-				displayMetrics(bg);	
-			}
+			// Tell background to load data from APIs
+			bg.app.setURL(url);
+			bg.app.fetchData();
+
+			// if(!bg.getData().isEmpty)
+				displayResults(bg.getData());
+			// }
+			// else {
+			// 	displayNoResults();
+			// }
 		});
 	}
-	else{
-		if(!emptyResults(bg)){
-			displayMetrics(bg);	
-		}
+	else {
+		displayResults(bg.getData());
+		// if(!emptyResults(bg)){
+			// displayMetrics(bg);	
+		// }
 	}	
 });
 
-//Populates popup with a message if there are no results
-function emptyResults(bg){
+// *
+//  * Displays a message when no results were found
+//  * @return {[type]} [description]
+ 
+// function displayNoResults() {
 
-	if($.isEmptyObject(bg.results)){
-		var toWrite = 'There are no social metrics active! Please return to the <a href="#">options page</a> to reactivate some metrics.';
-		$("#metrics").html(toWrite);
-		$("#metrics a").click(function(){
-			goToOptions();
-		});		
-		return true;
-	}
+// }
+
+/**
+ * Displays the data from an API query
+ * @param  {object} data query data
+ */
+function displayData(data) {
 	
-	return false;
 }
 
 //Displays the metrics
