@@ -188,13 +188,18 @@ var sharemetric = {
 				dataType: "text",
 				data: {
 					"url" : url,
-					"callback" : ""
+					"callback" : "receiveCount"
 				},
 				url: "http://api.pinterest.com/v1/urls/count.json",
 				success: function(data){
 					if(data != undefined){
-						var newData = JSON.parse(data.substring(1, data.length-1));
-						var count = parseInt(newData.count);
+						// Strip off recieveCount callback and extract its argument
+						// This is necessary for security reasons as Chrome wont allow
+						// evals on data from another origin
+						data = data.replace("receiveCount(", "");
+						data = data.substr(0, data.length - 1);
+						data = JSON.parse(data);
+						var count = data.count;
 						results.pinterest = !isNaN(count) ? count : 0;
 					}
 					else{
