@@ -1,10 +1,10 @@
 {  
 	"name"				: "ShareMetric",
- 	"version"			: "1.2",
- 	"manifest_version"  : 2,
+ 	"version"			: "2.0",
+ 	"manifest_version"  : 3,
 	"homepage_url"		: "http://contentharmony.com/tools/sharemetric/",
- 	"description"		: "Social share counts for your current browser URL",
-	"options_page"		: "options.html",
+ 	"description"		: "Social, link, and keyword data for your current browser URL",
+	"options_page"		: "templ/options.html",
 	"icons"				: { 
 			"16": "images/icons/sharemetric-16.png",
           	"48": "images/icons/sharemetric-48.png",
@@ -12,11 +12,11 @@
 		},
 	"browser_action"	: {     
  			"default_icon"	: "images/icons/sharemetric-16.png",
- 			"default_popup" : "popup.html",
+ 			"default_popup" : "templ/popup.html",
 			"default_title" : ""
  		},
 	"background"		: {
-			"scripts": ["background.js", "jquery-1.8.3.js"]
+			"scripts": ["lib/js/jquery-2.1.0.min.js", "lib/js/hmac-sha1.js", "lib/js/enc-base64-min.js", "js/background.js"]
 		},
 	"permissions"		: [
 		"http://*/*", "https://*/*", "tabs", "storage"
