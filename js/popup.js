@@ -75,18 +75,21 @@ function displayResearch() {
  * @param {string} url the currently viewed URL
  */
 function displayData(data) {
-	var socialQueue = [];
-	$.each(data.social, function(key, ele) {
-		if(key != "totalCount"){
-			socialQueue.push(key);	
-		}
-	});
-	displaySocial(data.social, socialQueue);
-	if(data.links) {
+	if(bg.app.hasSocial()){
+		var socialQueue = [];
+		$.each(data.social, function(key, ele) {
+			if(key != "totalCount"){
+				socialQueue.push(key);	
+			}
+		});
+		displaySocial(data.social, socialQueue);
+	}
+	console.log(bg.app);
+	if(bg.app.hasLinks()){
 		displayLinks(data.links);	
 	}
 
-	if(data.keywords) {
+	if(bg.app.hasKeywords()){
 		displayKeywords(data.keywords);
 	}
 }

@@ -442,12 +442,12 @@ function ShareMetric() {
 			},
 			links 	: {
 				moz		: {
-					isActive	: true,
+					isActive	: false,
 					id			: "member-132f9fd62e",
 					secret		: "d537e3cacad17919d245f0093b6acd66"
 				},
 				ahrefs 	: {
-					isActive	: true,
+					isActive	: false,
 					token		: "fd1f7b91818fade181cf6fb53f35ade2ecf2f4ff"
 				}
 			},
@@ -462,11 +462,11 @@ function ShareMetric() {
 	}
 	
 	function mozActive() {
-		return (self.options.links.moz.id && self.options.links.moz.secret)
+		return self.options.links.moz.isActive;
 	}
 
 	function ahrefsActive() {
-		return self.options.links.ahrefs.token;
+		return self.options.links.ahrefs.isActive;
 	}
 
 	function linksActive () {
@@ -536,25 +536,9 @@ function ShareMetric() {
 			data['links'] = {};
 			if(mozActive()) {
 				data.links['moz'] = null;
-
-					// data : {
-					// 	pa 		: 0,
-					// 	da 		: 0,
-					// 	pflrd	: 0,
-					// 	dflrd	: 0
-					// }
-				// };
 			}
 			if(ahrefsActive) {
 				data.links['ahrefs'] = null;
-					// attempts : 0,
-					// data  : {
-					// 	url 	: 0,
-					// 	domain 	: 0,
-					// 	prd 	: 0,
-					// 	drd 	: 0
-					// }
-				// };
 			}
 		}
 
@@ -637,7 +621,9 @@ function ShareMetric() {
 		 */
 		loadOptions : function () {
 			if(localStorage.getItem("ShareMetric")){
+				console.log("loading from localcStorae");
 				self.options = JSON.parse(localStorage.getItem("ShareMetric"));
+				console.log(self.options);
 			}
 			else {
 				self.options = defaultOptions();
@@ -689,8 +675,9 @@ function ShareMetric() {
 		 * @return {Boolean} Are there active social metrics?
 		 */
 		hasSocial : function() {
-			for(isActive in self.options.apis) {
-				if(isActive) {
+			// console.log(self.options.social.apis);
+			for(api in self.options.social.apis) {
+				if(self.options.social.apis[api].isActive) {
 					return true;
 				}
 			}
@@ -708,7 +695,7 @@ function ShareMetric() {
 		 * @return {Boolean} Are keyword metrics active?
 		 */
 		hasKeywords : function() {
-			return (self.options.keywords.semrush.token != "");
+			return (self.options.keywords.semrush.isActive);
 		},
 
 		/**

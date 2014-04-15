@@ -14,19 +14,20 @@ $(document).ready(function(){
 	bg = chrome.extension.getBackgroundPage().app;
 	displayOptions();
 
-	bindIsActive("moz");
-	bindIsActive("ahrefs");
+	bindIsActive("links", "moz");
+	bindIsActive("links", "ahrefs");
+	bindIsActive("keywords", "semrush");
 
-	function bindIsActive(linkName) {
-		$("input[name='links."+ linkName +".isActive']").click(function(){
+	function bindIsActive(apiType, apiName) {
+		$("input[name='"+ apiType+"."+ apiName +".isActive']").click(function(){
 			if($(this).attr("checked") == "checked") {
 				$(this).removeAttr("checked");
-				$("." + linkName).slideUp();
+				$("." + apiName).slideUp();
 
 			}
 			else {
 				$(this).attr("checked", "checked");
-				$("." + linkName).slideDown();
+				$("." + apiName).slideDown();
 			}
 		});
 	}
@@ -41,24 +42,27 @@ $(document).ready(function(){
 function saveOptions(){
 	var options = bg.getOptions();
 	
-	options.social.autoLoad = $("input[name='social.autoLoad']").attr("checked", "checked") ? true : false;
-	options.showResearch = $("input[name='showResearch']").attr("checked", "checked") ? true : false;
+	options.social.autoLoad = $("input[name='social.autoLoad']").is(":checked");
+	options.showResearch = $("input[name='showResearch']").is(":checked");
 
 	$.each(options.social.apis, function(key, ele) {
-		options.social.apis[key].isActive = $("input[name='social.apis." + key +"']").attr("checked", "checked") ? true : false;
-	}
+		options.social.apis[key].isActive = $("input[name='social.apis." + key +"']").is(":checked");
+	});
 
-	options.links.moz.isActive = $("input[name='links.moz.isActive']").attr("checked", "checked") ? true : false;
+	options.links.moz.isActive = $("input[name='links.moz.isActive']").is(":checked");
 	options.links.moz.id = $("input[name='links.moz.id']").val();
 	options.links.moz.secret = $("input[name='links.moz.secret']").val();
 
-	options.links.ahrefs.isActive = $("input[name='links.ahrefs.isActive']").attr("checked", "checked") ? true : false;
+	options.links.ahrefs.isActive = $("input[name='links.ahrefs.isActive']").is(":checked");
 	options.links.ahrefs.token = $("input[name='links.ahrefs.token']").val();
 
-	options.keywords.semrush.isActive = $("input[name='keywords.semrush.isActive']") ? true : false;
+	options.keywords.semrush.isActive = $("input[name='keywords.semrush.isActive']").is(":checked");
 	options.keywords.semrush.token = $("input[name='keywords.semrush.token']").val();
 
-	localStorage[]
+	localStorage["ShareMetric"] = JSON.stringify(options);
+	
+	// Reload the options that the background app is using to be the newly updated options
+	bg.loadOptions();
 }
 
 /**
@@ -93,9 +97,15 @@ function displayOptions() {
 			$("." + linkName).hide();
 		}
 	});
+	
+	if(options.keywords.semrush.isActive){
+		$("input[name='keywords.semrush.isActive']").attr("checked", "checked");	
+	}
+	else {
+		$(".semrush").hide();
+	}
+
+	$("input[name='keywords.semrush.token']").val(options.keywords.semrush.token);
 
 
-}
-function properCapital(string){
-	return string.charAt(0).toUpperCase() + string.substr(1);	
 }
