@@ -7,6 +7,10 @@ body.popup {
 	margin:10px 0px;
 }
 
+#head h1 a img {
+	padding-right: 10px;
+}
+
 h1, h2 {
 	margin-top: 5px;
 	font-size: 20px;
