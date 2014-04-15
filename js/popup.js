@@ -26,6 +26,7 @@ $(document).ready(function(){
 		if(!bg.app.getOptions().social.autoLoad){
 			bg.app.fetchSocialData();
 		}
+		
 		bg.app.fetchOtherData();
 
 		displayData(bg.app.getData());
@@ -40,6 +41,7 @@ $(document).ready(function(){
 		goToOptions();
 	});
 });
+
 
 /**
  * Displays information useful for further research
@@ -84,7 +86,6 @@ function displayData(data) {
 		});
 		displaySocial(data.social, socialQueue);
 	}
-	console.log(bg.app);
 	if(bg.app.hasLinks()){
 		displayLinks(data.links);	
 	}
@@ -115,7 +116,6 @@ function displayKeywords(keywords) {
 	 * @return {jquery element}
 	 */
 	function showResults() {
-		console.log(keywords.semrush);
 		if(keywords.semrush === null) {
 			waitForApi();
 			return $("<p>").attr("id", "keywords-tmp").addClass("loading");
@@ -175,9 +175,9 @@ function displayKeywords(keywords) {
 function displayLinks(linkData) {
 	var row1 = newRow("links", "Links");
 
-	if(linkData['moz']){
+	if(bg.app.hasMoz()){
 		createMozRow(row1);
-		if(linkData['ahrefs']) {
+		if(bg.app.hasAhrefs()) {
 			var row2 = newRow("links");
 			createAhrefsRow(row2);
 		}
@@ -345,8 +345,6 @@ function displayLinks(linkData) {
  */
 function displaySocial(socialData, keysToDisplay) {
 	var row = newRow("social", "Social");
-	console.log(socialData);
-	console.log(keysToDisplay);
 	buildSocialColumn(0, Math.floor(keysToDisplay.length / 2), row);
 	buildSocialColumn(Math.floor(keysToDisplay.length / 2), keysToDisplay.length, row);
 
@@ -385,7 +383,6 @@ function displaySocial(socialData, keysToDisplay) {
 			
 
 	function updateValue(key) {
-		console.log("updateValue("+key+")");
 		if(typeof socialData[key].data == "object") {
 			row.find("dd."+key + " span").not("span.link").text(socialData[key].data.total);
 			for(subKey in socialData[key].data) {
@@ -403,10 +400,6 @@ function displaySocial(socialData, keysToDisplay) {
 		
 		for(var i = low; i < high; i++) {
 			var key = keysToDisplay[i];
-			if(key == undefined) {
-				console.log(low);
-				console.log(high);
-			}
 
 			$("<img/>", {src : "/images/icons/"+key+"-16x16.png"}).appendTo($("<dt>").appendTo(dl));
 

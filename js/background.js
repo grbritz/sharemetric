@@ -39,7 +39,7 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.facebook.data.total;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					callback();
+					
 				}
 			});
 		},
@@ -62,7 +62,7 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.twitter.data;
 					self.pub.updateBadge();	
 					self.data.isEmpty = false;
-					callback();
+					
 				}
 			});	
 		},
@@ -77,7 +77,7 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.google.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					callback();
+					
 				}
 			});
 		},
@@ -98,7 +98,7 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.linkedIn.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					callback();
+					
 				}
 			});
 		},
@@ -131,7 +131,7 @@ function ShareMetric() {
 					self.data.social.totalCount += total;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					callback();
+					
 				}
 			});
 		},
@@ -153,7 +153,7 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.stumbleUpon.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					callback();
+					
 				}
 			});
 		},
@@ -186,7 +186,7 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.pinterest.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					callback();
+					
 				}
 			});	
 		},
@@ -208,42 +208,37 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.delicious.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					callback();
+					
 				}
 			});
 		},
 		moz : function (callback) {
 			// PA + PLRDs + DA + DLRDs
-			// var cols = 34359738368 + 1024 + 68719476736 + 8192;
-			var cols = 103079215108;
+			var cols = 34359738368 + 68719476736 + 1024 + 8192;
 			var date = new Date();
-			// var expires = date.getTime() + 300;
-			var expires = 1396304260399;
+			var expires = date.getTime() + 300;
 			var signature = makeSignature(expires, self.options.links.moz.id, self.options.links.moz.secret);
+			var url = encodeURIComponent(self.URL) + "?Cols=" + cols + "&AccessID=" + self.options.links.moz.id + "&Expires=" + expires + "&Signature=" + signature;
 
-			// console.log(signature);
-			// console.log(self.options.links.moz.id);
-			// console.log(self.options.links.moz.secret);
-
-
-			$.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + self.URL, 
-				{
-					"Cols"		: cols,
-					"AccessID"	: self.options.links.moz.id,
-					"Expires"	: expires,
-					"Signature"	: signature
-				},
+			$.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + url,
+				{},
 				function(data){
 					console.log("MOZ API returned");
 					console.log(data);
+					self.data.links.moz = {
+						PA 		: data.upa,
+						DA 		: data.pda,
+						DLRD 	: data.pid,
+						PLRD 	: data.uipl
+					};
 				}
 			);
-			self.data.links.moz = {
-				PA	: 52,
-				DA	: 47,
-				PLRD	: 132,
-				DLRD	: 3200
-			};
+			// self.data.links.moz = {
+			// 	PA	: 52,
+			// 	DA	: 47,
+			// 	PLRD	: 132,
+			// 	DLRD	: 3200
+			// };
 			
 			/**
 			 * Makes the signature for a moz Signature api field
@@ -378,6 +373,7 @@ function ShareMetric() {
 					isActive	: true,
 					id			: "",
 					secret		: ""
+
 				},
 				ahrefs 	: {
 					isActive	: true,
@@ -394,17 +390,6 @@ function ShareMetric() {
 		};
 	}
 	
-	function mozActive() {
-		return self.options.links.moz.isActive;
-	}
-
-	function ahrefsActive() {
-		return self.options.links.ahrefs.isActive;
-	}
-
-	function linksActive () {
-		 return mozActive() || ahrefsActive();
-	}
 	/**
 	 * Preps the self.data object with the correct keys
 	 * on initialization
@@ -465,12 +450,12 @@ function ShareMetric() {
 			atleastOne = false;
 		}
 
-		if(linksActive) {
+		if(self.options.links.moz.isActive || self.options.links.ahrefs.isActive) {
 			data['links'] = {};
-			if(mozActive()) {
+			if(self.options.links.moz.isActive) {
 				data.links['moz'] = null;
 			}
-			if(ahrefsActive) {
+			if(self.options.links.ahrefs.isActive) {
 				data.links['ahrefs'] = null;
 			}
 		}
@@ -499,18 +484,8 @@ function ShareMetric() {
 			_gaq.push(['_trackEvent', 'background', 'social metrics queried']);
 
 			$.each(self.APIs, function(key, ele) {
-				var callback = function () {
-					if(self.data[key]) {
-						
-						// console.log(self.data[key]);	
-					}
-					else if(self.data.social[key]) {
-						// console.log(self.data.social[key]);
-					}
-					// console.log(self.data.social.totalCount);
-				};
 				if(self.options.social.apis[key] && self.options.social.apis[key].isActive){
-					ele(callback); // Fire api	
+					ele(); // Fire api	
 				}
 			});
 		},
@@ -520,15 +495,15 @@ function ShareMetric() {
 		 * @requires  fetchSocialData was called before this method
 		 * @effects updates self.data as apis return results
 		 */
-		fetchOtherData : function () {
-			if(mozActive()) {
-				self.APIs.moz();	
+		fetchOtherData : function (callback) {
+			if(self.pub.hasMoz()) {
+				self.APIs.moz(callback);	
 			}
-			if(ahrefsActive()){
-				self.APIs.ahrefs();	
+			if(self.pub.hasAhrefs()){
+				self.APIs.ahrefs(callback);	
 			}
 			if(self.pub.hasKeywords()){
-				self.APIs.semrush();
+				self.APIs.semrush(callback);
 			}
 		},
 
@@ -621,7 +596,15 @@ function ShareMetric() {
 		 * @return {Boolean} Is at least one link metric active?
 		 */
 		hasLinks  : function() {
-			return linksActive();
+			return self.pub.hasMoz() || self.pup.hasAhrefs();
+		},
+
+		hasMoz 	: function () {
+			return self.options.links.moz.isActive;
+		},
+
+		hasAhrefs : function() {
+			return self.options.links.ahrefs.isActive;
 		},
 
 		/**
