@@ -233,13 +233,6 @@ function ShareMetric() {
 					};
 				}
 			);
-			// self.data.links.moz = {
-			// 	PA	: 52,
-			// 	DA	: 47,
-			// 	PLRD	: 132,
-			// 	DLRD	: 3200
-			// };
-			
 			/**
 			 * Makes the signature for a moz Signature api field
 			 * @param  {timestamp} expires when the api request should expire
@@ -253,12 +246,13 @@ function ShareMetric() {
 			}
 		},
 		ahrefs : function (callback) {
-			self.data.links.ahrefs = {
-				urlRank			: 52,
-				domainRank		: 470,
-				PRD 			: 9,
-				DRD 			: 10000
-			};
+			// NOT IMPLEMENTED
+			// self.data.links.ahrefs = {
+			// 	urlRank			: 52,
+			// 	domainRank		: 470,
+			// 	PRD 			: 9,
+			// 	DRD 			: 10000
+			// };
 		},
 		semrush : function (callback) {
 			
