@@ -31,7 +31,9 @@ $(document).ready(function(){
 
 		displayData(bg.app.getData());
 
+		console.log("disply research");
 		if(bg.app.hasResearch()) {
+			console.log("disply research");
 			displayResearch();
 		}
 

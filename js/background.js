@@ -370,19 +370,19 @@ function ShareMetric() {
 			},
 			links 	: {
 				moz		: {
-					isActive	: true,
+					isActive	: false,
 					id			: "",
 					secret		: ""
 
 				},
 				ahrefs 	: {
-					isActive	: true,
+					isActive	: false,
 					token		: ""
 				}
 			},
 			keywords	: {
 				semrush	: {
-					isActive	: true,
+					isActive	: false,
 					token		: ""
 				}
 			},
@@ -529,13 +529,10 @@ function ShareMetric() {
 		 */
 		loadOptions : function () {
 			if(localStorage.getItem("ShareMetric")){
-				console.log("loading from localcStorae");
 				self.options = JSON.parse(localStorage.getItem("ShareMetric"));
-				console.log(self.options);
 			}
 			else {
 				self.options = defaultOptions();
-				self.pub.storeOptions();
 			}
 		},
 
@@ -572,14 +569,6 @@ function ShareMetric() {
 		},
 
 		/**
-		 * Stores the options in localStorage for persistence
-		 */
-		storeOptions : function () {
-			console.log("Store options");
-			// localStorage.setItem()
-		},
-
-		/**
 		 * @return {Boolean} Are there active social metrics?
 		 */
 		hasSocial : function() {
@@ -596,7 +585,7 @@ function ShareMetric() {
 		 * @return {Boolean} Is at least one link metric active?
 		 */
 		hasLinks  : function() {
-			return self.pub.hasMoz() || self.pup.hasAhrefs();
+			return self.pub.hasMoz() || self.pub.hasAhrefs();
 		},
 
 		hasMoz 	: function () {

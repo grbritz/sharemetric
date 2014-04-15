@@ -32,7 +32,7 @@ $(document).ready(function(){
 		});
 	}
 	$(".save-options").click(function(){
-		saveOptions();	
+		saveOptions();
 	});
 });
 
@@ -63,6 +63,8 @@ function saveOptions(){
 	
 	// Reload the options that the background app is using to be the newly updated options
 	bg.loadOptions();
+	alert("Options updated!");
+
 }
 
 /**
