@@ -318,68 +318,6 @@ function ShareMetric() {
 	 * @return {[type]} [description]
 	 */
 	function defaultOptions() {
-		return testOptions();
-		return {
-			social : {
-				autoLoad : true,
-				apis : {
-					facebook 	: {
-						isOfficial : true,
-						isActive : true
-					},
-					google 		: {
-						isOfficial : false,
-						isActive : true
-					},
-					linkedIn	: {
-						isOfficial : true,
-						isActive : true
-					},
-					pinterest 	: {
-						isOfficial : false,
-						isActive : true
-					},
-					delicious	: {
-						isOfficial : false,
-						isActive : true
-					},
-					reddit		: {
-						isOfficial : true,
-						isActive : true
-					},
-					stumbleUpon : {
-						isOfficial : true,
-						isActive : true
-					},
-					twitter		: {
-						isOfficial : true,
-						isActive : true
-					}
-				}
-			},
-			links 	: {
-				moz		: {
-					isActive	: true,
-					id			: "",
-					secret		: ""
-				},
-				ahrefs 	: {
-					isActive	: true,
-					token		: ""
-				}
-			},
-			keywords	: {
-				semrush	: {
-					isActive	: true,
-					token		: ""
-				}
-			},
-			showResearch	: true
-		};
-	}
-
-	// TODO: remove when done
-	function testOptions() {
 		return {
 			social : {
 				autoLoad : true,
@@ -391,7 +329,7 @@ function ShareMetric() {
 					},
 					google 		: {
 						isOfficial : false,
-						isActive : false,
+						isActive : true,
 						link 	: null
 					},
 					linkedIn	: {
@@ -410,12 +348,7 @@ function ShareMetric() {
 					delicious	: {
 						isOfficial : false,
 						isActive : true,
-						link 	: null 
-						// TODO: Look into obfuscation of delicious URLs
-						// {
-						// 	href 	: "",
-						// 	anchor	: "details"
-						// }
+						link 	: null
 					},
 					reddit		: {
 						isOfficial : true,
@@ -442,19 +375,19 @@ function ShareMetric() {
 			},
 			links 	: {
 				moz		: {
-					isActive	: false,
-					id			: "member-132f9fd62e",
-					secret		: "d537e3cacad17919d245f0093b6acd66"
+					isActive	: true,
+					id			: "",
+					secret		: ""
 				},
 				ahrefs 	: {
-					isActive	: false,
-					token		: "fd1f7b91818fade181cf6fb53f35ade2ecf2f4ff"
+					isActive	: true,
+					token		: ""
 				}
 			},
 			keywords	: {
 				semrush	: {
 					isActive	: true,
-					token		: "36450c8ca41b31d75cb73701cfd2550c"
+					token		: ""
 				}
 			},
 			showResearch	: true
@@ -756,7 +689,6 @@ function abbreviatedNum(num) {
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab){
-		// TODO : verify that stringfy handles true false cases correctly. Might have a bug here
 		if(app.getOptions().social.autoLoad){
 			app.setURL(tab.url);
 			app.fetchSocialData();
