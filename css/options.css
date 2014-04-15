@@ -16,7 +16,7 @@ hr{
 }
 
 /* Chrome button styling */
-button{
+button.save-options{
 	margin: 0em;
 	font: -webkit-small-control;
 	color: initial;

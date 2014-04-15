@@ -30,10 +30,10 @@ function ShareMetric() {
 				},
 				url : "https://api.facebook.com/method/fql.query",
 				success: function(data){
-					self.data.social.facebook.likes = parseInt($(data).find("like_count").text());
-					self.data.social.facebook.shares = parseInt($(data).find("share_count").text());
-					self.data.social.facebook.comments = parseInt($(data).find("comment_count").text());
-					self.data.social.facebook.total = parseInt($(data).find(
+					self.data.social.facebook.data.likes = parseInt($(data).find("like_count").text());
+					self.data.social.facebook.data.shares = parseInt($(data).find("share_count").text());
+					self.data.social.facebook.data.comments = parseInt($(data).find("comment_count").text());
+					self.data.social.facebook.data.total = parseInt($(data).find(
 						"total_count").text());
 
 					self.data.social.totalCount += self.data.social.facebook.data.total;
@@ -312,19 +312,6 @@ function ShareMetric() {
 		}
 	};
 
-	/**
-	 * Loads the options persisted by the user or sets the defaults if the user
-	 * has not chosen any options yet
-	 */
-	function loadOptions() {
-		if(localStorage.getItem("ShareMetric")){
-			self.options = JSON.parse(localStorage.getItem("ShareMetric"));
-		}
-		else {
-			self.options = defaultOptions();
-			self.pub.storeOptions();
-		}
-	}
 
 	/**
 	 * Returns the default set of options
@@ -372,15 +359,18 @@ function ShareMetric() {
 			},
 			links 	: {
 				moz		: {
+					isActive	: true,
 					id			: "",
 					secret		: ""
 				},
 				ahrefs 	: {
+					isActive	: true,
 					token		: ""
 				}
 			},
 			keywords	: {
 				semrush	: {
+					isActive	: true,
 					token		: ""
 				}
 			},
@@ -401,7 +391,7 @@ function ShareMetric() {
 					},
 					google 		: {
 						isOfficial : false,
-						isActive : true,
+						isActive : false,
 						link 	: null
 					},
 					linkedIn	: {
@@ -452,15 +442,18 @@ function ShareMetric() {
 			},
 			links 	: {
 				moz		: {
+					isActive	: true,
 					id			: "member-132f9fd62e",
 					secret		: "d537e3cacad17919d245f0093b6acd66"
 				},
 				ahrefs 	: {
+					isActive	: true,
 					token		: "fd1f7b91818fade181cf6fb53f35ade2ecf2f4ff"
 				}
 			},
 			keywords	: {
 				semrush	: {
+					isActive	: true,
 					token		: "36450c8ca41b31d75cb73701cfd2550c"
 				}
 			},
@@ -599,8 +592,7 @@ function ShareMetric() {
 					}
 					// console.log(self.data.social.totalCount);
 				};
-
-				if(self.options.social.apis[key]){
+				if(self.options.social.apis[key] && self.options.social.apis[key].isActive){
 					ele(callback); // Fire api	
 				}
 			});
@@ -640,6 +632,20 @@ function ShareMetric() {
 		},
 
 		/**
+		 * Loads the options persisted by the user or sets the defaults if the user
+		 * has not chosen any options yet
+		 */
+		loadOptions : function () {
+			if(localStorage.getItem("ShareMetric")){
+				self.options = JSON.parse(localStorage.getItem("ShareMetric"));
+			}
+			else {
+				self.options = defaultOptions();
+				self.pub.storeOptions();
+			}
+		},
+
+		/**
 		 * Getter for self.options
 		 * @return {object}
 		 */
@@ -670,14 +676,6 @@ function ShareMetric() {
 		getData : function () {
 			return self.data;
 		},
-
-		/**
-		 * Checks to see if the user has picked any apis
-		 * @return {Boolean} [description]
-		 */
-		// hasActiveOptions : function () {
-
-		// }
 
 		/**
 		 * Stores the options in localStorage for persistence
@@ -723,7 +721,7 @@ function ShareMetric() {
 
 	};
 
-	loadOptions();
+	self.pub.loadOptions();
 	prepData();
 	return self.pub;
 }

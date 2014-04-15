@@ -98,7 +98,10 @@ function displayData(data) {
 function displayKeywords(keywords) {
 	var row = newRow("keywords", "Keywords");
 
-	var image = dummyImage();
+	var image = $("<img>", {
+		src 	: "/images/semrush.png",
+		alt 	: "SEMRush icon"
+	});
 	row.append($("<div>").addClass("col-xs-2").append(image));
 	row.append($("<div>").addClass("col-xs-10")
 		.append($("<h4>").text("Top Organic Search Visibility For This Page:"))
@@ -216,9 +219,11 @@ function displayLinks(linkData) {
 
 
 	function createMozRow(row){
-		// var image = $("<img>");
+		var image = $("<img>", {
+			src 	: "/images/moz.png",
+			alt 	: "Moz icon"
+		});
 		row.attr("id", "moz");
-		var image = dummyImage();
 		row.append($("<div>").addClass("col-xs-2").append(image));
 		row.append(
 			$("<div>").addClass("col-xs-6")
@@ -271,9 +276,11 @@ function displayLinks(linkData) {
 	}
 
 	function createAhrefsRow(row) {
-		// var image = $("<img>");
+		var image = $("<img>", {
+			"src"	: "/images/ahrefs.png",
+			"alt"	: "Ahrefs icon"
+		});
 		row.attr("id", "ahrefs");
-		var image = dummyImage();
 		row.append($("<div>").addClass("col-xs-2").append(image));
 		row.append(
 			$("<div>").addClass("col-xs-6")
@@ -335,11 +342,10 @@ function displayLinks(linkData) {
  */
 function displaySocial(socialData, keysToDisplay) {
 	var row = newRow("social", "Social");
-
-	buildSocialColumn(0, keysToDisplay.length / 2, row);
-	buildSocialColumn(keysToDisplay.length / 2, keysToDisplay.length, row);
-	// console.log("displaySocial");
-	// console.log(socialData);
+	console.log(socialData);
+	console.log(keysToDisplay);
+	buildSocialColumn(0, Math.floor(keysToDisplay.length / 2), row);
+	buildSocialColumn(Math.floor(keysToDisplay.length / 2), keysToDisplay.length, row);
 
 	function loopWhileNotLoaded(num) {
 		if(keysToDisplay.length > 0){
@@ -389,11 +395,17 @@ function displaySocial(socialData, keysToDisplay) {
 	}
 
 	function buildSocialColumn(low, high, target) {
+
 		var dl = $("<dl>").addClass("dl-horizontal").appendTo($("<div>").addClass("col-xs-6").appendTo(target));
 		
 		for(var i = low; i < high; i++) {
 			var key = keysToDisplay[i];
-			$("<img/>", {src : "images/icons/"+key+"-16x16.png"}).appendTo($("<dt>").appendTo(dl));
+			if(key == undefined) {
+				console.log(low);
+				console.log(high);
+			}
+
+			$("<img/>", {src : "/images/icons/"+key+"-16x16.png"}).appendTo($("<dt>").appendTo(dl));
 
 			var dd = $("<dd>").addClass(key + " social-metric").append($("<strong>").text(firstCharUpper(key) + ": ")).appendTo(dl);
 
@@ -430,7 +442,7 @@ function displayOptions(){
 }
 
 function goToOptions(){
-	var url = chrome.extension.getURL("options.html");
+	var url = chrome.extension.getURL("/templ/options.html");
 	chrome.tabs.create({"url" : url});
 }
 
