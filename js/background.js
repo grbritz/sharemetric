@@ -15,6 +15,54 @@ function ShareMetric() {
 	self.data = {};
 	self.pub = {};
 	self.URL = "";
+	
+	self.optionsMETA = {
+		social : {
+			apis : {
+				facebook 	: {
+						isOfficial : true,
+						link 	: null
+					},
+					twitter		: {
+						isOfficial : true,
+						link 	: {
+							href 	: "http://topsy.com/trackback?url=url_replace&infonly=1",
+							anchor	: "Topsy"
+						}
+					},
+					google 		: {
+						isOfficial : false,
+						link 	: null
+					},
+					linkedIn	: {
+						isOfficial : true,
+						link 	: null
+					},
+					pinterest 	: {
+						isOfficial : false,
+						link 	: {
+							href 		: "http://www.pinterest.com/source/url_replace",
+							anchor	: "details"
+						}
+					},
+					delicious	: {
+						isOfficial : false,
+						link 	: null
+					},
+					reddit		: {
+						isOfficial : true,
+						link 	: {
+							href 	: "http://www.reddit.com/submit?url=url_replace",
+							anchor 	: "details"
+						}
+					},
+					stumbleUpon : {
+						isOfficial : true,
+						link 	: null
+					}
+			}
+		}
+	};
 
 	/**
 	 * All of the methods for querying APIs 
@@ -310,54 +358,28 @@ function ShareMetric() {
 				autoLoad : true,
 				apis : {
 					facebook 	: {
-						isOfficial : true,
-						isActive : true,
-						link 	: null
+						isActive : true
 					},
 					twitter		: {
-						isOfficial : true,
-						isActive : true,
-						link 	: {
-							href 	: "http://topsy.com/trackback?url=url_replace&infonly=1",
-							anchor	: "Topsy"
-						}
+						isActive : true
 					},
 					google 		: {
-						isOfficial : false,
-						isActive : true,
-						link 	: null
+						isActive : true
 					},
 					linkedIn	: {
-						isOfficial : true,
-						isActive : true,
-						link 	: null
+						isActive : true
 					},
 					pinterest 	: {
-						isOfficial : false,
-						isActive : true,
-						link 	: {
-							href 		: "http://www.pinterest.com/source/url_replace",
-							// href 	: "http://www.pinterest.com/search/pins/?q=url_replace",
-							anchor	: "details"
-						}
+						isActive : true
 					},
 					delicious	: {
-						isOfficial : false,
-						isActive : true,
-						link 	: null
+						isActive : true
 					},
 					reddit		: {
-						isOfficial : true,
-						isActive : true,
-						link 	: {
-							href 	: "http://www.reddit.com/submit?url=url_replace",
-							anchor 	: "details"
-						}
+						isActive : true
 					},
 					stumbleUpon : {
-						isOfficial : true,
-						isActive : true,
-						link 	: null
+						isActive : true
 					}
 					
 				}
@@ -430,10 +452,10 @@ function ShareMetric() {
 					}
 				}
 
-				if(self.options.social.apis[key].link) {
+				if(self.optionsMETA.social.apis[key].link) {
 					social[key].link = {
-						href 	: self.options.social.apis[key].link.href,
-						anchor 	: self.options.social.apis[key].link.anchor
+						href 	: self.optionsMETA.social.apis[key].link.href,
+						anchor 	: self.optionsMETA.social.apis[key].link.anchor
 					}
 				}
 			}
@@ -524,6 +546,7 @@ function ShareMetric() {
 		loadOptions : function () {
 			if(localStorage.getItem("ShareMetric")){
 				self.options = JSON.parse(localStorage.getItem("ShareMetric"));
+				prepData();
 			}
 			else {
 				self.options = defaultOptions();

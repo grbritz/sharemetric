@@ -19,32 +19,36 @@ $(document).ready(function(){
 	};
 
 	$("#refresh-page").click(function() {
-		bg.app.fetchSocialData();
-		bg.app.fetchOtherData();
+		queryTab(true);
+		console.log(URL);
 	});
 
-	chrome.tabs.query(queryO, function(tabs){
-		URL = tabs[0].url;
-		$("#url").text(URL);
-
-		bg.app.setURL(URL);
-		if(!bg.app.getOptions().social.autoLoad){
-			bg.app.fetchSocialData();
-		}
-		
-		bg.app.fetchOtherData();
-
-		displayData(bg.app.getData());
-
-		if(bg.app.hasResearch()) {
-			displayResearch();
-		}
-
-	});
+	queryTab(false);
 
 	$("#options-link").click(function(){
 		goToOptions();
 	});
+
+	function queryTab(forceGetSocial) {
+		chrome.tabs.query(queryO, function(tabs){
+			URL = tabs[0].url;
+			$("#url").text(URL);
+
+			bg.app.setURL(URL);
+			if(!bg.app.getOptions().social.autoLoad || forceGetSocial){
+				bg.app.fetchSocialData();
+			}
+			
+			bg.app.fetchOtherData();
+
+			displayData(bg.app.getData());
+
+			if(bg.app.hasResearch()) {
+				displayResearch();
+			}
+
+		});
+	}
 });
 
 
@@ -82,6 +86,7 @@ function displayResearch() {
  * @param {string} url the currently viewed URL
  */
 function displayData(data) {
+	$("#content").empty();
 	if(bg.app.hasSocial()){
 		var socialQueue = [];
 		$.each(data.social, function(key, ele) {
