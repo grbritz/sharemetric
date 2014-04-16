@@ -18,6 +18,11 @@ $(document).ready(function(){
 		"currentWindow" : true
 	};
 
+	$("#refresh-page").click(function() {
+		bg.app.fetchSocialData();
+		bg.app.fetchOtherData();
+	});
+
 	chrome.tabs.query(queryO, function(tabs){
 		URL = tabs[0].url;
 		$("#url").text(URL);
@@ -31,9 +36,7 @@ $(document).ready(function(){
 
 		displayData(bg.app.getData());
 
-		console.log("disply research");
 		if(bg.app.hasResearch()) {
-			console.log("disply research");
 			displayResearch();
 		}
 
@@ -62,14 +65,14 @@ function displayResearch() {
 			.append($("<a>", {
 				href 	: "http://centralops.net/co/DomainDossier.aspx?addr=" + encodeURIComponent(URL) + "&dom_whois=true&dom_dns=true&traceroute=true&net_whois=true&svc_scan=true",
 				target	: "_blank"
-			}).text("Google Cache"))
+			}).text("WHOIS"))
 		)
 		.append($("<li>").text("|").addClass("spacer"))
 		.append($("<li>")
 			.append($("<a>", {
-				href 	: "http://www.google.com/webmasters/tools/richsnippets?url=" + encodeURIComponent(URL),
+				href 	: "http://webcache.googleusercontent.com/search?q=cache:" + encodeURIComponent(URL),
 				target	: "_blank"
-			}).text("WHOIS"))
+			}).text("Google Cache"))
 		));
 }
 
@@ -124,6 +127,7 @@ function displayKeywords(keywords) {
 		}
 		else {
 			if(keywords.semrush.length > 0) {
+				var wrapper = $("<div>");
 				var table = $("<table>");
 				var thead = $("<thead>")
 								.append($("<tr>")
@@ -137,19 +141,25 @@ function displayKeywords(keywords) {
 				var tbody = $("<tbody>");
 				$.each(keywords.semrush, function(ind, ele) {
 					tbody.append($("<tr>")
-						.append($("<td>").text(ind + "."))
+						.append($("<td>").text((ind +1) + "."))
 						.append($("<td>").text(ele.Keyword))
 						.append($("<td>").addClass("text-center").text(ele.Rank))
 						.append($("<td>").addClass("text-center").text(ele.Volume))
 						.append($("<td>").addClass("text-center").text(ele.CPC))
 					);
 				});
-
-				return table.append(thead).append(tbody).after($("<p>")
-						.append($("<a>", {
+				wrapper.append(table.append(thead).append(tbody)).append($("<p>").append($("<a>", {
 							href 	: "http://www.semrush.com/info/" + encodeURIComponent(URL),
 							target	: "_blank"
 						}).text("View Full Report")));
+
+				// table.append($("<a>", {
+				// 			href 	: "http://www.semrush.com/info/" + encodeURIComponent(URL),
+				// 			target	: "_blank"
+				// 		}).text("View Full Report"));
+
+
+				return wrapper;
 			}
 			return $("<p>").addClass("no-results text-warning").text("No data found");
 		}
@@ -274,7 +284,7 @@ function displayLinks(linkData) {
 				}).text("Anchor Text")))
 			.append($("<li>")
 				.append($("<a>", {
-					href 	: "https://freshwebexplorer.moz.com/results?q=%5B%22url%3A" + encodeURIComponent(URL) + "%22%2C%22rd%3A" + domainOf(URL) + "%22%5D&time=last-four-weeks&sort=published&order=desc",
+					href 	: "https://freshwebexplorer.moz.com/results?q=%5B%22url%3A" + encodeURIComponent(URL) + "%22%2C%22rd%3A" + bg.domainOf(URL) + "%22%5D&time=last-four-weeks&sort=published&order=desc",
 					target	: "_blank"
 				}).text("Fresh Web Explorer")))
 		);
@@ -477,13 +487,4 @@ function newRow(className, heading) {
 	return row;
 }
 
-/**
- * Extracts the domain out of an URL
- * @param  {string} url 
- * @return {string}     domain of a URL
- */
-function domainOf(url) {
-	var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
-	return matches && matches[1];
-}
 

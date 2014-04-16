@@ -181,7 +181,7 @@ function ShareMetric() {
 						self.data.social.pinterest.data = 0;
 					}
 
-					self.data.social.pinterest.link.href = self.data.social.pinterest.link.href.replace("url_replace", encodeURIComponent(self.URL));
+					self.data.social.pinterest.link.href = self.data.social.pinterest.link.href.replace("url_replace", domainOf(self.URL));
 
 					self.data.social.totalCount += self.data.social.pinterest.data;
 					self.pub.updateBadge();
@@ -223,8 +223,6 @@ function ShareMetric() {
 			$.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + url,
 				{},
 				function(data){
-					console.log("MOZ API returned");
-					console.log(data);
 					self.data.links.moz = {
 						PA 		: data.upa,
 						DA 		: data.pda,
@@ -316,6 +314,14 @@ function ShareMetric() {
 						isActive : true,
 						link 	: null
 					},
+					twitter		: {
+						isOfficial : true,
+						isActive : true,
+						link 	: {
+							href 	: "http://topsy.com/trackback?url=url_replace&infonly=1",
+							anchor	: "Topsy"
+						}
+					},
 					google 		: {
 						isOfficial : false,
 						isActive : true,
@@ -330,7 +336,8 @@ function ShareMetric() {
 						isOfficial : false,
 						isActive : true,
 						link 	: {
-							href 	: "http://topsy.com/trackback?url=url_replace&infonly=1",
+							href 		: "http://www.pinterest.com/source/url_replace",
+							// href 	: "http://www.pinterest.com/search/pins/?q=url_replace",
 							anchor	: "details"
 						}
 					},
@@ -351,15 +358,8 @@ function ShareMetric() {
 						isOfficial : true,
 						isActive : true,
 						link 	: null
-					},
-					twitter		: {
-						isOfficial : true,
-						isActive : true,
-						link 	: {
-							href 	: "http://www.pinterest.com/search/pins/?q=url_replace",
-							anchor	: "Topsy"
-						}
 					}
+					
 				}
 			},
 			links 	: {
@@ -566,7 +566,6 @@ function ShareMetric() {
 		 * @return {Boolean} Are there active social metrics?
 		 */
 		hasSocial : function() {
-			// console.log(self.options.social.apis);
 			for(api in self.options.social.apis) {
 				if(self.options.social.apis[api].isActive) {
 					return true;
@@ -651,6 +650,17 @@ function abbreviatedNum(num) {
 	}
 	abbrCount = parseInt(abbrCount);
 	return abbrCount + symbol;
+}
+
+
+/**
+ * Extracts the domain out of an URL
+ * @param  {string} url 
+ * @return {string}     domain of a URL
+ */
+function domainOf(url) {
+	var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
+	return matches && matches[1];
 }
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
