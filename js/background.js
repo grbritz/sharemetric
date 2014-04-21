@@ -268,17 +268,28 @@ function ShareMetric() {
 			var signature = makeSignature(expires, self.options.links.moz.id, self.options.links.moz.secret);
 			var url = encodeURIComponent(self.URL) + "?Cols=" + cols + "&AccessID=" + self.options.links.moz.id + "&Expires=" + expires + "&Signature=" + signature;
 
-			$.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + url,
-				{},
-				function(data){
+			$.ajax({
+				url 	: "http://lsapi.seomoz.com/linkscape/url-metrics/" + url,
+				success : function(data){
 					self.data.links.moz = {
 						PA 		: data.upa,
 						DA 		: data.pda,
 						DLRD 	: data.pid,
 						PLRD 	: data.uipl
 					};
+				},
+				error 	: function(jqXHR, textStatus, errorThrown) {
+					if(jqXHR.status == 401) {
+						console.error("MOZ API ERROR -- incorrect key or secret");
+					}
+					else if (jqXHR.status == 503) {
+						console.error("MOZ API ERROR -- Too many requests made");
+					}
 				}
-			);
+
+
+			});
+
 			/**
 			 * Makes the signature for a moz Signature api field
 			 * @param  {timestamp} expires when the api request should expire
@@ -673,6 +684,66 @@ function abbreviatedNum(num) {
 	}
 	abbrCount = parseInt(abbrCount);
 	return abbrCount + symbol;
+}
+/**
+ * Gets all sticky push notifications and the most 
+ * recent non-sticky notification and passes them to
+ * the callback
+ * @param  {Function} callback function to take the push notifications
+ */
+function getPushNotifications(callback) {
+	if(!callback){
+		console.error("getPushNotifications: Callback required");
+		return;
+	}
+	$.get("http://sharemetric.com/push-notifications/sharemetric-push-notifications.json",
+		  {},
+		  function(data) {
+		  	data = JSON.parse(data);
+		  	var mostRecentPost = data[0];
+		  	var notifs = [];
+		  	$.each(data, function(ind, ele) {
+		  		if(ele.id > mostRecentPost.id) {
+		  			mostRecentPost = ele;
+		  		}
+		  		else if (ele.sticky == "yes") {
+		  			notifs.push(ele);
+		  		}
+		  	});
+
+		  	var result = [];
+		  	result.push(mostRecentPost);
+
+		  	callback(result.concat(notifs));
+		  });
+}
+
+/**
+ * Displays push notifications to the user
+ * @param  {element} target the target element to display the notifs in
+ */
+function displayNotifications(target) {
+	getPushNotifications(display)
+
+	function display(notifs) {
+		$.each(notifs, function(ind, ele) {
+			target.append(
+				$("<div>").addClass("alert alert-info")
+					.append($("<h4>").text(ele.date))
+					.append($("<p>").html(stripScripts(ele.message))));
+		});	
+	}
+}
+
+function stripScripts(s) {
+    var div = document.createElement('div');
+    div.innerHTML = s;
+    var scripts = div.getElementsByTagName('script');
+    var i = scripts.length;
+    while (i--) {
+      scripts[i].parentNode.removeChild(scripts[i]);
+    }
+    return div.innerHTML;
 }
 
 

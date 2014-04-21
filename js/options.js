@@ -11,7 +11,7 @@ _gaq.push(['_trackPageview']);
 
 var bg;
 $(document).ready(function(){
-	bg = chrome.extension.getBackgroundPage().app;
+	bg = chrome.extension.getBackgroundPage();
 	displayOptions();
 
 	bindIsActive("links", "moz");
@@ -34,13 +34,15 @@ $(document).ready(function(){
 	$(".save-options").click(function(){
 		saveOptions();
 	});
+
+	bg.displayNotifications($("#notifications"));
 });
 
 /**
  * Persists a user's options
  */
 function saveOptions(){
-	var options = bg.getOptions();
+	var options = bg.app.getOptions();
 	
 	options.social.autoLoad = $("input[name='social.autoLoad']").is(":checked");
 	options.showResearch = $("input[name='showResearch']").is(":checked");
@@ -62,7 +64,7 @@ function saveOptions(){
 	localStorage["ShareMetric"] = JSON.stringify(options);
 	
 	// Reload the options that the background app is using to be the newly updated options
-	bg.loadOptions();
+	bg.app.loadOptions();
 	alert("Options updated!");
 
 }
@@ -71,7 +73,7 @@ function saveOptions(){
  * Displays the option values the user has already saved/chosen
  */
 function displayOptions() {
-	var options = bg.getOptions();
+	var options = bg.app.getOptions();
 	if(options.social.autoLoad){
 		$("input[name='social.autoLoad']").attr("checked", "checked");
 	}

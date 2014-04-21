@@ -33,19 +33,20 @@ $(document).ready(function(){
 		chrome.tabs.query(queryO, function(tabs){
 			URL = tabs[0].url;
 			$("#url").text(URL);
-
 			bg.app.setURL(URL);
+
 			if(!bg.app.getOptions().social.autoLoad || forceGetSocial){
 				bg.app.fetchSocialData();
 			}
-			
 			bg.app.fetchOtherData();
-
+			
+			$("#content").empty();
 			displayData(bg.app.getData());
-
 			if(bg.app.hasResearch()) {
 				displayResearch();
 			}
+
+			bg.displayNotifications(newRow("notifications", "Notifications"));
 
 		});
 	}
@@ -86,7 +87,6 @@ function displayResearch() {
  * @param {string} url the currently viewed URL
  */
 function displayData(data) {
-	$("#content").empty();
 	if(bg.app.hasSocial()){
 		var socialQueue = [];
 		$.each(data.social, function(key, ele) {
@@ -119,7 +119,11 @@ function displayKeywords(keywords) {
 	row.append($("<div>").addClass("col-xs-2").append(image));
 	row.append($("<div>").addClass("col-xs-10")
 		.append($("<h4>").text("Top Organic Search Visibility For This Page:"))
-		.append(showResults()));
+		.append(showResults())
+		.append($("<p>").append($("<a>", {
+							href 	: "http://www.semrush.com/info/" + encodeURIComponent(URL),
+							target	: "_blank"
+						}).text("View Full Report For This URL"))));
 
 	/**
 	 * Shows the results for this keyword data
@@ -153,17 +157,7 @@ function displayKeywords(keywords) {
 						.append($("<td>").addClass("text-center").text(ele.CPC))
 					);
 				});
-				wrapper.append(table.append(thead).append(tbody)).append($("<p>").append($("<a>", {
-							href 	: "http://www.semrush.com/info/" + encodeURIComponent(URL),
-							target	: "_blank"
-						}).text("View Full Report")));
-
-				// table.append($("<a>", {
-				// 			href 	: "http://www.semrush.com/info/" + encodeURIComponent(URL),
-				// 			target	: "_blank"
-				// 		}).text("View Full Report"));
-
-
+				wrapper.append(table.append(thead).append(tbody));
 				return wrapper;
 			}
 			return $("<p>").addClass("no-results text-warning").text("No data found");
@@ -246,23 +240,23 @@ function displayLinks(linkData) {
 		row.attr("id", "moz");
 		row.append($("<div>").addClass("col-xs-2").append(image));
 		row.append(
-			$("<div>").addClass("col-xs-6")
+			$("<div>").addClass("col-xs-6 link-inner-col")
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6").text("PA: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("PA: ")
 						.append($("<strong>").addClass("pa")))
-					.append($("<div>").addClass("col-xs-6").text("PLRDs: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("PLRDs: ")
 						.append($("<strong>").addClass("plrd")))
-				).append($("<p>")
+				).append($("<p>").addClass("row")
 					.append($("<a>", {
 						href 	: "http://www.opensiteexplorer.org/links?site=" + encodeURIComponent(URL),
 						target	: "_blank"
 					}).text("View OSE Page Metrics")))
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6").css("padding-right", "0px").text("DA: ")
+					.append($("<div>").addClass("col-xs-6 link-label").css("padding-right", "0px").text("DA: ")
 						.append($("<strong>").addClass("da")))
-					.append($("<div>").addClass("col-xs-6").text("DLRDs: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("DLRDs: ")
 						.append($("<strong>").addClass("dlrd")))
-				).append($("<p>")
+				).append($("<p>").addClass("row")
 					.append($("<a>", {
 						href 	: "http://www.opensiteexplorer.org/links?page=1&site=" + encodeURIComponent(URL) + "&sort=page_authority&filter=&source=&target=domain&group=0",
 						target	: "_blank"
@@ -303,23 +297,23 @@ function displayLinks(linkData) {
 		row.attr("id", "ahrefs");
 		row.append($("<div>").addClass("col-xs-2").append(image));
 		row.append(
-			$("<div>").addClass("col-xs-6")
+			$("<div>").addClass("col-xs-6 link-inner-col")
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6").text("URL Rank: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("URL Rank: ")
 						.append($("<strong>").addClass("url-rank")))
-					.append($("<div>").addClass("col-xs-6").text("PRDs: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("PRDs: ")
 						.append($("<strong>").addClass("prd")))
-				).append($("<p>")
+				).append($("<p>").addClass("row")
 					.append($("<a>", {
 						href 	: "https://ahrefs.com/site-explorer/overview/prefix/" + encodeURIComponent(URL),
 						target	: "_blank"
 					}).text("View Page URL Metrics")))
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6").text("Domain Rank: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("Domain Rank: ")
 						.append($("<strong>").addClass("domain-rank")))
-					.append($("<div>").addClass("col-xs-6").text("DRDs: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("DRDs: ")
 						.append($("<strong>").addClass("drd")))
-				).append($("<p>")
+				).append($("<p>").addClass("row")
 					.append($("<a>", {
 						href 	: "https://ahrefs.com/site-explorer/overview/subdomains/" + encodeURIComponent(URL) + "&sort=page_authority&filter=&source=&target=domain&group=0",
 						target	: "_blank"
@@ -445,6 +439,8 @@ function displaySocial(socialData, keysToDisplay) {
 	}
 }
 
+
+
 function displayOptions(){
 	$("<a/>", {
 			"href" : "#",
@@ -465,15 +461,6 @@ function goToOptions(){
  */
 function firstCharUpper(str) {
 	return str.charAt(0).toUpperCase() + str.substr(1, str.length);
-}
-
-
-function dummyImage() {
-	return $("<div>").css({
-			"background" : "blue",
-			"width"		: "100%",
-			"height"	: "40px"
-		});
 }
 
 /**

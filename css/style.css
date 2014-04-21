@@ -95,6 +95,16 @@ a{
 	text-indent:15px;
 }
 
+.link-label {
+	font-size:18px;
+	padding-left:5px;
+	padding-right:5px;
+}
+
+.link-inner-col p.row {
+	padding-left:5px;
+}
+
 ul.horizontal {
 	list-style-type: none;
 	padding-left: 15px;
