@@ -700,21 +700,18 @@ function getPushNotifications(callback) {
 		  {},
 		  function(data) {
 		  	data = JSON.parse(data);
-		  	var mostRecentPost = data[0];
+		  	var now = new Date();
 		  	var notifs = [];
 		  	$.each(data, function(ind, ele) {
-		  		if(ele.id > mostRecentPost.id) {
-		  			mostRecentPost = ele;
-		  		}
-		  		else if (ele.sticky == "yes") {
+		  		var dateExpires = new Date(ele["date-expires"]);
+		  		// If a sticky post or the current day is >= the date expires date
+		  		if(!ele["date-expires"] || dateExpires.getTime() <= (now.getTime() + 86400000)){
 		  			notifs.push(ele);
 		  		}
 		  	});
 
-		  	var result = [];
-		  	result.push(mostRecentPost);
-
-		  	callback(result.concat(notifs));
+		  	console.log(notifs);
+		  	callback(notifs);
 		  });
 }
 
@@ -726,11 +723,15 @@ function displayNotifications(target) {
 	getPushNotifications(display)
 
 	function display(notifs) {
+		console.log("display notifs:");
+		console.log(notifs);
+		target.append($("<div>"))
+
 		$.each(notifs, function(ind, ele) {
 			target.append(
 				$("<div>").addClass("alert alert-info")
-					.append($("<h4>").text(ele.date))
-					.append($("<p>").html(stripScripts(ele.message))));
+					.append($("<h4>").text(ele["date-posted"]))
+					.append($("<p>").html(ele.message)));
 		});	
 	}
 }

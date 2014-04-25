@@ -35,7 +35,7 @@ $(document).ready(function(){
 		saveOptions();
 	});
 
-	bg.displayNotifications($("#notifications"));
+	bg.displayNotifications($("#notifications .col-sm-12"));
 });
 
 /**

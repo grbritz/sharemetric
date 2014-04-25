@@ -46,7 +46,9 @@ $(document).ready(function(){
 				displayResearch();
 			}
 
-			bg.displayNotifications(newRow("notifications", "Notifications"));
+			var notifRow = newRow("notifications", "Notifications");
+			var notifRowInner = $("<div>").addClass("col-xs-12").appendTo(notifRow);
+			bg.displayNotifications(notifRowInner);
 
 		});
 	}
