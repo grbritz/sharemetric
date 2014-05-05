@@ -243,19 +243,19 @@ function displayLinks(linkData) {
 		row.append(
 			$("<div>").addClass("col-xs-6 link-inner-col")
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6 link-label").text("PA: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("PA: ").tooltip({placement: "top", title: "Page Authority, as reported by Open Site Explorer"})
 						.append($("<strong>").addClass("pa")))
 					.append($("<div>").addClass("col-xs-6 link-label").text("PLRDs: ")
-						.append($("<strong>").addClass("plrd")))
+						.append($("<strong>").addClass("plrd")).tooltip({placement: "top", title: "Number of Linking Root Domains for this Page, as reported by Open Site Explorer"}))
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
 						href 	: "http://www.opensiteexplorer.org/links?site=" + encodeURIComponent(URL),
 						target	: "_blank"
 					}).text("View OSE Page Metrics")))
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6 link-label").css("padding-right", "0px").text("DA: ")
+					.append($("<div>").addClass("col-xs-6 link-label").css("padding-right", "0px").text("DA: ").tooltip({placement: "top", title: "Domain Authority, as reported by Open Site Explorer"})
 						.append($("<strong>").addClass("da")))
-					.append($("<div>").addClass("col-xs-6 link-label").text("DLRDs: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("DLRDs: ").tooltip({placement: "top", title: "Number of Linking Root Domains for this Domain, as reported by Open Site Explorer"})
 						.append($("<strong>").addClass("dlrd")))
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
@@ -300,9 +300,9 @@ function displayLinks(linkData) {
 		row.append(
 			$("<div>").addClass("col-xs-6 link-inner-col")
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6 link-label").text("URL Rank: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("URL Rank: ").tooltip({placement: "top", title: "URL Rank, as reported by Ahrefs"})
 						.append($("<strong>").addClass("url-rank")))
-					.append($("<div>").addClass("col-xs-6 link-label").text("PRDs: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("PRDs: ").tooltip({placement: "top", title: "Number of Root Domains Linking to this Page, as reported by Ahrefs"})
 						.append($("<strong>").addClass("prd")))
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
@@ -310,9 +310,9 @@ function displayLinks(linkData) {
 						target	: "_blank"
 					}).text("View Page URL Metrics")))
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6 link-label").text("Domain Rank: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("Domain Rank: ").tooltip({placement: "top", title: "Domain Rank, as reported by Ahrefs"})
 						.append($("<strong>").addClass("domain-rank")))
-					.append($("<div>").addClass("col-xs-6 link-label").text("DRDs: ")
+					.append($("<div>").addClass("col-xs-6 link-label").text("DRDs: ").tooltip({placement: "top", title: "Number of Root Domains Linking to this Domain, as reported by Ahrefs"})
 						.append($("<strong>").addClass("drd")))
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
