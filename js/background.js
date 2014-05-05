@@ -15,6 +15,8 @@ function ShareMetric() {
 	self.data = {};
 	self.pub = {};
 	self.URL = "";
+	self.dismissedNotifications = (localStorage['dismissedNotifications']) ? 
+									localStorage['dismissedNotifications'].split(",").map(function(ele){return parseInt(ele);}) : [];
 	
 	self.optionsMETA = {
 		social : {
@@ -413,8 +415,7 @@ function ShareMetric() {
 					token		: ""
 				}
 			},
-			showResearch	: true,
-			dismissedNotifications : []
+			showResearch	: true
 		};
 	}
 	
@@ -681,7 +682,7 @@ function ShareMetric() {
 				  	notifs = notifs.sort(function(o1, o2){
 				  		return new Date(o1["date-posted"]) - new Date(o2["date-posted"]);
 				  	}).filter(function(ele, ind){
-				  		return self.options.dismissedNotifications.indexOf(ele.id) == -1;
+				  		return self.dismissedNotifications.indexOf(ele.id) == -1;
 				  	});
 				  	
 				  	callback(notifs.shift());
@@ -694,6 +695,7 @@ function ShareMetric() {
 		 */
 		displayNotifications : function(target) {
 			self.pub.getPushNotifications(display);
+
 
 			function display(notif) {
 				if(!notif) {
@@ -719,9 +721,9 @@ function ShareMetric() {
 			 */
 			function dismissNotif() {
 				var notif = $(this).closest(".alert");
-				self.options.dismissedNotifications.push(notif.data("notif"));
+				self.dismissedNotifications.push(parseInt(notif.data("notif")));
 				notif.remove();
-				self.pub.saveOptions();
+				localStorage['dismissedNotifications'] = self.dismissedNotifications;
 				self.pub.displayNotifications(target);
 			}
 		}
