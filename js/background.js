@@ -413,7 +413,8 @@ function ShareMetric() {
 					token		: ""
 				}
 			},
-			showResearch	: true
+			showResearch	: true,
+			dismissedNotifications : []
 		};
 	}
 	
@@ -565,6 +566,21 @@ function ShareMetric() {
 		},
 
 		/**
+		 * Persists the options to local storage and updates those used internally
+		 * in application object
+		 * @param  {object} options application state options 
+		 *                          (optional, defaults to options in application object)
+		 */
+		saveOptions : function (options) {
+			if(!options) {
+				options = self.options;
+			}
+
+			localStorage["ShareMetric"] = JSON.stringify(options);
+			self.pub.loadOptions();
+		},
+
+		/**
 		 * Getter for self.options
 		 * @return {object}
 		 */
@@ -635,9 +651,80 @@ function ShareMetric() {
 		 */
 		hasResearch : function() {
 			return self.options.showResearch;
+		},
+
+		/**
+		 * Gets the notification to be displayed to the user and passes it to the callback
+		 * @param  {Function} callback function to take and display the notification
+		 */
+		getPushNotifications : function (callback) {
+			if(!callback){
+				console.error("getPushNotifications: Callback required");
+				return;
+			}
+			$.get("http://sharemetric.com/push-notifications/sharemetric-push-notifications.json",
+				  {},
+				  function(data) {
+				  	data = JSON.parse(data);
+				  	var now = new Date();
+				  	var notifs = [];
+				  	$.each(data, function(ind, ele) {
+				  		var dateExpires = new Date(ele["date-expires"]);
+				  		// If a sticky post or the current day is >= the date expires date
+				  		if(!ele["date-expires"] || dateExpires.getTime() <= (now.getTime() + 86400000)){
+				  			notifs.push(ele);
+				  		}
+				  	});
+
+				  	// Display notifications in reverse chronological order
+				  	// Remove all notifications a user has dismissed in the past
+				  	notifs = notifs.sort(function(o1, o2){
+				  		return new Date(o1["date-posted"]) - new Date(o2["date-posted"]);
+				  	}).filter(function(ele, ind){
+				  		return self.options.dismissedNotifications.indexOf(ele.id) == -1;
+				  	});
+				  	
+				  	callback(notifs.shift());
+				  });
+		},
+
+		/**
+		 * Displays push notifications to the user
+		 * @param  {element} target the target element to display the notifs in
+		 */
+		displayNotifications : function(target) {
+			self.pub.getPushNotifications(display);
+
+			function display(notif) {
+				if(!notif) {
+					target.append($("<div>").addClass("alert alert-warning").text("No new notifications to display."));
+				}
+				else {
+					target.append(
+					$("<div>").addClass("alert alert-info alert-dismissable").data("notif", notif.id)
+						.append($("<button>", {
+							"type" 			: "button",
+							"class" 		: "close",
+							"data-dismiss"	: "alert",
+							"aria-hidden"	: "true"
+						}).html("&times;").click(dismissNotif))
+						.append($("<p>").html(notif.message)));
+				}
+			}
+
+
+			/**
+			 * Called when a notification is dismissed
+			 * @return {[type]} [description]
+			 */
+			function dismissNotif() {
+				var notif = $(this).closest(".alert");
+				self.options.dismissedNotifications.push(notif.data("notif"));
+				notif.remove();
+				self.pub.saveOptions();
+				self.pub.displayNotifications(target);
+			}
 		}
-
-
 	};
 
 	self.pub.loadOptions();
@@ -685,56 +772,7 @@ function abbreviatedNum(num) {
 	abbrCount = parseInt(abbrCount);
 	return abbrCount + symbol;
 }
-/**
- * Gets all sticky push notifications and the most 
- * recent non-sticky notification and passes them to
- * the callback
- * @param  {Function} callback function to take the push notifications
- */
-function getPushNotifications(callback) {
-	if(!callback){
-		console.error("getPushNotifications: Callback required");
-		return;
-	}
-	$.get("http://sharemetric.com/push-notifications/sharemetric-push-notifications.json",
-		  {},
-		  function(data) {
-		  	data = JSON.parse(data);
-		  	var now = new Date();
-		  	var notifs = [];
-		  	$.each(data, function(ind, ele) {
-		  		var dateExpires = new Date(ele["date-expires"]);
-		  		// If a sticky post or the current day is >= the date expires date
-		  		if(!ele["date-expires"] || dateExpires.getTime() <= (now.getTime() + 86400000)){
-		  			notifs.push(ele);
-		  		}
-		  	});
 
-		  	console.log(notifs);
-		  	callback(notifs);
-		  });
-}
-
-/**
- * Displays push notifications to the user
- * @param  {element} target the target element to display the notifs in
- */
-function displayNotifications(target) {
-	getPushNotifications(display)
-
-	function display(notifs) {
-		console.log("display notifs:");
-		console.log(notifs);
-		target.append($("<div>"))
-
-		$.each(notifs, function(ind, ele) {
-			target.append(
-				$("<div>").addClass("alert alert-info")
-					.append($("<h4>").text(ele["date-posted"]))
-					.append($("<p>").html(ele.message)));
-		});	
-	}
-}
 
 function stripScripts(s) {
     var div = document.createElement('div');

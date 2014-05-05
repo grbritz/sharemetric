@@ -35,7 +35,7 @@ $(document).ready(function(){
 		saveOptions();
 	});
 
-	bg.displayNotifications($("#notifications .col-sm-12"));
+	bg.app.displayNotifications($("#notifications .col-sm-12"));
 });
 
 /**
@@ -61,12 +61,9 @@ function saveOptions(){
 	options.keywords.semrush.isActive = $("input[name='keywords.semrush.isActive']").is(":checked");
 	options.keywords.semrush.token = $("input[name='keywords.semrush.token']").val();
 
-	localStorage["ShareMetric"] = JSON.stringify(options);
-	
-	// Reload the options that the background app is using to be the newly updated options
-	bg.app.loadOptions();
-	alert("Options updated!");
 
+	bg.saveOptions(JSON.stringify(options));
+	alert("Options updated!");
 }
 
 /**

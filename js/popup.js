@@ -20,7 +20,6 @@ $(document).ready(function(){
 
 	$("#refresh-page").click(function() {
 		queryTab(true);
-		console.log(URL);
 	});
 
 	queryTab(false);
@@ -48,7 +47,7 @@ $(document).ready(function(){
 
 			var notifRow = newRow("notifications", "Notifications");
 			var notifRowInner = $("<div>").addClass("col-xs-12").appendTo(notifRow);
-			bg.displayNotifications(notifRowInner);
+			bg.app.displayNotifications(notifRowInner);
 
 		});
 	}
