@@ -16,7 +16,7 @@
 			"default_title" : ""
  		},
 	"background"		: {
-			"scripts": ["/lib/js/jquery-2.1.0.min.js", "/lib/js/hmac-sha1.js", "/lib/js/enc-base64-min.js", "/js/background.js"]
+			"scripts": ["/lib/js/jquery-2.1.0.min.js", "/lib/js/hmac-sha1.js", "/lib/js/enc-base64-min.js", "/lib/js/purl.js", "/js/background.js"]
 		},
 	"permissions"		: [
 		"http://*/*", "https://*/*", "tabs", "storage"

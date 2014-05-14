@@ -17,6 +17,9 @@ function ShareMetric() {
 	self.URL = "";
 	self.dismissedNotifications = (localStorage['dismissedNotifications']) ? 
 									localStorage['dismissedNotifications'].split(",").map(function(ele){return parseInt(ele);}) : [];
+
+	self.ahrefsState = "be1d9e5b7a826f5afd282e9d2e82c43f";
+	self.ahrefsAccessToken;
 	
 	self.optionsMETA = {
 		social : {
@@ -305,13 +308,37 @@ function ShareMetric() {
 			}
 		},
 		ahrefs : function (callback) {
+			$.ajax({
+				url : "http://apiv2.ahrefs.com",
+				data : {
+					token 		: self.ahrefsAccessToken,
+					target 		: self.URL,
+					from 		: "ahrefs_rank",
+					mode 		: "exact",
+					limit 		: "5",
+					output 		: "json"
+				},
+				success : function(data) {
+					console.log("ahrefs response");
+					console.log(data);
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+
+				}
+
+			})
+
+			console.log(ahrefsAccessToken);
+
+
+
 			// NOT IMPLEMENTED
-			// self.data.links.ahrefs = {
-			// 	urlRank			: 52,
-			// 	domainRank		: 470,
-			// 	PRD 			: 9,
-			// 	DRD 			: 10000
-			// };
+			self.data.links.ahrefs = {
+				urlRank			: 52,
+				domainRank		: 470,
+				PRD 			: 9,
+				DRD 			: 10000
+			};
 		},
 		semrush : function (callback) {
 			
@@ -559,11 +586,20 @@ function ShareMetric() {
 		loadOptions : function () {
 			if(localStorage.getItem("ShareMetric")){
 				self.options = JSON.parse(localStorage.getItem("ShareMetric"));
-				prepData();
 			}
 			else {
 				self.options = defaultOptions();
 			}
+			// TODO: figure out why this bug patch is needed
+			if(typeof self.options != "object") {
+				self.options = JSON.parse(self.options);
+			}
+
+			if(self.pub.hasAhrefs()) {
+				self.pub.requestAhrefsToken();
+			}
+
+			prepData();
 		},
 
 		/**
@@ -726,11 +762,61 @@ function ShareMetric() {
 				localStorage['dismissedNotifications'] = self.dismissedNotifications;
 				self.pub.displayNotifications(target);
 			}
+		},
+
+		/**
+		 * Makes a request to for an ahrefs access token
+		 */
+		requestAhrefsToken : function(callback) {
+			/**
+			 * Creates oauth request to generate an access token for ahrefs
+			 */
+			chrome.tabs.create({
+				"url" : "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=be1d9e5b7a826f5afd282e9d2e82c43f&redirect_uri=http%3A%2F%2Fwww.contentharmony.com%2Ftools%2Fsharemetric%2F"
+			}, function(tab) {
+				var oauthTabId = tab.id;
+				chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+					var url = $.url(changeInfo.url);
+					if(tabId == oauthTabId && url.attr('host') == "www.contentharmony.com" 
+						&& url.attr('path') == "/tools/sharemetric/") {
+
+						if(url.param("state") == self.ahrefsState) {
+							// Store access token until it expires
+							$.ajax({
+								url: "https://ahrefs.com/oauth2/token.php", 
+								data : {
+									grant_type 		: "authorization_code",
+									code 			: url.param("code"),
+									client_id 		: "ShareMetric",
+									client_secret 	: "Bg6xDGYGb",
+									redirect_uri 	: "http://www.contentharmony.com/tools/sharemetric/"
+								},
+								success : function(data) {
+									self.ahrefsAccessToken = data.access_token;
+									self.ahrefsRefreshToken = data.refresh_token;
+									console.log("Ahrefs API authenticated!");
+									if(callback != undefined) {
+										callback();
+									}
+								},
+								error : function (jqXHR, textStatus, errorThrown) {
+									
+								},
+								complete : function() {
+									// Remove tab used for authentication
+									// chrome.tabs.remove(oauthTabId);
+								}
+							});
+
+						}
+						
+					}
+				});
+			});
 		}
 	};
 
 	self.pub.loadOptions();
-	prepData();
 	return self.pub;
 }
 
@@ -740,6 +826,8 @@ function ShareMetric() {
 function init () {
 	if(!app) {
 		app = ShareMetric();
+
+
 	}
 }
 
