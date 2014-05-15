@@ -21,6 +21,7 @@ function ShareMetric() {
 	self.ahrefsState = "be1d9e5b7a826f5afd282e9d2e82c43f";
 	self.ahrefsAccessToken;
 	self.ahrefsRefreshToken;
+	self.numAhrefsTokenRequests = 0;
 	
 	self.optionsMETA = {
 		social : {
@@ -481,8 +482,7 @@ function ShareMetric() {
 
 				},
 				ahrefs 	: {
-					isActive	: false,
-					token		: ""
+					isActive	: false
 				}
 			},
 			keywords	: {
@@ -605,7 +605,15 @@ function ShareMetric() {
 				self.APIs.moz(callback);	
 			}
 			if(self.pub.hasAhrefs()){
-				self.APIs.ahrefs(callback);	
+				// TODO: Check if expired?
+				if(self.ahrefsAccessToken != null) {
+					self.APIs.ahrefs(callback);		
+				}
+				else {
+					self.pub.requestAhrefsToken(self.APIs.ahrefs);
+				}
+
+				
 			}
 			if(self.pub.hasKeywords()){
 				self.APIs.semrush(callback);
@@ -649,6 +657,15 @@ function ShareMetric() {
 			}
 
 			prepData();
+			
+			// Refresh any options pages if they're open in a tab
+			chrome.tabs.query({
+				title : "ShareMetric Options"
+			}, function(tabs) {
+				$.each(tabs, function(key, tab) {
+					chrome.tabs.reload(tab.id);
+				});
+			});
 		},
 
 		/**
@@ -781,7 +798,6 @@ function ShareMetric() {
 		displayNotifications : function(target) {
 			self.pub.getPushNotifications(display);
 
-
 			function display(notif) {
 				if(!notif) {
 					target.append($("<div>").addClass("alert alert-warning").text("No new notifications to display."));
@@ -798,7 +814,6 @@ function ShareMetric() {
 						.append($("<p>").html(notif.message)));
 				}
 			}
-
 
 			/**
 			 * Called when a notification is dismissed
@@ -817,6 +832,8 @@ function ShareMetric() {
 		 * Makes a request to for an ahrefs access token
 		 */
 		requestAhrefsToken : function(callback) {
+			console.log(self.numAhrefsTokenRequests);
+
 			/**
 			 * Creates oauth request to generate an access token for ahrefs
 			 */
@@ -828,42 +845,64 @@ function ShareMetric() {
 					var url = $.url(changeInfo.url);
 					if(tabId == oauthTabId && url.attr('host') == "www.contentharmony.com" 
 						&& url.attr('path') == "/tools/sharemetric/") {
-
 						if(url.param("state") == self.ahrefsState) {
-							// Store access token until it expires
-							$.ajax({
-								url: "https://ahrefs.com/oauth2/token.php", 
-								type: "post",
-								data : {
-									grant_type 		: "authorization_code",
-									code 			: url.param("code"),
-									client_id 		: "ShareMetric",
-									client_secret 	: "Bg6xDGYGb",
-									redirect_uri 	: "http://www.contentharmony.com/tools/sharemetric/"
-								},
-								success : function(data) {
-									self.ahrefsAccessToken = data.access_token;
-									self.ahrefsRefreshToken = data.refresh_token;
-									console.log("refresh token: " + self.ahrefsRefreshToken);
-									console.log("Ahrefs API authenticated!");
-									if(callback != undefined) {
-										callback();
+							if(url.param("error") == "access_denied") {
+								accessDeniedError();
+							}
+							else {
+								// Store access token until it expires
+								$.ajax({
+									url: "https://ahrefs.com/oauth2/token.php", 
+									type: "post",
+									data : {
+										grant_type 		: "authorization_code",
+										code 			: url.param("code"),
+										client_id 		: "ShareMetric",
+										client_secret 	: "Bg6xDGYGb",
+										redirect_uri 	: "http://www.contentharmony.com/tools/sharemetric/"
+									},
+									success : function(data) {
+										self.ahrefsAccessToken = data.access_token;
+										self.ahrefsRefreshToken = data.refresh_token;
+										chrome.tabs.remove(oauthTabId);
+										if(callback != undefined) {
+											callback();
+										}
+									},
+									error : function (jqXHR, textStatus, errorThrown) {
+										accessDeniedError();
 									}
-								},
-								error : function (jqXHR, textStatus, errorThrown) {
-									
-								},
-								complete : function() {
-									// Remove tab used for authentication
-									alert("Ahrefs API authenticated!");
-									chrome.tabs.remove(oauthTabId);
-								}
-							});
-
-						}
-						
+								});
+							}							
+						}	
 					}
 				});
+
+				function accessDeniedError(){
+					console.log("AccessDeniedError");
+					console.log(self.numAhrefsTokenRequests);
+					if (self.numAhrefsTokenRequests + 1 > 1) {
+						autoDisableAhrefs("You have been denied access to ahrefs > 3 times. Ahrefs has been disabled. Go to the options page to renable ahrefs.", oauthTabId);
+					}
+					else if(confirm("Access denied for ahrefs. Try again?")) {
+						chrome.tabs.remove(oauthTabId);
+						self.numAhrefsTokenRequests++;
+						self.pub.requestAhrefsToken();
+					}
+					else {
+						autoDisableAhrefs("The ahrefs api has been disabled. Go to the options page to reenable this api.", oauthTabId);
+					}
+				}
+
+				function autoDisableAhrefs(msg, tabID) {
+					alert(msg);
+					self.options.links.ahrefs.isActive = false;
+					self.numAhrefsTokenRequests = 0;
+					self.ahrefsAccessToken = null;
+					self.ahrefsRefreshToken = null;
+					self.pub.saveOptions();
+					chrome.tabs.remove(tabID);
+				}
 			});
 		}
 	};
