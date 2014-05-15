@@ -114,7 +114,7 @@ function displayKeywords(keywords) {
 	var row = newRow("keywords", "Keywords");
 
 	var image = $("<img>", {
-		src 	: "/images/semrush.png",
+		src 	: "/images/icons/semrush.png",
 		alt 	: "SEMRush icon"
 	});
 	row.append($("<div>").addClass("col-xs-2").append(image));
@@ -247,7 +247,7 @@ function displayLinks(linkData) {
 
 	function createMozRow(row){
 		var image = $("<img>", {
-			src 	: "/images/moz.png",
+			src 	: "/images/icons/moz.png",
 			alt 	: "Moz icon"
 		});
 		row.attr("id", "moz");
@@ -304,7 +304,7 @@ function displayLinks(linkData) {
 
 	function createAhrefsRow(row) {
 		var image = $("<img>", {
-			"src"	: "/images/ahrefs.png",
+			"src"	: "/images/icons/ahrefs.png",
 			"alt"	: "Ahrefs icon"
 		});
 		row.attr("id", "ahrefs");
@@ -312,23 +312,23 @@ function displayLinks(linkData) {
 		row.append(
 			$("<div>").addClass("col-xs-6 link-inner-col")
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6 link-label").text("URL Rank: ").tooltip({placement: "top", title: "URL Rank, as reported by Ahrefs"})
+					.append($("<div>").addClass("col-xs-6 link-label").text("URLR: ").tooltip({placement: "top", title: "URL Rank, as reported by Ahrefs"})
 						.append($("<strong>").addClass("url-rank")))
 					.append($("<div>").addClass("col-xs-6 link-label").text("PRDs: ").tooltip({placement: "top", title: "Number of Root Domains Linking to this Page, as reported by Ahrefs"})
 						.append($("<strong>").addClass("prd")))
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
-						href 	: "https://ahrefs.com/site-explorer/overview/prefix/" + encodeURIComponent(URL),
+						href 	: "https://ahrefs.com/site-explorer/overview/prefix/?target=" + URL,
 						target	: "_blank"
 					}).text("View Page URL Metrics")))
 				.append($("<div>").addClass("row")
-					.append($("<div>").addClass("col-xs-6 link-label").text("Domain Rank: ").tooltip({placement: "top", title: "Domain Rank, as reported by Ahrefs"})
+					.append($("<div>").addClass("col-xs-6 link-label").text("DR: ").tooltip({placement: "top", title: "Domain Rank, as reported by Ahrefs"})
 						.append($("<strong>").addClass("domain-rank")))
 					.append($("<div>").addClass("col-xs-6 link-label").text("DRDs: ").tooltip({placement: "top", title: "Number of Root Domains Linking to this Domain, as reported by Ahrefs"})
 						.append($("<strong>").addClass("drd")))
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
-						href 	: "https://ahrefs.com/site-explorer/overview/subdomains/" + encodeURIComponent(URL) + "&sort=page_authority&filter=&source=&target=domain&group=0",
+						href 	: "https://ahrefs.com/site-explorer/overview/subdomains/?target=" + URL,
 						target	: "_blank"
 					}).text("View Full Domain Metrics")))
 		);
@@ -338,22 +338,22 @@ function displayLinks(linkData) {
 				.append($("<strong>").text("View More:")))
 			.append($("<li>")
 				.append($("<a>", {
-					href 	: "https://ahrefs.com/site-explorer/pages/subdomains/" + encodeURIComponent(URL),
+					href 	: "https://ahrefs.com/site-explorer/overview/top-pages/subdomains/1/ahrefs_rank_desc?target=" + URL,
 					target	: "_blank"
 				}).text("Top Pages")))
 			.append($("<li>")
 				.append($("<a>", {
-					href 	: "https://ahrefs.com/site-explorer/backlinks-new/subdomains/" + encodeURIComponent(URL),
+					href 	: "https://ahrefs.com/site-explorer/backlinks/new/subdomains/2014-05-09/2014-05-15/all/all/1/ahrefs_rank_desc?target=" + URL,
 					target	: "_blank"
 				}).text("New Links")))
 			.append($("<li>")
 				.append($("<a>", {
-					href 	: "https://ahrefs.com/site-explorer/backlinks/subdomains/" + encodeURIComponent(URL),
+					href 	: "https://ahrefs.com/site-explorer/backlinks/external/subdomains/all/all/1/ahrefs_rank_desc?target=" + URL,
 					target	: "_blank"
 				}).text("External Links")))
 			.append($("<li>")
 				.append($("<a>", {
-					href 	: "https://ahrefs.com/site-explorer/anchors/subdomains/" + encodeURIComponent(URL) + "phrases",
+					href 	: "https://ahrefs.com/site-explorer/backlinks/anchors/subdomains/phrases/all/1/refdomains_desc?target=" + URL + "&substring=",
 					target	: "_blank"
 				}).text("Anchor Text")))
 		);
