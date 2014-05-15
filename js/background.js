@@ -20,6 +20,7 @@ function ShareMetric() {
 
 	self.ahrefsState = "be1d9e5b7a826f5afd282e9d2e82c43f";
 	self.ahrefsAccessToken;
+	self.ahrefsRefreshToken;
 	
 	self.optionsMETA = {
 		social : {
@@ -151,7 +152,6 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.linkedIn.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					
 				}
 			});
 		},
@@ -183,8 +183,7 @@ function ShareMetric() {
 					
 					self.data.social.totalCount += total;
 					self.pub.updateBadge();
-					self.data.isEmpty = false;
-					
+					self.data.isEmpty = false;	
 				}
 			});
 		},
@@ -206,7 +205,6 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.stumbleUpon.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					
 				}
 			});
 		},
@@ -239,7 +237,6 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.pinterest.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					
 				}
 			});	
 		},
@@ -261,7 +258,6 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.delicious.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					
 				}
 			});
 		},
@@ -291,8 +287,6 @@ function ShareMetric() {
 						console.error("MOZ API ERROR -- Too many requests made");
 					}
 				}
-
-
 			});
 
 			/**
@@ -308,6 +302,13 @@ function ShareMetric() {
 			}
 		},
 		ahrefs : function (callback) {
+			self.data.links.ahrefs = {
+				urlRank			: null,
+				domainRank		: null,
+				PRD 			: null,
+				DRD 			: null
+			};
+
 			$.ajax({
 				url : "http://apiv2.ahrefs.com",
 				data : {
@@ -319,26 +320,74 @@ function ShareMetric() {
 					output 		: "json"
 				},
 				success : function(data) {
-					console.log("ahrefs response");
-					console.log(data);
+					self.data.links.ahrefs.urlRank = data.pages[0].ahrefs_rank;
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
-
+					// TODO: Special handling for failed API request
+					// make use of the refresh token, and if cannot refresh
+					// fire google analytics event
 				}
 
 			})
 
-			console.log(ahrefsAccessToken);
+			$.ajax({
+				url : "http://apiv2.ahrefs.com",
+				data : {
+					token 		: self.ahrefsAccessToken,
+					target 		: self.URL,
+					from 		: "domain_rating",
+					mode 		: "domain",
+					output 		: "json"
+				},
+				success : function(data) {
+					self.data.links.ahrefs.domainRank = data.domain.domain_rating;
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					// TODO: Special handling for failed API request
+					// make use of the refresh token, and if cannot refresh
+					// fire google analytics event
+				}
+			});
 
+			$.ajax({
+				url : "http://apiv2.ahrefs.com",
+				data : {
+					token 		: self.ahrefsAccessToken,
+					target 		: self.URL,
+					from 		: "refdomains",
+					mode 		: "domain",
+					limit 		: "1",
+					output 		: "json"
+				},
+				success : function(data) {
+					self.data.links.ahrefs.DRD = data.stats.refdomains;
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					// TODO: Special handling for failed API request
+					// make use of the refresh token, and if cannot refresh
+					// fire google analytics event
+				}
+			});
 
-
-			// NOT IMPLEMENTED
-			self.data.links.ahrefs = {
-				urlRank			: 52,
-				domainRank		: 470,
-				PRD 			: 9,
-				DRD 			: 10000
-			};
+			$.ajax({
+				url : "http://apiv2.ahrefs.com",
+				data : {
+					token 		: self.ahrefsAccessToken,
+					target 		: self.URL,
+					from 		: "refdomains",
+					mode 		: "exact",
+					limit 		: "1",
+					output 		: "json"
+				},
+				success : function(data) {
+					self.data.links.ahrefs.PRD = data.stats.refdomains;
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					// TODO: Special handling for failed API request
+					// make use of the refresh token, and if cannot refresh
+					// fire google analytics event
+				}
+			});
 		},
 		semrush : function (callback) {
 			
@@ -784,6 +833,7 @@ function ShareMetric() {
 							// Store access token until it expires
 							$.ajax({
 								url: "https://ahrefs.com/oauth2/token.php", 
+								type: "post",
 								data : {
 									grant_type 		: "authorization_code",
 									code 			: url.param("code"),
@@ -794,6 +844,7 @@ function ShareMetric() {
 								success : function(data) {
 									self.ahrefsAccessToken = data.access_token;
 									self.ahrefsRefreshToken = data.refresh_token;
+									console.log("refresh token: " + self.ahrefsRefreshToken);
 									console.log("Ahrefs API authenticated!");
 									if(callback != undefined) {
 										callback();
@@ -804,7 +855,8 @@ function ShareMetric() {
 								},
 								complete : function() {
 									// Remove tab used for authentication
-									// chrome.tabs.remove(oauthTabId);
+									alert("Ahrefs API authenticated!");
+									chrome.tabs.remove(oauthTabId);
 								}
 							});
 
@@ -826,8 +878,6 @@ function ShareMetric() {
 function init () {
 	if(!app) {
 		app = ShareMetric();
-
-
 	}
 }
 

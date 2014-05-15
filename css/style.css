@@ -101,6 +101,13 @@ a{
 	padding-right:5px;
 }
 
+.link-label .loading, .social-metric .loading {
+	background-image: url('/images/loading-icon.gif');
+	display: inline-block;
+	width:20px;
+	height: 20px;
+}
+
 .link-inner-col p.row {
 	padding-left:5px;
 }

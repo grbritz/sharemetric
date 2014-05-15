@@ -197,6 +197,8 @@ function displayLinks(linkData) {
 	else{
 		createAhrefsRow(row1);
 	}
+	$(".link-label strong").addClass("loading");
+
 
 	showResults();
 
@@ -204,6 +206,7 @@ function displayLinks(linkData) {
 		setTimeout(function() {
 			if(linkData.moz !== undefined) {
 				if(linkData.moz !== null) {
+					$("#moz .link-label strong").removeClass("loading");
 					//display moz data
 					$(".pa").text(bg.abbreviatedNum(linkData.moz.PA));
 					$(".plrd").text(bg.abbreviatedNum(linkData.moz.PLRD));
@@ -216,7 +219,16 @@ function displayLinks(linkData) {
 				}
 			}
 			if(linkData.ahrefs !== undefined) {
-				if(linkData.ahrefs !== null) {
+				
+				var hasNull = false;
+				$.each(linkData.ahrefs, function(key, val){
+					if(linkData.ahrefs[key] == null) {
+						hasNull = true;
+					}
+				});
+
+				if(!hasNull) {
+					$("#ahrefs .link-label strong").removeClass("loading");
 					// Display ahrefs data
 					$(".url-rank").text(bg.abbreviatedNum(linkData.ahrefs.urlRank));
 					$(".prd").text(bg.abbreviatedNum(linkData.ahrefs.PRD));
@@ -359,9 +371,10 @@ function displaySocial(socialData, keysToDisplay) {
 	var row = newRow("social", "Social");
 	buildSocialColumn(0, Math.floor(keysToDisplay.length / 2), row);
 	buildSocialColumn(Math.floor(keysToDisplay.length / 2), keysToDisplay.length, row);
+	$(".social .social-metric span").addClass("loading");
 
 	function loopWhileNotLoaded(num) {
-		if(keysToDisplay.length > 0){
+		if(keysToDisplay.length > 0) {
 			setTimeout(function() {
 				var tmpKeys = keysToDisplay;
 				$.each(tmpKeys, function(ind, key){
@@ -389,6 +402,8 @@ function displaySocial(socialData, keysToDisplay) {
 				loopWhileNotLoaded();
 			}, 200);
 		}
+
+		$(".social .social-metric span").removeClass("loading");
 	}
 
 	loopWhileNotLoaded();
