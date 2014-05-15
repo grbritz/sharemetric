@@ -327,6 +327,7 @@ function ShareMetric() {
 					// TODO: Special handling for failed API request
 					// make use of the refresh token, and if cannot refresh
 					// fire google analytics event
+					ahrefsAccessDeniedError(self.APIs.ahrefs);
 				}
 
 			})
@@ -347,6 +348,7 @@ function ShareMetric() {
 					// TODO: Special handling for failed API request
 					// make use of the refresh token, and if cannot refresh
 					// fire google analytics event
+					ahrefsAccessDeniedError(self.APIs.ahrefs);
 				}
 			});
 
@@ -367,6 +369,7 @@ function ShareMetric() {
 					// TODO: Special handling for failed API request
 					// make use of the refresh token, and if cannot refresh
 					// fire google analytics event
+					ahrefsAccessDeniedError(self.APIs.ahrefs);
 				}
 			});
 
@@ -387,6 +390,7 @@ function ShareMetric() {
 					// TODO: Special handling for failed API request
 					// make use of the refresh token, and if cannot refresh
 					// fire google analytics event
+					ahrefsAccessDeniedError(self.APIs.ahrefs);
 				}
 			});
 		},
@@ -572,6 +576,41 @@ function ShareMetric() {
 		}
 
 		self.data = data;
+	}
+
+	/**
+	 * Displays an error message to the user and if appropriate,
+	 * tries to request a new ahrefs access token, otherwise 
+	 * it will disable ahrefs
+	 * @param  {Function} callback function to execute if a new token is fetched
+	 * @param {integer} tabID id of tab that was used to get a new token
+	 */
+	function ahrefsAccessDeniedError(callback, tabID){
+		if (self.numAhrefsTokenRequests + 1 > 1) {
+			autoDisableAhrefs("You have been denied access to ahrefs > 2 times. Ahrefs has been disabled. Go to the options page to renable ahrefs.", tabID);
+		}
+		else if(confirm("Access denied for ahrefs. Would you like to try to reauthenticate?")) {
+			if(tabID){
+				chrome.tabs.remove(tabID);	
+			}
+			self.numAhrefsTokenRequests++;
+			self.pub.requestAhrefsToken(callback);
+		}
+		else {
+			autoDisableAhrefs("The ahrefs api has been disabled. Go to the options page to reenable this api.", tabID);
+		}
+	}
+
+	function autoDisableAhrefs(msg, tabID) {
+		alert(msg);
+		self.options.links.ahrefs.isActive = false;
+		self.numAhrefsTokenRequests = 0;
+		self.ahrefsAccessToken = null;
+		self.ahrefsRefreshToken = null;
+		self.pub.saveOptions();
+		if(tabID){
+			chrome.tabs.remove(tabID);	
+		}
 	}
 
 	/**
@@ -832,8 +871,6 @@ function ShareMetric() {
 		 * Makes a request to for an ahrefs access token
 		 */
 		requestAhrefsToken : function(callback) {
-			console.log(self.numAhrefsTokenRequests);
-
 			/**
 			 * Creates oauth request to generate an access token for ahrefs
 			 */
@@ -847,7 +884,7 @@ function ShareMetric() {
 						&& url.attr('path') == "/tools/sharemetric/") {
 						if(url.param("state") == self.ahrefsState) {
 							if(url.param("error") == "access_denied") {
-								accessDeniedError();
+								ahrefsAccessDeniedError();
 							}
 							else {
 								// Store access token until it expires
@@ -870,7 +907,7 @@ function ShareMetric() {
 										}
 									},
 									error : function (jqXHR, textStatus, errorThrown) {
-										accessDeniedError();
+										ahrefsAccessDeniedError();
 									}
 								});
 							}							
@@ -878,31 +915,7 @@ function ShareMetric() {
 					}
 				});
 
-				function accessDeniedError(){
-					console.log("AccessDeniedError");
-					console.log(self.numAhrefsTokenRequests);
-					if (self.numAhrefsTokenRequests + 1 > 1) {
-						autoDisableAhrefs("You have been denied access to ahrefs > 3 times. Ahrefs has been disabled. Go to the options page to renable ahrefs.", oauthTabId);
-					}
-					else if(confirm("Access denied for ahrefs. Try again?")) {
-						chrome.tabs.remove(oauthTabId);
-						self.numAhrefsTokenRequests++;
-						self.pub.requestAhrefsToken();
-					}
-					else {
-						autoDisableAhrefs("The ahrefs api has been disabled. Go to the options page to reenable this api.", oauthTabId);
-					}
-				}
-
-				function autoDisableAhrefs(msg, tabID) {
-					alert(msg);
-					self.options.links.ahrefs.isActive = false;
-					self.numAhrefsTokenRequests = 0;
-					self.ahrefsAccessToken = null;
-					self.ahrefsRefreshToken = null;
-					self.pub.saveOptions();
-					chrome.tabs.remove(tabID);
-				}
+				
 			});
 		}
 	};
