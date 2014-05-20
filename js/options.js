@@ -56,13 +56,13 @@ function saveOptions(){
 	options.links.moz.secret = $("input[name='links.moz.secret']").val();
 
 	options.links.ahrefs.isActive = $("input[name='links.ahrefs.isActive']").is(":checked");
-	// options.links.ahrefs.token = $("input[name='links.ahrefs.token']").val();
+	options.links.ahrefs.token = null;
 
 	options.keywords.semrush.isActive = $("input[name='keywords.semrush.isActive']").is(":checked");
 	options.keywords.semrush.token = $("input[name='keywords.semrush.token']").val();
 
 
-	bg.app.saveOptions(JSON.stringify(options));
+	bg.app.saveOptions(options);
 	alert("Options updated!");
 }
 
