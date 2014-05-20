@@ -839,7 +839,7 @@ function ShareMetric() {
 
 			function display(notif) {
 				if(!notif) {
-					target.append($("<div>").addClass("alert alert-warning").text("No new notifications to display."));
+					target.append($("<div>").addClass("alert alert-success").html("No new updates from us! <a href=\"http://twitter.com/content_harmony\">Follow us on Twitter</a> for more."));
 				}
 				else {
 					target.append(
