@@ -103,6 +103,7 @@ a{
 
 .link-label .loading, .social-metric .loading {
 	background-image: url('/images/loading-icon.gif');
+	background-repeat: no-repeat;
 	display: inline-block;
 	width:20px;
 	height: 20px;

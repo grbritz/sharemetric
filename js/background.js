@@ -327,7 +327,7 @@ function ShareMetric() {
 					// TODO: Special handling for failed API request
 					// make use of the refresh token, and if cannot refresh
 					// fire google analytics event
-					ahrefsAccessDeniedError(self.APIs.ahrefs);
+					// ahrefsAccessDeniedError(self.APIs.ahrefs);
 					console.error("AHREFS API CALL FAILURE - ahrefs_rank");
 				}
 
@@ -349,7 +349,7 @@ function ShareMetric() {
 					// TODO: Special handling for failed API request
 					// make use of the refresh token, and if cannot refresh
 					// fire google analytics event
-					ahrefsAccessDeniedError(self.APIs.ahrefs);
+					// ahrefsAccessDeniedError(self.APIs.ahrefs);
 					console.error("AHREFS API CALL FAILURE - domain_rating");
 				}
 			});
@@ -371,7 +371,7 @@ function ShareMetric() {
 					// TODO: Special handling for failed API request
 					// make use of the refresh token, and if cannot refresh
 					// fire google analytics event
-					ahrefsAccessDeniedError(self.APIs.ahrefs);
+					// ahrefsAccessDeniedError(self.APIs.ahrefs);
 					console.error("AHREFS API CALL FAILURE - refdomains:domain");
 				}
 			});
@@ -393,7 +393,7 @@ function ShareMetric() {
 					// TODO: Special handling for failed API request
 					// make use of the refresh token, and if cannot refresh
 					// fire google analytics event
-					ahrefsAccessDeniedError(self.APIs.ahrefs);
+					// ahrefsAccessDeniedError(self.APIs.ahrefs);
 					console.error("AHREFS API CALL FAILURE - refdomains:exact");
 				}
 			});
@@ -489,7 +489,8 @@ function ShareMetric() {
 					id			: "",
 					secret		: ""
 
-				},
+				}
+				,
 				ahrefs 	: {
 					isActive	: false,
 					token 		: null
@@ -570,9 +571,9 @@ function ShareMetric() {
 			if(self.options.links.moz.isActive) {
 				data.links['moz'] = null;
 			}
-			if(self.options.links.ahrefs.isActive) {
-				data.links['ahrefs'] = null;
-			}
+			// if(self.options.links.ahrefs.isActive) {
+			// 	data.links['ahrefs'] = null;
+			// }
 		}
 
 		if(self.options.keywords.semrush.token) {
@@ -936,6 +937,11 @@ function ShareMetric() {
  */
 function init () {
 	if(!app) {
+		// Clear out ahrefs
+		tmp = JSON.parse(localStorage.getItem("ShareMetric"));
+		tmp.links.ahrefs.isActive = false;
+		localStorage['ShareMetric'] = JSON.stringify(tmp);
+
 		app = ShareMetric();
 	}
 }

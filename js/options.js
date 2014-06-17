@@ -55,10 +55,10 @@ function saveOptions(){
 	options.links.moz.id = $("input[name='links.moz.id']").val();
 	options.links.moz.secret = $("input[name='links.moz.secret']").val();
 
-	options.links.ahrefs.isActive = $("input[name='links.ahrefs.isActive']").is(":checked");
-	if(!options.links.ahrefs.token) {
-		options.links.ahrefs.token = null;
-	}
+	// options.links.ahrefs.isActive = $("input[name='links.ahrefs.isActive']").is(":checked");
+	// if(!options.links.ahrefs.token) {
+	// 	options.links.ahrefs.token = null;
+	// }
 
 	options.keywords.semrush.isActive = $("input[name='keywords.semrush.isActive']").is(":checked");
 	options.keywords.semrush.token = $("input[name='keywords.semrush.token']").val();
