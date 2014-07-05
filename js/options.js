@@ -1,13 +1,9 @@
 //Analytics
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-38625564-1']);
-_gaq.push(['_trackPageview']);
-
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = 'https://ssl.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MBCM4N');
 
 var bg;
 $(document).ready(function(){
@@ -35,7 +31,13 @@ $(document).ready(function(){
 		saveOptions();
 	});
 
-	bg.app.displayNotifications($("#notifications .col-sm-12"));
+	bg.app.displayNotifications($("#notifications .col-sm-12"), "Options Interaction");
+
+	var tid = setInterval(function() {
+		if(document.readyState !== "complete") return;
+		clearInterval(tid);
+		bindGA();
+	}, 100);
 });
 
 /**
@@ -109,6 +111,53 @@ function displayOptions() {
 	}
 
 	$("input[name='keywords.semrush.token']").val(options.keywords.semrush.token);
+}
 
+/**
+ * Binds google analytics tracking events
+ */
+function bindGA(){
+	ga("send", "event", "Extension Usage", "Options Page Loaded");
 
+	$("#social-apis input").click(function(){
+		var serviceName = $(this).attr("name").split(".").pop();
+		if($(this).is(":checked")){
+			ga("send", "event", "Options Interaction", "Service Activated", serviceName);
+		}
+		else {
+			ga("send", "event", "Options Interaction", "Service Deactivated", serviceName);
+		}
+	});
+
+	$("input[name='links.moz.isActive']").add("input[name='links.ahrefs.isActive']")
+	.add("input[name='keywords.semrush.isActive']").click(function(){
+		var serviceName = $(this).attr("name").split(".")[1];
+		if($(this).is(":checked")){
+			ga("send", "event", "Options Interaction", "Service Activated", serviceName);
+		}
+		else {
+			ga("send", "event", "Options Interaction", "Service Deactivated", serviceName);
+		}
+	});
+
+	$("input[name=showResearch]").click(function(){
+		if($(this).is(":checked")){
+			ga("send", "event", "Options Interaction", "Service Activated", "research");
+		}
+		else {
+			ga("send", "event", "Options Interaction", "Service Deactivated", "research");
+		}
+	});
+
+	$(".save-options").click(function(){
+		ga("send", "event", "Options Interaction", "Options Updated");
+	});
+
+	$("#foot a").click(function(){
+		ga("send", "event", "Options Interaction", "Link Clicked - Options Footer -" + $(this).data("ga-action"));
+	});
+
+	$("#head a").click(function(){
+		ga("send", "event", "Options Interaction", "Link Clicked - Options Header -" + $(this).data("ga-action"));
+	});
 }

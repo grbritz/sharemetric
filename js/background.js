@@ -1,13 +1,9 @@
 //Analytics
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-38625564-1']);
-_gaq.push(['_trackPageview']);
-
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = 'https://ssl.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MBCM4N');
 
 function ShareMetric() {
 	var self = this;
@@ -93,7 +89,11 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.facebook.data.total;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
-					
+
+					ga('send', 'event', 'API Load', 'API Load - Facebook', self.pub.getRedactedURL());	
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					ga('send', 'event', 'Error', 'API Error - Facebook', 'Request Failed - ' + jqXHR.status);
 				}
 			});
 		},
@@ -116,7 +116,12 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.twitter.data;
 					self.pub.updateBadge();	
 					self.data.isEmpty = false;
+
+					ga('send', 'event', 'API Load', 'API Load - Twitter', self.pub.getRedactedURL());
 					
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					ga('send', 'event', 'Error', 'API Error - Twitter', 'Request Failed - ' + jqXHR.status);
 				}
 			});	
 		},
@@ -132,6 +137,10 @@ function ShareMetric() {
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
 					
+					ga('send', 'event', 'API Load', 'API Load - Google+', self.pub.getRedactedURL());
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					ga('send', 'event', 'Error', 'API Error - Google+', 'Request Failed - ' + jqXHR.status);
 				}
 			});
 		},
@@ -152,6 +161,11 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.linkedIn.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
+
+					ga('send', 'event', 'API Load', 'API Load - LinkedIn', self.pub.getRedactedURL());
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					ga('send', 'event', 'Error', 'API Error - LinkedIn', 'Request Failed - ' + jqXHR.status);
 				}
 			});
 		},
@@ -180,10 +194,14 @@ function ShareMetric() {
 					};
 
 					self.data.social.reddit.link.href = self.data.social.reddit.link.href.replace("url_replace", encodeURIComponent(self.URL));
-					
 					self.data.social.totalCount += total;
 					self.pub.updateBadge();
-					self.data.isEmpty = false;	
+					self.data.isEmpty = false;
+
+					ga('send', 'event', 'API Load', 'API Load - Reddit', self.pub.getRedactedURL());
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					ga('send', 'event', 'Error', 'API Error - Reddit', 'Request Failed - ' + jqXHR.status);
 				}
 			});
 		},
@@ -205,6 +223,11 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.stumbleUpon.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
+
+					ga('send', 'event', 'API Load', 'API Load - Stumbleupon', self.pub.getRedactedURL());
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					ga('send', 'event', 'Error', 'API Error - Stumpleupon', 'Request Failed - ' + jqXHR.status);
 				}
 			});
 		},
@@ -237,6 +260,11 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.pinterest.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
+
+					ga('send', 'event', 'API Load', 'API Load - Pinterest', self.pub.getRedactedURL());
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					ga('send', 'event', 'Error', 'API Error - Pinterest', 'Request Failed - ' + jqXHR.status);
 				}
 			});	
 		},
@@ -258,6 +286,11 @@ function ShareMetric() {
 					self.data.social.totalCount += self.data.social.delicious.data;
 					self.pub.updateBadge();
 					self.data.isEmpty = false;
+
+					ga('send', 'event', 'API Load', 'API Load - Delicious', self.pub.getRedactedURL());
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					ga('send', 'event', 'Error', 'API Error - Delicious', 'Request Failed - ' + jqXHR.status);
 				}
 			});
 		},
@@ -278,13 +311,18 @@ function ShareMetric() {
 						DLRD 	: data.pid,
 						PLRD 	: data.uipl
 					};
+
+					ga('send', 'event', 'API Load', 'API Load - Moz', self.pub.getRedactedURL());
 				},
 				error 	: function(jqXHR, textStatus, errorThrown) {
 					if(jqXHR.status == 401) {
-						console.error("MOZ API ERROR -- incorrect key or secret");
+						ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
 					}
-					else if (jqXHR.status == 503) {
-						console.error("MOZ API ERROR -- Too many requests made");
+					else if(jqXHR.status == 503) {
+						ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - too many requests made");
+					}
+					else {
+						ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status);
 					}
 				}
 			});
@@ -309,6 +347,8 @@ function ShareMetric() {
 				DRD 			: null
 			};
 
+			var apiLoaded = false;
+
 
 			$.ajax({
 				url : "http://apiv2.ahrefs.com",
@@ -322,6 +362,10 @@ function ShareMetric() {
 				},
 				success : function(data) {
 					self.data.links.ahrefs.urlRank = data.pages[0].ahrefs_rank;
+					if(!apiLoaded){
+						apiLoaded = true;
+						ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.pub.getRedactedURL());
+					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					// TODO: Special handling for failed API request
@@ -329,6 +373,7 @@ function ShareMetric() {
 					// fire google analytics event
 					// ahrefsAccessDeniedError(self.APIs.ahrefs);
 					console.error("AHREFS API CALL FAILURE - ahrefs_rank");
+					ga('send', 'event', 'Error', 'API Error - Ahrefs', "ahrefs_rank -" + jqXHR.status);
 				}
 
 			})
@@ -344,6 +389,11 @@ function ShareMetric() {
 				},
 				success : function(data) {
 					self.data.links.ahrefs.domainRank = data.domain.domain_rating;
+
+					if(!apiLoaded){
+						apiLoaded = true;
+						ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.pub.getRedactedURL());
+					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					// TODO: Special handling for failed API request
@@ -351,6 +401,7 @@ function ShareMetric() {
 					// fire google analytics event
 					// ahrefsAccessDeniedError(self.APIs.ahrefs);
 					console.error("AHREFS API CALL FAILURE - domain_rating");
+					ga('send', 'event', 'Error', 'API Error - Ahrefs', "domain_rating -" + jqXHR.status);
 				}
 			});
 
@@ -366,6 +417,11 @@ function ShareMetric() {
 				},
 				success : function(data) {
 					self.data.links.ahrefs.DRD = data.stats.refdomains;
+
+					if(!apiLoaded){
+						apiLoaded = true;
+						ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.pub.getRedactedURL());
+					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					// TODO: Special handling for failed API request
@@ -373,6 +429,7 @@ function ShareMetric() {
 					// fire google analytics event
 					// ahrefsAccessDeniedError(self.APIs.ahrefs);
 					console.error("AHREFS API CALL FAILURE - refdomains:domain");
+					ga('send', 'event', 'Error', 'API Error - Ahrefs', "refdomains:domain -" + jqXHR.status);
 				}
 			});
 
@@ -388,6 +445,11 @@ function ShareMetric() {
 				},
 				success : function(data) {
 					self.data.links.ahrefs.PRD = data.stats.refdomains;
+
+					if(!apiLoaded){
+						apiLoaded = true;
+						ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.pub.getRedactedURL());
+					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					// TODO: Special handling for failed API request
@@ -395,6 +457,7 @@ function ShareMetric() {
 					// fire google analytics event
 					// ahrefsAccessDeniedError(self.APIs.ahrefs);
 					console.error("AHREFS API CALL FAILURE - refdomains:exact");
+					ga('send', 'event', 'Error', 'API Error - Ahrefs', "refdomains:exact -" + jqXHR.status);
 				}
 			});
 
@@ -422,8 +485,9 @@ function ShareMetric() {
 				return result;
 			}
 
-			$.get("http://us.api.semrush.com/",
-				{
+			$.ajax({
+				url : "http://us.api.semrush.com/",
+				data : {
 					"action"		: "report",
 					"type"			: "url_organic",
 					"key"			: self.options.keywords.semrush.token,
@@ -432,17 +496,21 @@ function ShareMetric() {
 					"export_columns": "Ph,Po,Nq,Cp",
 					"url"			: self.URL
 				},
-				function(data) {
+				success : function(data) {
 					if(data != "ERROR 50 :: NOTHING FOUND") {
 						data = parseData(data);
-						self.data.keywords.semrush = data;
-						
+						self.data.keywords.semrush = data;						
 					}
 					else{
 						self.data.keywords.semrush = [];
 					}
+
+					ga('send', 'event', 'API Load', 'API Load - SEMRush', self.pub.getRedactedURL());
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					ga('send', 'event', 'Error', 'API Error - SEMRush', jqXHR.status);
 				}
-			);
+			});
 		}
 	};
 
@@ -594,6 +662,7 @@ function ShareMetric() {
 	 */
 	function ahrefsAccessDeniedError(callback, tabID){
 		if (self.numAhrefsTokenRequests + 1 > 1) {
+			ga('send', 'event', 'Ahrefs Authorization', 'Ahrefs disabled', "Too many attempts");
 			autoDisableAhrefs("You have been denied access to ahrefs > 2 times. Ahrefs has been disabled. Go to the options page to renable ahrefs.", tabID);
 		}
 		else if(confirm("Access denied for ahrefs. Would you like to try to reauthenticate?")) {
@@ -604,6 +673,7 @@ function ShareMetric() {
 			self.pub.requestAhrefsToken(callback);
 		}
 		else {
+			ga('send', 'event', 'Ahrefs Authorization', 'Authorization Requested', "No reauth attempt by user");
 			autoDisableAhrefs("The ahrefs api has been disabled. Go to the options page to reenable this api.", tabID);
 		}
 	}
@@ -630,9 +700,9 @@ function ShareMetric() {
 		 * @effects updates self.data as apis return results
 		 */
 		fetchSocialData : function () {
+			console.log(self.pub.getRedactedURL());
+			ga("send", "event", "testing", "testing", self.pub.getRedactedURL());
 			prepData();
-			_gaq.push(['_trackEvent', 'background', 'social metrics queried']);
-
 			$.each(self.APIs, function(key, ele) {
 				if(self.options.social.apis[key] && self.options.social.apis[key].isActive){
 					ele(); // Fire api	
@@ -796,6 +866,16 @@ function ShareMetric() {
 			return self.options.showResearch;
 		},
 
+		getRedactedURL : function() {
+			var url = $.url(self.URL);
+			if(url.attr("protocol") == "https") {
+				return url.attr("protocol") + "://" +url.attr("host") + "/redacted";
+			}
+			else {
+				return self.URL;
+			}
+		},
+
 		/**
 		 * Gets the notification to be displayed to the user and passes it to the callback
 		 * @param  {Function} callback function to take and display the notification
@@ -835,7 +915,7 @@ function ShareMetric() {
 		 * Displays push notifications to the user
 		 * @param  {element} target the target element to display the notifs in
 		 */
-		displayNotifications : function(target) {
+		displayNotifications : function(target, gaCategory) {
 			self.pub.getPushNotifications(display);
 
 			function display(notif) {
@@ -843,15 +923,18 @@ function ShareMetric() {
 					target.append($("<div>").addClass("alert alert-success").html("No new updates from us! <a target=\"blank\" href=\"http://twitter.com/content_harmony\">Follow us on Twitter</a> for more."));
 				}
 				else {
-					target.append(
-					$("<div>").addClass("alert alert-info alert-dismissable").data("notif", notif.id)
+					var notifDiv = $("<div>").addClass("alert alert-info alert-dismissable").data("notif", notif.id)
 						.append($("<button>", {
 							"type" 			: "button",
 							"class" 		: "close",
 							"data-dismiss"	: "alert",
 							"aria-hidden"	: "true"
 						}).html("&times;").click(dismissNotif))
-						.append($("<p>").html(notif.message)));
+						.append($("<p>").html(notif.message));
+					notifDiv.find("a").click(function(){
+						ga("send", "event", gaCategory, "Link Clicked - Notification Link");
+					});
+					target.append(notifDiv);
 				}
 			}
 
@@ -860,18 +943,21 @@ function ShareMetric() {
 			 * @return {[type]} [description]
 			 */
 			function dismissNotif() {
+				ga("send", "event", gaCategory, "Link Clicked - Notification Dismissed");
+
 				var notif = $(this).closest(".alert");
 				self.dismissedNotifications.push(parseInt(notif.data("notif")));
 				notif.remove();
 				localStorage['dismissedNotifications'] = self.dismissedNotifications;
-				self.pub.displayNotifications(target);
+				self.pub.displayNotifications(target, gaCategory);
 			}
 		},
 
 		/**
-		 * Makes a request to for an ahrefs access token
+		 * Makes a request for an ahrefs access token
 		 */
 		requestAhrefsToken : function(callback) {
+			ga('send', 'event', 'Ahrefs Authorization', 'Authorization Requested');
 			chrome.windows.create({
 				type: "popup",
 				url : "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=be1d9e5b7a826f5afd282e9d2e82c43f&redirect_uri=http%3A%2F%2Fwww.contentharmony.com%2Ftools%2Fsharemetric%2F"
@@ -936,6 +1022,7 @@ function ShareMetric() {
  * Initializes the application object and interns it
  */
 function init () {
+	
 	if(!app) {
 		// Clear out ahrefs
 		tmp = JSON.parse(localStorage.getItem("ShareMetric"));
@@ -947,8 +1034,13 @@ function init () {
 }
 
 var app; // object representing whole app
-
 init();
+
+var tid = setInterval(function() {
+	if(document.readyState !== "complete") return;
+	clearInterval(tid);
+	ga('send', 'event', 'Extension Usage', 'Background Loaded');	
+}, 100);
 
 /**
  * Shortens a number to 3 or less digits plus a character representing its scale

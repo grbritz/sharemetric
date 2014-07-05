@@ -1,17 +1,19 @@
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-38625564-1']);
-_gaq.push(['_trackPageview']);
-
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = 'https://ssl.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MBCM4N');
 
 var URL;
 var bg;
 
 $(document).ready(function(){
+	var tid = setInterval(function() {
+		if(document.readyState !== "complete") return;
+		clearInterval(tid);
+		
+	}, 100);
+
 	bg = chrome.extension.getBackgroundPage();
 	var queryO = {
 		"active" : true,
@@ -25,6 +27,7 @@ $(document).ready(function(){
 	queryTab(false);
 
 	$("#options-link").click(function(){
+		ga('send', 'event', 'Popup Interaction', 'Refresh Popup', bg.app.getRedactedURL());
 		goToOptions();
 	});
 
@@ -47,11 +50,23 @@ $(document).ready(function(){
 
 			var notifRow = newRow("notifications", "Notifications");
 			var notifRowInner = $("<div>").addClass("col-xs-12").appendTo(notifRow);
-			bg.app.displayNotifications(notifRowInner);
-
+			
+			bg.app.displayNotifications(notifRowInner, "Popup Interaction");
 		});
 	}
 });
+
+
+function bindGA(){
+	ga('send', 'event', 'Extension Usage', 'Options Page Loaded');
+	$("#head a").add("#content a").click(function(){
+		ga('send', 'event', 'Popup Interaction', 'Link Clicked - '+ $(this).data("ga-action"), bg.app.getRedactedURL());
+	});
+
+	$("#footer a").click(function(){
+		ga('send', 'event', 'Popup Interaction', 'Footer - ' + $(this).data("ga-action"), bg.app.getRedactedURL());
+	});
+}
 
 
 /**
@@ -63,21 +78,24 @@ function displayResearch() {
 		.append($("<li>")
 			.append($("<a>", {
 				href 	: "http://www.google.com/webmasters/tools/richsnippets?url=" + encodeURIComponent(URL),
-				target	: "_blank"
+				target	: "_blank",
+				"data-ga-action" : "Research - Schema"
 			}).text("Schema & Rich Snippets"))
 		)
 		.append($("<li>").text("|").addClass("spacer"))
 		.append($("<li>")
 			.append($("<a>", {
 				href 	: "http://centralops.net/co/DomainDossier.aspx?addr=" + encodeURIComponent(URL) + "&dom_whois=true&dom_dns=true&traceroute=true&net_whois=true&svc_scan=true",
-				target	: "_blank"
+				target	: "_blank",
+				"data-ga-action" : "Research - WHOIS"
 			}).text("WHOIS"))
 		)
 		.append($("<li>").text("|").addClass("spacer"))
 		.append($("<li>")
 			.append($("<a>", {
 				href 	: "http://webcache.googleusercontent.com/search?q=cache:" + encodeURIComponent(URL),
-				target	: "_blank"
+				target	: "_blank",
+				"data-ga-action" : "Research - Google Cache"
 			}).text("Google Cache"))
 		));
 }
@@ -123,7 +141,8 @@ function displayKeywords(keywords) {
 		.append(showResults())
 		.append($("<p>").append($("<a>", {
 							href 	: "http://www.semrush.com/info/" + encodeURIComponent(URL),
-							target	: "_blank"
+							target	: "_blank",
+							"data-ga-action" : "SEMRush Full Report"
 						}).text("View Full Report For This URL"))));
 
 	/**
@@ -262,7 +281,8 @@ function displayLinks(linkData) {
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
 						href 	: "http://www.opensiteexplorer.org/links?site=" + encodeURIComponent(URL),
-						target	: "_blank"
+						target	: "_blank",
+						"data-ga-action" : "Moz OSE Page"
 					}).text("View OSE Page Metrics")))
 				.append($("<div>").addClass("row")
 					.append($("<div>").addClass("col-xs-6 link-label").css("padding-right", "0px").text("DA: ").tooltip({placement: "top", title: "Domain Authority, as reported by Open Site Explorer"})
@@ -272,7 +292,8 @@ function displayLinks(linkData) {
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
 						href 	: "http://www.opensiteexplorer.org/links?page=1&site=" + encodeURIComponent(URL) + "&sort=page_authority&filter=&source=&target=domain&group=0",
-						target	: "_blank"
+						target	: "_blank",
+						"data-ga-action" : "Moz OSE Domain"
 					}).text("View OSE Domain Metrics")))
 		);
 
@@ -282,22 +303,26 @@ function displayLinks(linkData) {
 			.append($("<li>")
 				.append($("<a>", {
 					href 	: "http://www.opensiteexplorer.org/pages?site=" + encodeURIComponent(URL),
-					target	: "_blank"
+					target	: "_blank",
+					"data-ga-action" : "Moz Top Pages"
 				}).text("Top Pages")))
 			.append($("<li>")
 				.append($("<a>", {
 					href 	: "http://www.opensiteexplorer.org/just-discovered?site=" + encodeURIComponent(URL),
-					target	: "_blank"
+					target	: "_blank",
+					"data-ga-action" : "Moz Just Discovered"
 				}).text("Just-Discovered")))
 			.append($("<li>")
 				.append($("<a>", {
 					href 	: "http://www.opensiteexplorer.org/anchors?site=" + encodeURIComponent(URL),
-					target	: "_blank"
+					target	: "_blank",
+					"data-ga-action" : "Moz Anchor Text"
 				}).text("Anchor Text")))
 			.append($("<li>")
 				.append($("<a>", {
 					href 	: "https://freshwebexplorer.moz.com/results?q=%5B%22url%3A" + encodeURIComponent(URL) + "%22%2C%22rd%3A" + bg.domainOf(URL) + "%22%5D&time=last-four-weeks&sort=published&order=desc",
-					target	: "_blank"
+					target	: "_blank",
+					"data-ga-action" : "Moz Fresh Web Explorer"
 				}).text("Fresh Web Explorer")))
 		);
 	}
@@ -319,7 +344,8 @@ function displayLinks(linkData) {
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
 						href 	: "https://ahrefs.com/site-explorer/overview/prefix/?target=" + URL,
-						target	: "_blank"
+						target	: "_blank",
+						"data-ga-action" : "Ahrefs Page Metrics"
 					}).text("View Page URL Metrics")))
 				.append($("<div>").addClass("row")
 					.append($("<div>").addClass("col-xs-6 link-label").text("DR: ").tooltip({placement: "top", title: "Domain Rank, as reported by Ahrefs"})
@@ -329,7 +355,8 @@ function displayLinks(linkData) {
 				).append($("<p>").addClass("row")
 					.append($("<a>", {
 						href 	: "https://ahrefs.com/site-explorer/overview/subdomains/?target=" + URL,
-						target	: "_blank"
+						target	: "_blank",
+						"data-ga-action" : "Ahrefs Domain Metrics"
 					}).text("View Full Domain Metrics")))
 		);
 
@@ -339,22 +366,26 @@ function displayLinks(linkData) {
 			.append($("<li>")
 				.append($("<a>", {
 					href 	: "https://ahrefs.com/site-explorer/overview/top-pages/subdomains/1/ahrefs_rank_desc?target=" + URL,
-					target	: "_blank"
+					target	: "_blank",
+					"data-ga-action" : "Ahrefs Top Pages"
 				}).text("Top Pages")))
 			.append($("<li>")
 				.append($("<a>", {
 					href 	: "https://ahrefs.com/site-explorer/backlinks/new/subdomains/2014-05-09/2014-05-15/all/all/1/ahrefs_rank_desc?target=" + URL,
-					target	: "_blank"
+					target	: "_blank",
+					"data-ga-action" : "Ahrefs New Links"
 				}).text("New Links")))
 			.append($("<li>")
 				.append($("<a>", {
 					href 	: "https://ahrefs.com/site-explorer/backlinks/external/subdomains/all/all/1/ahrefs_rank_desc?target=" + URL,
-					target	: "_blank"
+					target	: "_blank",
+					"data-ga-action" : "Ahrefs External Links"
 				}).text("External Links")))
 			.append($("<li>")
 				.append($("<a>", {
 					href 	: "https://ahrefs.com/site-explorer/backlinks/anchors/subdomains/phrases/all/1/refdomains_desc?target=" + URL + "&substring=",
-					target	: "_blank"
+					target	: "_blank",
+					"data-ga-action" : "Ahrefs Anchor Text"
 				}).text("Anchor Text")))
 		);
 	}
@@ -382,7 +413,7 @@ function displaySocial(socialData, keysToDisplay) {
 						row.find("dd."+key + " span").addClass("loading");
 						socialData[key].attempts++;
 						if(socialData[key].attempts > 8) {
-							// TODO: fire google analytics event
+							ga('send', 'event', 'Error', 'API Error - ' + firstCharUpper(key), "Timeout");
 							row.find("dd."+key + " span").removeClass("loading");
 							row.find("dd."+key).addClass("warning");
 							keysToDisplay = keysToDisplay.filter(function(ele) {
@@ -447,7 +478,8 @@ function displaySocial(socialData, keysToDisplay) {
 			if(socialData[key].link) {
 				dd.append($("<span>").addClass("link").text(" (").append($("<a>", {
 					href : socialData[key].link.href,
-					target : "_blank"
+					target : "_blank",
+					"data-ga-action" : (key == "twitter") ? "Topsy" : firstCharUpper(key) + " Details"
 				}).text(socialData[key].link.anchor)).append(")"));
 			}
 
