@@ -1024,11 +1024,7 @@ function ShareMetric() {
 function init () {
 	
 	if(!app) {
-		// Clear out ahrefs
-		tmp = JSON.parse(localStorage.getItem("ShareMetric"));
-		tmp.links.ahrefs.isActive = false;
-		localStorage['ShareMetric'] = JSON.stringify(tmp);
-
+		clearAhrefsFromStorage();
 		app = ShareMetric();
 	}
 }
@@ -1041,6 +1037,16 @@ var tid = setInterval(function() {
 	clearInterval(tid);
 	ga('send', 'event', 'Extension Usage', 'Background Loaded');	
 }, 100);
+
+
+function clearAhrefsFromStorage(){
+	// Clear out ahrefs
+	tmp = JSON.parse(localStorage.getItem("ShareMetric"));
+	if(tmp){
+		tmp.links.ahrefs.isActive = false;
+		localStorage['ShareMetric'] = JSON.stringify(tmp);
+	}
+}
 
 /**
  * Shortens a number to 3 or less digits plus a character representing its scale
