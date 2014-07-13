@@ -46,7 +46,7 @@ $(document).ready(function(){
 function saveOptions(){
 	var options = bg.app.getOptions();
 	
-	options.social.autoLoad = $("input[name='social.autoLoad']").is(":checked");
+	options.social.autoLoad = $("input[name='social.autoLoad']:checked").val() === 'true';
 	options.showResearch = $("input[name='showResearch']").is(":checked");
 
 	$.each(options.social.apis, function(key, ele) {
@@ -56,12 +56,6 @@ function saveOptions(){
 	options.links.moz.isActive = $("input[name='links.moz.isActive']").is(":checked");
 	options.links.moz.id = $("input[name='links.moz.id']").val();
 	options.links.moz.secret = $("input[name='links.moz.secret']").val();
-
-	// options.links.ahrefs.isActive = $("input[name='links.ahrefs.isActive']").is(":checked");
-	// if(!options.links.ahrefs.token) {
-	// 	options.links.ahrefs.token = null;
-	// }
-
 	options.keywords.semrush.isActive = $("input[name='keywords.semrush.isActive']").is(":checked");
 	options.keywords.semrush.token = $("input[name='keywords.semrush.token']").val();
 
@@ -75,9 +69,8 @@ function saveOptions(){
  */
 function displayOptions() {
 	var options = bg.app.getOptions();
-	if(options.social.autoLoad){
-		$("input[name='social.autoLoad']").attr("checked", "checked");
-	}
+
+	$("input[name='social.autoLoad']").val([options.social.autoLoad.toString()]);
 	if(options.showResearch) {
 		$("input[name='showResearch']").attr("checked", "checked");
 	}

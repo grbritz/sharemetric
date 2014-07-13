@@ -817,6 +817,15 @@ function ShareMetric() {
 			self.URL = url;
 		},
 
+		pageLoad 	: function (url) {
+			self.pub.setURL(url);
+			self.pub.setBadge("");
+			ga('send', 'pageview', {'page' : 'background-url-load'});
+			if(self.options.social.autoLoad){
+				self.pub.fetchSocialData();
+			}
+		},
+
 		/**
 		 * Getter for api data
 		 * @return {object} 
@@ -1101,24 +1110,12 @@ function domainOf(url) {
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab){
-		if(app.getOptions().social.autoLoad){
-			app.setURL(tab.url);
-			app.fetchSocialData();
-		}
-		else{
-			app.setBadge("");	
-		}
+		app.pageLoad(tab.url);
 	});
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	if (app.getOptions().social.autoLoad){
-		if(changeInfo.status == "complete"){
-			app.setURL(tab.url);
-			app.fetchSocialData();
-		}
+	if(changeInfo.status == "complete"){
+		app.pageLoad(tab.url);
 	}
-	else{
-		app.setBadge("");
-	}
-})	
+});
