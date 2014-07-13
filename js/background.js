@@ -700,8 +700,7 @@ function ShareMetric() {
 		 * @effects updates self.data as apis return results
 		 */
 		fetchSocialData : function () {
-			console.log(self.pub.getRedactedURL());
-			ga("send", "event", "testing", "testing", self.pub.getRedactedURL());
+			console.log("Fetching social data");
 			prepData();
 			$.each(self.APIs, function(key, ele) {
 				if(self.options.social.apis[key] && self.options.social.apis[key].isActive){
@@ -815,6 +814,15 @@ function ShareMetric() {
 		 */
 		setURL		: function (url) {
 			self.URL = url;
+		},
+
+		load : function(url) {
+			ga('send', 'pageview', {'page' : 'background-url-load'});
+			self.pub.setBadge("");
+			if(self.options.social.autoLoad){
+				self.pub.fetchSocialData();
+			}
+			self.pub.setURL(url);
 		},
 
 		/**
@@ -1101,24 +1109,13 @@ function domainOf(url) {
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab){
-		if(app.getOptions().social.autoLoad){
-			app.setURL(tab.url);
-			app.fetchSocialData();
-		}
-		else{
-			app.setBadge("");	
-		}
+		app.load(tab.url);
+		
 	});
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	if (app.getOptions().social.autoLoad){
-		if(changeInfo.status == "complete"){
-			app.setURL(tab.url);
-			app.fetchSocialData();
-		}
+	if(changeInfo.status == "complete"){	
+		app.load(tab.url);
 	}
-	else{
-		app.setBadge("");
-	}
-})	
+});	

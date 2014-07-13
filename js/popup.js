@@ -33,12 +33,16 @@ $(document).ready(function(){
 
 	function queryTab(forceGetSocial) {
 		chrome.tabs.query(queryO, function(tabs){
+			console.log("inside");
 			URL = tabs[0].url;
 			$("#url").text(URL);
 			bg.app.setURL(URL);
 
 			if(!bg.app.getOptions().social.autoLoad || forceGetSocial){
 				bg.app.fetchSocialData();
+			}
+			else {
+				// fireSocialAPIGA();
 			}
 			bg.app.fetchOtherData();
 			
@@ -66,6 +70,24 @@ function bindGA(){
 	$("#footer a").click(function(){
 		ga('send', 'event', 'Popup Interaction', 'Footer - ' + $(this).data("ga-action"), bg.app.getRedactedURL());
 	});
+}
+
+function fireSocialAPIGA(){
+	apis = getActiveSocialAPI(bg.app.getData().social);
+	for(var i = 0; i < apis.length; i++) {
+		console.log(apis[i]);
+		ga('send', 'event', 'API Load', 'API Load - ' + firstCharUpper(apis[i]), bg.app.getRedactedURL());
+	}
+}
+
+function getActiveSocialAPI(socialData){
+	var socialQueue = [];
+	$.each(data.social, function(key, ele) {
+		if(key != "totalCount"){
+			socialQueue.push(key);
+		}
+	});
+	return socialQueue;
 }
 
 
@@ -107,13 +129,7 @@ function displayResearch() {
  */
 function displayData(data) {
 	if(bg.app.hasSocial()){
-		var socialQueue = [];
-		$.each(data.social, function(key, ele) {
-			if(key != "totalCount"){
-				socialQueue.push(key);	
-			}
-		});
-		displaySocial(data.social, socialQueue);
+		displaySocial(data.social, getActiveSocialAPI(data.social));
 	}
 	if(bg.app.hasLinks()){
 		displayLinks(data.links);	
