@@ -1,0 +1,35 @@
+{
+  "name": "sharemetric",
+  "version": "2.0.0",
+  "description": "Social, link, and keyword data for your current browser URL",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile" : "cd js; ../node_modules/.bin/tsc ./main.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ContentHarmony/sharemetric"
+  },
+  "keywords": [
+    "chrome extensions",
+    "browser extensions",
+    "social sharing",
+    "keywords",
+    "link metrics",
+    "url lookup",
+    "web marketing",
+    "seo",
+    "search engine marketing",
+    "content marketing"
+  ],
+  "devDependencies": {
+    "typescript" : "~1.1"
+  },
+  "author": "Kane Jamison, Graeme Britz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ContentHarmony/sharemetric/issues"
+  },
+  "homepage": "https://github.com/ContentHarmony/sharemetric"
+}
