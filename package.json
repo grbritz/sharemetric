@@ -24,7 +24,7 @@
     "content marketing"
   ],
   "devDependencies": {
-    "typescript" : "~1.1"
+    "typescript" : "~1.0"
   },
   "author": "Kane Jamison, Graeme Britz",
   "license": "ISC",

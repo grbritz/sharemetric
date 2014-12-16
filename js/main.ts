@@ -10,7 +10,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
 class API {
-  private name : string;
+  name : string;
   private isActive : KnockoutObservable<boolean>;
   public iconPath : string;
 
@@ -49,6 +49,10 @@ class AppManager {
     return "";
   }
 
+  public getDomainOf(url : string) : string {
+    return "";
+  }
+
   public increaseBadgeCount(count : number) {
     // TODO:
   }
@@ -65,16 +69,9 @@ ko.applyBindings(appManager);
 class SocialAPI extends API {
   totalCount : number;
   formattedResults : KnockoutObservable<string>;
-  hasDetailsLink : boolean;
-  detailsLink : KnockoutObservable<string>;
 
   constructor(json) {
     super(json);
-  }
-
-  public queryData() {
-    this.totalCount = 0;
-    this.formattedResults("");
   }
 
   public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
@@ -85,21 +82,24 @@ class SocialAPI extends API {
     appManager.increaseBadgeCount(this.totalCount);
     ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL()); 
   }
+
+  public setFormattedResults() {
+    this.formattedResults("" + this.totalCount);
+  }
 }
 
-class FacebookAPI extends SocialAPI {
+class Facebook extends SocialAPI {
   private likes : number;
   private shares : number;
   private comments : number;
 
   constructor(json) {
     super(json);
-    this.hasDetailsLink = ko.observable(false);
-    this.detailsLink("");
   }
 
   public queryData() {
-    super();
+    this.totalCount = 0;
+    this.formattedResults("loading...");
     $.get("https://api.facebook.com/method/fql.query", 
           { "query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+ appManager.getURL() +'"'}, 
           this.queryCallback,
@@ -117,12 +117,59 @@ class FacebookAPI extends SocialAPI {
     this.querySuccess();
   }
 
-  private setFormattedResults() {
+  public setFormattedResults() {
     var tmp = ""+ this.totalCount;
-    tmp += "<br /><span class=\"indent\">Likes: " + this.likes;
-    tmp += "<br /><span class=\"indent\">Shares: " + this.shares;
-    tmp += "<br /><span class=\"indent\">Comments: " + this.comments;
+    tmp += "<br /><span class=\"indent\">Likes: " + this.likes + "</span>";
+    tmp += "<br /><span class=\"indent\">Shares: " + this.shares + "</span>";
+    tmp += "<br /><span class=\"indent\">Comments: " + this.comments + "</span>";
     this.formattedResults(tmp);
+  }
+}
+
+class GooglePlus extends SocialAPI {
+  constructor(json) {
+    super(json);
+  }
+
+  public queryData() {
+    this.totalCount = 0;
+    this.formattedResults("loading...");
+    $.get("http://sharemetric.com",
+          {"url" : appManager.getURL(), "callType" : "extension"},
+          this.queryCallback, 
+          "text")
+     .fail(this.queryFail);
+  }
+
+  private queryCallback(results: any) {
+    this.totalCount = isNaN(results) ? parseInt(results) : results;
+    this.setFormattedResults();
+    this.querySuccess();
+  }
+}
+
+class LinkedIn extends SocialAPI {
+  constructor(json) {
+    super(json);
+  }
+
+  public queryData() {
+    this.totalCount = 0;
+    this.formattedResults("loading...");
+    $.get("http://www.linkedin.com/countserv/count/share",
+          {"url" : appManager.getURL(), "format" : "json"},
+          this.queryCallback
+          "json")
+     .fail(this.queryFail)
+  }
+
+  private queryCallback(results : any) {
+    if(results != undefined) {
+      results.count = parseInt(results.count);
+      this.totalCount = isNaN(results.count) ? 0 : results.count;
+    }
+    this.setFormattedResults();
+    this.querySuccess();
   }
 }
 
@@ -130,12 +177,11 @@ class Twitter extends SocialAPI {
 
   constructor(json) {
     super(json);
-    this.hasDetailsLink = ko.observable(true);
-    this.buildDetailsLink();
   }
 
   public queryData() {
-    super();
+    this.totalCount = 0;
+    this.formattedResults("loading...");
     $.get("http://urls.api.twitter.com/1/urls/count.json",
           {"url": appManager.getURL()},
           this.queryCallack,
@@ -144,16 +190,155 @@ class Twitter extends SocialAPI {
   }
 
   private queryCallack(results : any) {
-    if(results == undefined) {
-
+    if(results != undefined) {
+      results.count = parseInt(results.count);
+      this.totalCount = isNaN(results.count) ? 0 : results.count;
+      this.setFormattedResults();
+      this.querySuccess();
+    }
+    else {
+      this.totalCount = 0;
     }
   }
 
-
-  private buildDetailsLink() {
-    var tmp = "<a href=\"http://topsy.com/trackback?url=" +
+  public setFormattedResults() {
+    var tmp = "" + this.totalCount + " (";
+    tmp += "<a href=\"http://topsy.com/trackback?url=";
     tmp += encodeURIComponent(appManager.getURL());
-    tmp += "&infonly=1\">Topsy</a>";
-    this.detailsLink(tmp);
+    tmp += "&infonly=1\">Topsy</a>)";
+    this.formattedResults(tmp);
+  }
+}
+
+class Reddit extends SocialAPI {
+  private ups : number;
+  private downs : number;
+
+  constructor(json) {
+    super(json);
+  }
+
+  public queryData() {
+    this.totalCount = 0;
+    this.formattedResults("loading...");
+    $.get("http://www.reddit.com/api/info.json",
+          {"url" : appManager.getURL()},
+          this.queryCallback,
+          "json")
+     .fail(this.queryFail);
+  }
+
+  private queryCallback(results : any) {
+    $(results.data.children).each(function(index, obj){
+      this.totalCount += obj.data.score;
+      this.ups += obj.data.ups;
+      this.downs += obj.data.downs;
+    });
+
+    this.buildDetailsLink();
+    this.setFormattedResults();
+    this.querySuccess();
+  }
+
+  public setFormattedResults() {
+    var tmp = "" + this.totalCount + " (";
+    tmp += "<a href=\"http://www.reddit.com/submit?url=";
+    tmp += encodeURIComponent(appManager.getURL());
+    tmp += "\">Details</a>)";
+    tmp += "<br/><span class=\"indent\">Ups: " + this.ups + "</span>";
+    tmp += "<br/><span class=\"indent\">Downs: " + this.downs + "</span>";
+    this.formattedResults(tmp);
+  }
+}
+
+class StumbleUpon extends SocialAPI {
+  constructor(json) {
+    super(json);
+  }
+
+  public queryData() {
+    this.totalCount = 0;
+    this.formattedResults("loading...");
+    $.get("http://www.stumbleupon.com/services/1.01/badge.getinfo",
+          {"url" : appManager.getURL()},
+          this.queryCallback,
+          "json")
+     .fail(this.queryFail);
+  }
+
+  private queryCallback(results : any) {
+    if(results != undefined && results.result != undefined) {
+      var total = parseInt(result.result.views);
+      this.totalCount = isNaN(total) ? 0 : total;
+    }
+
+    this.setFormattedResults();
+    this.querySuccess();
+  }
+}
+
+class Pinterest extends SocialAPI {
+  constructor(json) {
+    super(json);
+  }
+
+  public queryData() {
+    this.totalCount = 0;
+    this.formattedResults("loading...");
+    $.get("http://api.pinterest.com/v1/urls/count.json",
+          {"url" : appManager.getURL(), "callback" : "receiveCount"},
+          this.queryCallback,
+          "text")
+     .fail(this.queryFail);
+  }
+
+  private queryCallback(results : any) {
+    if(results != undefined) {
+      // Strip off recieveCount callback and extract its argument
+      // This is necessary for security reasons as Chrome wont allow
+      // evals on data from another origin
+      results = results.replace("receiveCount(", "");
+      results = results.substr(0, results.length - 1); //remove right paren
+      results = JSON.parse(results);
+      var count = results.count;
+      this.totalCount = isNaN(count) : 0 ? parseInt(count);
+    }
+
+    this.setFormattedResults();
+    this.querySuccess();
+  }
+
+  public setFormattedResults() {
+    var tmp = "" + this.totalCount + " (";
+    tmp += "<a href=\"http://www.pinterest.com/source/" + appManager.getURL();
+    tmp += "\">Details</a>)";
+    this.formattedResults(tmp);
+  }
+}
+
+
+class Delicious extends SocialAPI {
+  // TODO: Discover how to find a delicious link and put that in the formattedResults
+  constructor(json) {
+    super(json);
+  }
+
+  public queryData() {
+    this.totalCount = 0;
+    this.formattedResults("loading...");
+    $.get("http://feeds.delicious.com/v2/json/urlinfo/data",
+          {"url" : appManager.getURL()},
+          this.queryCallback,
+          "json")
+     .fail(this.queryFail); 
+  }
+  
+  private queryCallback() {
+    if(data != undefined && data.length != 0) {
+      var posts = data[0].total_posts;
+      this.totalCount = isNaN(posts) ? 0 : parseInt(posts);
+    }
+    this.setFormattedResults();
+    this.querySuccess();
   }
 }
