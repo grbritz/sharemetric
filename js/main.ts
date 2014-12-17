@@ -1,7 +1,10 @@
 /// <reference path='./jquery.d.ts' />
 /// <reference path='./knockout.d.ts' />
 /// <reference path='./cryptojs.d.ts' />
-var ga = function(...args: any[]){};
+// declare var ga = function(...args: any[]){};
+
+declare var ga : any;
+declare var chrome : any;
 
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -363,17 +366,15 @@ class AuthenticatedAPI extends API {
     this.isAuthenticated = false;
     this.numAuthAttempts = 0;
   }
-
-
 }
 
 class MozAPI extends AuthenticatedAPI {
-  private mozID : KnockoutObservable<string>;
-  private mozSecret : KnockoutObservable<string>;
-  private pa : KnockoutObservable<number>;
-  private plrd : KnockoutObservable<number>;
-  private da : KnockoutObservable<number>;
-  private dlrd : KnockoutObservable<number>;
+  public mozID : KnockoutObservable<string>;
+  public mozSecret : KnockoutObservable<string>;
+  public pa : KnockoutObservable<number>;
+  public plrd : KnockoutObservable<number>;
+  public da : KnockoutObservable<number>;
+  public dlrd : KnockoutObservable<number>;
 
 
   constructor(json) {
@@ -383,7 +384,8 @@ class MozAPI extends AuthenticatedAPI {
 
   public queryData() {
     this.clearCounts();
-    
+    this.numAuthAttempts += 1;
+
     $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + genQueryURL(),
           {},
           this.queryCallback,
@@ -392,14 +394,17 @@ class MozAPI extends AuthenticatedAPI {
   }
 
   public queryCallback(results : any) {
-    this.pa = results.upa;
-    this.da = results.pda;
-    this.dlrd = results.pid;
-    this.plrd = results.uipl;
+    this.pa(results.upa);
+    this.da(results.pda);
+    this.dlrd(results.pid);
+    this.plrd(results.uipl);
+    this.isAuthenticated = true;
+    this.numAuthAttempts = 0;
     this.querySuccess();
   }
 
   public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
+    this.isAuthenticated = false;
     if(jqXHR.status == 401) {
       ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
     }
@@ -430,5 +435,120 @@ class MozAPI extends AuthenticatedAPI {
     this.plrd(0);
     this.da(0);
     this.dlrd(0);
+  }
+}
+
+class AhrefsAPI extends AuthenticatedAPI {
+  private urlRank : KnockoutObservable<number>;
+  private prd : KnockoutObservable<number>;
+  private domainRank : KnockoutObservable<number>;
+  private drd : KnockoutObservable<number>;
+
+  private authToken : string;
+
+  constructor(json) {
+    super(json);
+    this.clearCounts();
+
+    this.authToken = "";
+    
+    if(this.isActive) {
+      // If this was created as an active 
+      this.requestToken();   
+    }
+    
+  }
+
+
+  public queryData() {
+    this.clearCounts();
+    
+
+
+
+
+  }
+
+  public queryCallback() {
+    // TODO:
+  }
+  
+  public queryFail() {
+    // TODO:
+  }
+
+
+  private requestToken() {
+    var self = this;
+    var state = self.genState();
+
+    var requestURL = "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=";
+    requestURL += state + "&redirect_uri=http%3A%2F%2Fwww.contentharmony.com%2Ftools%2Fsharemetric%2F";
+
+    ga('send', 'event', 'Ahrefs Authorization', 'Authorization Requested');
+    chrome.windows.create({
+      type: "popup",
+      url : requestURL
+    }, function(window) {
+      // TODO: Why did I use setTimeout here?
+      setTimeout(function() {
+        chrome.windows.update(window.id, {focused: true}, function(window) {
+          var oAuthTabID;
+            
+          chrome.tabs.onUpdated.addListener(function(tabID, changeInfo, tab) {
+            var url = $.url(changeInfo.url);
+
+            if(tabID == oAuthTabID && url.attr('host') == "www.contentharmony.com" 
+              && url.attr('path') == "/tools/sharemetric/" && url.param('state') == state) {
+              
+              if(url.param('error') == 'access_denied') {
+                self.requestTokenFail();
+              }
+              else {
+                // Get that token
+                $.post("https://ahrefs.com/oauth2/token.php", {
+                        grant_type    : "authorization_code",
+                        code          : url.param('code'),
+                        client_id     : "ShareMetric",
+                        client_secret : "Bg6xDGYGb",
+                        redirect_uri  : "http://www.contentharmony.com/tools/sharemetric/"},
+                        function(data : any) {
+                          self.authToken = results.access_token;
+                          ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
+                          //TODO: Persist token with appManager
+                          chrome.tabs.remove(oAuthTabID);
+                        }
+                  ).fail(function(jqXHR : any, textStatus : string, errorThrown : string) { 
+                          self.requestTokenFail();
+                        }
+                  );
+              }
+            }
+          }); // \chrome.tabs.onUpdated.addListener
+        }); // \chrome.windows.update
+      }, 100); // \setTimout 
+    }); // \chrome.windows.create
+  }
+
+  private requestTokenFail() {
+    //TODO:
+  }
+
+
+
+  private genState() {
+    // See http://stackoverflow.com/a/2117523/1408490 for more info on this function
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+
+
+  private clearCounts() {
+    this.urlRank(0);
+    this.prd(0);
+    this.domainRank(0);
+    this.drd(0);
   }
 }
