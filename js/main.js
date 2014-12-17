@@ -33,41 +33,6 @@ var API = (function () {
     };
     return API;
 })();
-var SocialAPI = (function (_super) {
-    __extends(SocialAPI, _super);
-    function SocialAPI(json) {
-        _super.call(this, json);
-    }
-    return SocialAPI;
-})(API);
-var FacebookAPI = (function (_super) {
-    __extends(FacebookAPI, _super);
-    function FacebookAPI(json) {
-        _super.call(this, json);
-    }
-    FacebookAPI.prototype.queryData = function () {
-        $.get("https://api.facebook.com/method/fql.query", { "query": 'select total_count, share_count, like_count, comment_count from link_stat where url ="' + appManager.getURL() + '"' }, this.queryCallback, "xml").fail(this.queryFail);
-    };
-    FacebookAPI.prototype.queryCallback = function (results) {
-        this.likes = parseInt($(results).find("like_count").text());
-        this.shares = parseInt($(results).find("share_count").text());
-        this.comments = parseInt($(results).find("comment_count").text());
-        this.totalCount = parseInt($(results).find("total_count").text());
-        this.setFormattedResults();
-        ga('send', 'event', 'API Load', 'API Load - Facebook', appManager.getRedactedURL());
-    };
-    FacebookAPI.prototype.setFormattedResults = function () {
-        var tmp = "" + this.totalCount;
-        tmp += "<br /><span class=\"indent\">Likes: " + this.likes;
-        tmp += "<br /><span class=\"indent\">Shares: " + this.shares;
-        tmp += "<br /><span class=\"indent\">Comments: " + this.comments;
-        this.formattedResults(tmp);
-    };
-    FacebookAPI.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
-        ga('send', 'event', 'Error', 'API Error - Facebook', 'Request Failed - ' + textStatus);
-    };
-    return FacebookAPI;
-})(SocialAPI);
 var AppManager = (function () {
     function AppManager() {
         this.socialCount = 0;
@@ -78,7 +43,80 @@ var AppManager = (function () {
     AppManager.prototype.getRedactedURL = function () {
         return "";
     };
+    AppManager.prototype.increaseBadgeCount = function (count) {
+        // TODO:
+    };
     return AppManager;
 })();
 var appManager = new AppManager();
 ko.applyBindings(appManager);
+/**************************************************************************************************
+* SOCIAL APIs
+**************************************************************************************************/
+var SocialAPI = (function (_super) {
+    __extends(SocialAPI, _super);
+    function SocialAPI(json) {
+        _super.call(this, json);
+    }
+    SocialAPI.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
+        ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
+    };
+    SocialAPI.prototype.querySuccess = function () {
+        appManager.increaseBadgeCount(this.totalCount);
+        ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
+    };
+    return SocialAPI;
+})(API);
+var FacebookAPI = (function (_super) {
+    __extends(FacebookAPI, _super);
+    function FacebookAPI(json) {
+        _super.call(this, json);
+        this.hasDetailsLink = false;
+        this.detailsLink("");
+    }
+    FacebookAPI.prototype.queryData = function () {
+        this.totalCount = 0;
+        this.formattedResults("");
+        $.get("https://api.facebook.com/method/fql.query", { "query": 'select total_count, share_count, like_count, comment_count from link_stat where url ="' + appManager.getURL() + '"' }, this.queryCallback, "xml").fail(this.queryFail);
+    };
+    FacebookAPI.prototype.queryCallback = function (results) {
+        this.likes = parseInt($(results).find("like_count").text());
+        this.shares = parseInt($(results).find("share_count").text());
+        this.comments = parseInt($(results).find("comment_count").text());
+        this.totalCount = parseInt($(results).find("total_count").text());
+        this.setFormattedResults();
+        this.querySuccess();
+    };
+    FacebookAPI.prototype.setFormattedResults = function () {
+        var tmp = "" + this.totalCount;
+        tmp += "<br /><span class=\"indent\">Likes: " + this.likes;
+        tmp += "<br /><span class=\"indent\">Shares: " + this.shares;
+        tmp += "<br /><span class=\"indent\">Comments: " + this.comments;
+        this.formattedResults(tmp);
+    };
+    return FacebookAPI;
+})(SocialAPI);
+var Twitter = (function (_super) {
+    __extends(Twitter, _super);
+    function Twitter(json) {
+        _super.call(this, json);
+        this.hasDetailsLink = true;
+        this.buildDetailsLink();
+    }
+    Twitter.prototype.queryData = function () {
+        this.totalCount = 0;
+        this.formattedResults("");
+        $.get("http://urls.api.twitter.com/1/urls/count.json", { "url": appManager.getURL() }, this.queryCallack, "json").fail(this.queryFail);
+    };
+    Twitter.prototype.queryCallack = function (results) {
+        if (results == undefined) {
+        }
+    };
+    Twitter.prototype.buildDetailsLink = function () {
+        var tmp = "<a href=\"http://topsy.com/trackback?url=";
+        tmp += encodeURIComponent(appManager.getURL());
+        tmp += "&infonly=1\">Topsy</a>";
+        this.detailsLink(tmp);
+    };
+    return Twitter;
+})(SocialAPI);

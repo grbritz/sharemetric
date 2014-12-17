@@ -1,5 +1,6 @@
 /// <reference path='./jquery.d.ts' />
 /// <reference path='./knockout.d.ts' />
+/// <reference path='./cryptojs.d.ts' />
 var ga = function(...args: any[]){};
 
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -7,28 +8,6 @@ new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MBCM4N');
-
-
-class API {
-  name : string;
-  private isActive : KnockoutObservable<boolean>;
-  public iconPath : string;
-
-  constructor(json) {
-    this.name = json.name;
-    this.isActive = ko.observable(json.isActive);
-    this.iconPath = "/images/icons/facebook-16x16.png";
-  }
-
-
-  public getName() : string {
-    return this.name;
-  }
-
-  public queryData() {}
-}
-
-
 
 class AppManager {
   private socialAPIs : KnockoutObservable<any>;
@@ -42,14 +21,17 @@ class AppManager {
 
 
   public getURL() : string {
+    // TODO:
     return this.URL;
   }
 
   public getRedactedURL() : string {
+    // TODO:
     return "";
   }
 
   public getDomainOf(url : string) : string {
+    // TODO:
     return "";
   }
 
@@ -62,6 +44,33 @@ var appManager = new AppManager();
 ko.applyBindings(appManager);
 
 
+class API {
+  name : string;
+  private isActive : KnockoutObservable<boolean>;
+  public iconPath : string;
+
+  constructor(json) {
+    this.name = json.name;
+    this.isActive = ko.observable(json.isActive);
+    this.iconPath = json.iconPath;
+  }
+
+
+  public getName() : string {
+    return this.name;
+  }
+
+  public queryData() {}
+
+  public querySuccess() {
+    ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL()); 
+  }
+
+  public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
+    ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
+  }
+}
+
 /**************************************************************************************************
 * SOCIAL APIs
 **************************************************************************************************/
@@ -72,10 +81,8 @@ class SocialAPI extends API {
 
   constructor(json) {
     super(json);
-  }
-
-  public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
-    ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
+    this.totalCount = 0;
+    this.formattedResults("");
   }
 
   public querySuccess() {
@@ -87,7 +94,7 @@ class SocialAPI extends API {
     this.formattedResults("" + this.totalCount);
   }
 }
-
+// "/images/icons/facebook-16x16.png"
 class Facebook extends SocialAPI {
   private likes : number;
   private shares : number;
@@ -340,5 +347,88 @@ class Delicious extends SocialAPI {
     }
     this.setFormattedResults();
     this.querySuccess();
+  }
+}
+
+/**************************************************************************************************
+* Link APIs
+**************************************************************************************************/
+
+class AuthenticatedAPI extends API {
+  private isAuthenticated : boolean;
+  private numAuthAttempts : number;
+
+  constructor(json) {
+    super(json);
+    this.isAuthenticated = false;
+    this.numAuthAttempts = 0;
+  }
+
+
+}
+
+class MozAPI extends AuthenticatedAPI {
+  private mozID : KnockoutObservable<string>;
+  private mozSecret : KnockoutObservable<string>;
+  private pa : KnockoutObservable<number>;
+  private plrd : KnockoutObservable<number>;
+  private da : KnockoutObservable<number>;
+  private dlrd : KnockoutObservable<number>;
+
+
+  constructor(json) {
+    super(json);
+    this.clearCounts();
+  }
+
+  public queryData() {
+    this.clearCounts();
+    
+    $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + genQueryURL(),
+          {},
+          this.queryCallback,
+          "json")
+     .fail(this.queryFail);
+  }
+
+  public queryCallback(results : any) {
+    this.pa = results.upa;
+    this.da = results.pda;
+    this.dlrd = results.pid;
+    this.plrd = results.uipl;
+    this.querySuccess();
+  }
+
+  public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
+    if(jqXHR.status == 401) {
+      ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
+    }
+    else if(jqXHR.status == 503) {
+      ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - too many requests made");
+    }
+    else {
+      ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status);
+    }  
+  }
+
+  private genQueryURL() {
+    var APICols = 34359738368 + 68719476736 + 1024 + 8192; // PA + PLRDs + DA + DLRDs
+    var date = new Date();
+    var expiresAt = date.getTime() + 360;
+    var signature = genSignature(expiresAt);
+    return encodeURIComponent(appManager.getURL()) + "?Cols=" + cols + "&AccessID=" + this.mozID
+           + "&Expires=" + expiresAt + "&Signature=" + signature;
+   }
+
+  private genSignature(expiresAt : number) {
+    var sig = this.mozID + "\n" + expiresAt;
+    return encodeURIComponent(CryptoJS.HmacSHA1(sig, this.mozSecret).toString(CryptoJS.enc.Base64));
+  }
+
+  private clearCounts() {
+    this.pa(0);
+    this.plrd(0);
+    this.da(0);
+    this.dlrd(0);
   }
 }
