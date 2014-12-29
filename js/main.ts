@@ -100,7 +100,7 @@ class AppManager {
 
 class API {
   name : string;
-  private isActive : KnockoutObservable<boolean>;
+  public isActive : KnockoutObservable<boolean>;
   public iconPath : string;
 
   constructor(json) {
@@ -296,7 +296,6 @@ class Reddit extends SocialAPI {
       this.downs += obj.data.downs;
     });
 
-    this.buildDetailsLink();
     this.setFormattedResults();
     this.querySuccess();
   }
@@ -329,7 +328,7 @@ class StumbleUpon extends SocialAPI {
 
   private queryCallback(results : any) {
     if(results != undefined && results.result != undefined) {
-      var total = parseInt(result.result.views);
+      var total = parseInt(results.result.views);
       this.totalCount = isNaN(total) ? 0 : total;
     }
 
@@ -394,7 +393,7 @@ class Delicious extends SocialAPI {
      .fail(this.queryFail); 
   }
   
-  private queryCallback() {
+  private queryCallback(data : any) {
     if(data != undefined && data.length != 0) {
       var posts = data[0].total_posts;
       this.totalCount = isNaN(posts) ? 0 : parseInt(posts);
@@ -409,8 +408,8 @@ class Delicious extends SocialAPI {
 **************************************************************************************************/
 
 class AuthenticatedAPI extends API {
-  private isAuthenticated : boolean;
-  private numAuthAttempts : number;
+  public isAuthenticated : boolean;
+  public numAuthAttempts : number;
 
   constructor(json) {
     super(json);
@@ -437,7 +436,7 @@ class MozAPI extends AuthenticatedAPI {
     this.clearCounts();
     this.numAuthAttempts += 1;
 
-    $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + genQueryURL(),
+    $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + this.genQueryURL(),
           {},
           this.queryCallback,
           "json")
@@ -471,14 +470,14 @@ class MozAPI extends AuthenticatedAPI {
     var APICols = 34359738368 + 68719476736 + 1024 + 8192; // PA + PLRDs + DA + DLRDs
     var date = new Date();
     var expiresAt = date.getTime() + 360;
-    var signature = genSignature(expiresAt);
-    return encodeURIComponent(appManager.getURL()) + "?Cols=" + cols + "&AccessID=" + this.mozID
+    var signature = this.genSignature(expiresAt);
+    return encodeURIComponent(appManager.getURL()) + "?Cols=" + APICols + "&AccessID=" + this.mozID
            + "&Expires=" + expiresAt + "&Signature=" + signature;
    }
 
   private genSignature(expiresAt : number) {
     var sig = this.mozID + "\n" + expiresAt;
-    return encodeURIComponent(CryptoJS.HmacSHA1(sig, this.mozSecret).toString(CryptoJS.enc.Base64));
+    return encodeURIComponent(CryptoJS.HmacSHA1(sig, this.mozSecret()).toString(CryptoJS.enc.Base64));
   }
 
   private clearCounts() {
@@ -503,7 +502,7 @@ class AhrefsAPI extends AuthenticatedAPI {
     if(this.isActive && !this.authToken) {
       // If this was created as an active and
       // did not have a saved auth token
-      this.requestToken();   
+      this.requestToken(function(){});   
     }
     
   }
@@ -574,8 +573,8 @@ class AhrefsAPI extends AuthenticatedAPI {
 
        // GET prd
       $.get("http://apiv2.ahrefs.com", {
-            token     : self.options.links.ahrefs.token,
-            target    : self.URL,
+            token     : self.authToken,
+            target    : appManager.getURL(),
             from      : "refdomains",
             mode      : "exact",
             limit     : "1",
@@ -638,7 +637,7 @@ class AhrefsAPI extends AuthenticatedAPI {
                         client_id     : "ShareMetric",
                         client_secret : "Bg6xDGYGb",
                         redirect_uri  : "http://www.contentharmony.com/tools/sharemetric/"},
-                        function(data : any) {
+                        function(results : any) {
                           self.authToken = results.access_token;
                           ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
                           chrome.tabs.remove(oAuthTabID);
@@ -691,6 +690,6 @@ class AhrefsAPI extends AuthenticatedAPI {
   }
 
   private allAPISLoaded() {
-    return this.urlRank != -1 && this.prd != -1 && this.domainRank != -1 && this.drd != -1;
+    return this.urlRank() != -1 && this.prd() != -1 && this.domainRank() != -1 && this.drd() != -1;
   }
 }
