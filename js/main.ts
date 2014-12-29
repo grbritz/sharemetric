@@ -123,6 +123,14 @@ class API {
   public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
     ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
   }
+
+  public toJSON() {
+    var self = this;
+    return { 
+      name : self.name,
+      isActive : self.isActive()
+    };
+  }
 }
 
 /**************************************************************************************************
@@ -146,6 +154,15 @@ class SocialAPI extends API {
 
   public setFormattedResults() {
     this.formattedResults("" + this.totalCount);
+  }
+
+  public toJSON() {
+    var self = this;
+    return { 
+      name : self.name,
+      isActive : self.isActive(),
+      type : "social"
+    };
   }
 }
 // "/images/icons/facebook-16x16.png"
@@ -429,7 +446,20 @@ class MozAPI extends AuthenticatedAPI {
 
   constructor(json) {
     super(json);
+    this.mozID(json.mozID);
+    this.mozSecret(json.mozSecret);
     this.clearCounts();
+  }
+
+  public toJSON() {
+    var self = this;
+    return {
+      mozID       : self.mozID(),
+      mozSecret   : self.mozSecret(),
+      name        : self.name,
+      isActive    : self.isActive(),
+      type        : "link"
+    };
   }
 
   public queryData() {
@@ -504,7 +534,16 @@ class AhrefsAPI extends AuthenticatedAPI {
       // did not have a saved auth token
       this.requestToken(function(){});   
     }
-    
+  }
+
+  public toJSON() {
+    var self = this;
+    return {
+      authToken   : self.authToken,
+      name        : self.name,
+      isActive    : self.isActive(),
+      type        : "link"
+    };
   }
 
 
@@ -670,8 +709,6 @@ class AhrefsAPI extends AuthenticatedAPI {
 
   }
 
-
-
   private genState() {
     // See http://stackoverflow.com/a/2117523/1408490 for more info on this function
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -692,4 +729,71 @@ class AhrefsAPI extends AuthenticatedAPI {
   private allAPISLoaded() {
     return this.urlRank() != -1 && this.prd() != -1 && this.domainRank() != -1 && this.drd() != -1;
   }
+}
+
+/**************************************************************************************************
+* Keywords APIs
+**************************************************************************************************/
+
+class SEMRush extends API {
+
+  public resultRows : KnockoutObservableArray<any>;
+  public authToken : KnockoutObservable<string>;
+
+
+  constructor(json) {
+    super(json);
+    this.authToken(json.authToken);
+  }
+
+  public toJSON() {
+    var self = this;
+    return {
+      name        : self.name,
+      isActive    : self.isActive(),
+      authToken   : self.authToken
+    };
+  }
+
+  public queryData() {
+    var self = this;
+    
+    $.get("http://us.api.semrush.com/", {
+          "action"    : "report",
+          "type"      : "url_organic",
+          "key"     : self.authToken,
+          "display_limit" : 5,
+          "export"    : "api",
+          "export_columns": "Ph,Po,Nq,Cp",
+          "url"     : appManager.getURL()
+      }, self.queryCallback)
+    .fail(self.queryFail);
+  }
+
+  public queryCallback(results : any) {
+    this.resultRows.removeAll();
+    if(results != "ERROR 50 :: NOTHING FOUND") {
+      var lines = results.split("\n");
+      
+      for (var i = 0; i < lines.length; i++) {
+        var parts = lines[i].split(";");
+        var row = {
+          Keyword : parts[0],
+          Rank  : parts[1],
+          Volume  : parts[2],
+          CPC   : parts[3]
+        };
+        
+        this.resultRows.push(row);
+      }
+    }
+    ga('send', 'event', 'API Load', 'API Load - SEMRush', appManager.getRedactedURL());
+  }
+
+  // private queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
+  //   ga('send', 'event', 'Error', 'API Error - SEMRush', jqXHR.status);
+  // }
+
+
+
 }

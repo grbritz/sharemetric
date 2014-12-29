@@ -101,6 +101,13 @@ var API = (function () {
     API.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
         ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
     };
+    API.prototype.toJSON = function () {
+        var self = this;
+        return {
+            name: self.name,
+            isActive: self.isActive()
+        };
+    };
     return API;
 })();
 /**************************************************************************************************
@@ -119,6 +126,14 @@ var SocialAPI = (function (_super) {
     };
     SocialAPI.prototype.setFormattedResults = function () {
         this.formattedResults("" + this.totalCount);
+    };
+    SocialAPI.prototype.toJSON = function () {
+        var self = this;
+        return {
+            name: self.name,
+            isActive: self.isActive(),
+            type: "social"
+        };
     };
     return SocialAPI;
 })(API);
@@ -336,8 +351,20 @@ var MozAPI = (function (_super) {
     __extends(MozAPI, _super);
     function MozAPI(json) {
         _super.call(this, json);
+        this.mozID(json.mozID);
+        this.mozSecret(json.mozSecret);
         this.clearCounts();
     }
+    MozAPI.prototype.toJSON = function () {
+        var self = this;
+        return {
+            mozID: self.mozID(),
+            mozSecret: self.mozSecret(),
+            name: self.name,
+            isActive: self.isActive(),
+            type: "link"
+        };
+    };
     MozAPI.prototype.queryData = function () {
         this.clearCounts();
         this.numAuthAttempts += 1;
@@ -395,6 +422,15 @@ var AhrefsAPI = (function (_super) {
             });
         }
     }
+    AhrefsAPI.prototype.toJSON = function () {
+        var self = this;
+        return {
+            authToken: self.authToken,
+            name: self.name,
+            isActive: self.isActive(),
+            type: "link"
+        };
+    };
     AhrefsAPI.prototype.queryData = function () {
         var self = this;
         self.clearCounts();
@@ -537,3 +573,51 @@ var AhrefsAPI = (function (_super) {
     };
     return AhrefsAPI;
 })(AuthenticatedAPI);
+/**************************************************************************************************
+* Keywords APIs
+**************************************************************************************************/
+var SEMRush = (function (_super) {
+    __extends(SEMRush, _super);
+    function SEMRush(json) {
+        _super.call(this, json);
+        this.authToken(json.authToken);
+    }
+    SEMRush.prototype.toJSON = function () {
+        var self = this;
+        return {
+            name: self.name,
+            isActive: self.isActive(),
+            authToken: self.authToken
+        };
+    };
+    SEMRush.prototype.queryData = function () {
+        var self = this;
+        $.get("http://us.api.semrush.com/", {
+            "action": "report",
+            "type": "url_organic",
+            "key": self.authToken,
+            "display_limit": 5,
+            "export": "api",
+            "export_columns": "Ph,Po,Nq,Cp",
+            "url": appManager.getURL()
+        }, self.queryCallback).fail(self.queryFail);
+    };
+    SEMRush.prototype.queryCallback = function (results) {
+        this.resultRows.removeAll();
+        if (results != "ERROR 50 :: NOTHING FOUND") {
+            var lines = results.split("\n");
+            for (var i = 0; i < lines.length; i++) {
+                var parts = lines[i].split(";");
+                var row = {
+                    Keyword: parts[0],
+                    Rank: parts[1],
+                    Volume: parts[2],
+                    CPC: parts[3]
+                };
+                this.resultRows.push(row);
+            }
+        }
+        ga('send', 'event', 'API Load', 'API Load - SEMRush', appManager.getRedactedURL());
+    };
+    return SEMRush;
+})(API);
