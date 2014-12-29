@@ -12,40 +12,90 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MBCM4N');
 
-class AppManager {
-  private socialAPIs : KnockoutObservable<any>;
-  private linkAPIs : KnockoutObservable<any>;
-  private keywordsAPIs : KnockoutObservable<any>;
-  private showResearch : KnockoutObservable<boolean>;
-  
-  private autoloadSocial : KnockoutObservable<boolean>;
-  private socialCount : number = 0;
-  private URL : string;
+/****
+ * Listeners for active tab changes and new page loads
+ ****/
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+  chrome.tabs.get(activeInfo.tabId, function(tab){
+    appManager.setURL(tab.url);
+  });
+});
 
-
-  public getURL() : string {
-    // TODO:
-    return this.URL;
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+  if(changeInfo.status == "complete"){
+    appManager.setURL(tab.url);
   }
-
-  public getRedactedURL() : string {
-    // TODO:
-    return "";
-  }
-
-  public getDomainOf(url : string) : string {
-    // TODO:
-    return "";
-  }
-
-  public increaseBadgeCount(count : number) {
-    // TODO:
-  }
-}
+});
 
 var appManager = new AppManager();
 ko.applyBindings(appManager);
 
+class AppManager {
+  private socialAPIs : KnockoutObservableArray<any>;
+  private linkAPIs : KnockoutObservableArray<any>;
+  private keywordsAPIs : KnockoutObservableArray<any>;
+  private showResearch : KnockoutObservable<boolean>;
+  
+  private autoloadSocial : KnockoutObservable<boolean>;
+  private badgeCount : number = 0;
+  private URL : string;
+
+  public getURL() : string {
+    return this.URL;
+  }
+
+  public setURL(url : string) {
+    this.URL = url;
+    this.setBadgeCount(0);
+    ga('send', 'pageview', {'page' : 'background-url-load'});
+    
+    if(this.autoloadSocial) {
+      this.querySocialAPIs();
+    }
+  }
+
+  public getRedactedURL() : string {
+    var url = $.url(this.URL);
+    if(url.attr("protocol") == "https") {
+      return url.attr("protocol") + "://" + url.attr("host") + "/redacted";
+    }
+    else {
+      return this.URL;
+    }
+  }
+
+  public getDomainOf(url : string) : string {
+    var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
+    return matches && matches[1];
+  }
+
+  private setBadgeCount(count : number) {
+    this.badgeCount = count;
+    chrome.browserAction.setBadgeText({'text' : count});
+  }
+
+  public increaseBadgeCount(count : number) {
+    this.setBadgeCount(count + this.badgeCount);
+  }
+
+  public querySocialAPIs() {
+    var self = this;
+    $.each(self.socialAPIs, function(index, api) {
+      api.queryData();  
+    });
+  }
+
+  // Saves all API settings into local storage
+  // to persist the settings between sessions.
+  public persistState() {
+    // TODO:
+  }
+
+  // Loads the API settings from local storage
+  public loadSettings() {
+    // TODO:
+  }
+}
 
 class API {
   name : string;
@@ -90,7 +140,7 @@ class SocialAPI extends API {
 
   public querySuccess() {
     appManager.increaseBadgeCount(this.totalCount);
-    ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL()); 
+    ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
   }
 
   public setFormattedResults() {
@@ -449,11 +499,9 @@ class AhrefsAPI extends AuthenticatedAPI {
   constructor(json) {
     super(json);
     this.clearCounts();
-
-    this.authToken = "";
-    
-    if(this.isActive) {
-      // If this was created as an active 
+    if(this.isActive && !this.authToken) {
+      // If this was created as an active and
+      // did not have a saved auth token
       this.requestToken();   
     }
     
@@ -461,39 +509,116 @@ class AhrefsAPI extends AuthenticatedAPI {
 
 
   public queryData() {
-    this.clearCounts();
+    var self = this;
+    self.clearCounts();
     
+    if(self.authToken == "") {
+      self.requestToken(self.queryData);
+    }
+    else {
+      
+      // GET urlRank
+      $.get("http://apiv2.ahrefs.com", {
+            token     : self.authToken,
+            target    : appManager.getURL(),
+            from      : "ahrefs_rank",
+            mode      : "exact",
+            limit     : "5",
+            output    : "json"  
+          }, 
+          function(results : any) {
+            self.urlRank = results.pages[0].ahrefs_rank;
 
+            if(self.allAPISLoaded()) {
+              ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
+            }
+          },
+          "json")
+       .fail(self.queryFail);
 
+       // GET domainRank
+       $.get("http://apiv2.ahrefs.com", {
+             token    : self.authToken,
+             target   : appManager.getURL(),
+             from     : "domain_rating",
+             mode     : "domain",
+             output   : "json"
+          },
+          function(results : any) {
+            self.domainRank = results.domain.domain_rating;
 
+            if(self.allAPISLoaded()) {
+              ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
+            }
+          }, "json")
+       .fail(self.queryFail);
 
-  }
+       // GET drd
+       $.get("http://apiv2.ahrefs.com", {
+          token       : self.authToken,
+          target      : appManager.getURL(),
+          from        : "refdomains",
+          mode        : "domain",
+          limit       : "1",
+          output      : "json"
+        },
+        function(results : any) {
+          self.drd = results.stats.refdomains;
+        
+          if(self.allAPISLoaded()) {
+            ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
+          }
+        }, "json")
+       .fail(self.queryFail);
 
-  public queryCallback() {
-    // TODO:
+       // GET prd
+      $.get("http://apiv2.ahrefs.com", {
+            token     : self.options.links.ahrefs.token,
+            target    : self.URL,
+            from      : "refdomains",
+            mode      : "exact",
+            limit     : "1",
+            output    : "json"
+        },
+        function(results : any) {
+          self.prd = results.stats.refdomains;
+
+          if(self.allAPISLoaded()) {
+            ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
+          }
+        }, "json")
+
+    }
   }
   
   public queryFail() {
     // TODO:
+    console.error("AHREFS API CALL FAILURE");
+    
   }
 
 
-  private requestToken() {
+  private requestToken(successCallback : any) {
     var self = this;
     var state = self.genState();
+    
+    self.numAuthAttempts += 1;
+    self.authToken = "";
 
     var requestURL = "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=";
     requestURL += state + "&redirect_uri=http%3A%2F%2Fwww.contentharmony.com%2Ftools%2Fsharemetric%2F";
 
     ga('send', 'event', 'Ahrefs Authorization', 'Authorization Requested');
+    
     chrome.windows.create({
       type: "popup",
       url : requestURL
     }, function(window) {
-      // TODO: Why did I use setTimeout here?
+      
+      // TODO: Why did I use setTimeout here in old version?
       setTimeout(function() {
         chrome.windows.update(window.id, {focused: true}, function(window) {
-          var oAuthTabID;
+          var oAuthTabID = window.tabs[0].id;
             
           chrome.tabs.onUpdated.addListener(function(tabID, changeInfo, tab) {
             var url = $.url(changeInfo.url);
@@ -515,8 +640,17 @@ class AhrefsAPI extends AuthenticatedAPI {
                         function(data : any) {
                           self.authToken = results.access_token;
                           ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
-                          //TODO: Persist token with appManager
                           chrome.tabs.remove(oAuthTabID);
+                          
+                          appManager.persistState();
+
+                          // TODO: Do I need these two trackers?
+                          self.isAuthenticated = true;
+                          self.numAuthAttempts = 0;
+
+                          if(successCallback != undefined) {
+                            successCallback();  
+                          }
                         }
                   ).fail(function(jqXHR : any, textStatus : string, errorThrown : string) { 
                           self.requestTokenFail();
@@ -532,6 +666,8 @@ class AhrefsAPI extends AuthenticatedAPI {
 
   private requestTokenFail() {
     //TODO:
+    this.authToken = "";
+
   }
 
 
@@ -546,9 +682,14 @@ class AhrefsAPI extends AuthenticatedAPI {
 
 
   private clearCounts() {
-    this.urlRank(0);
-    this.prd(0);
-    this.domainRank(0);
-    this.drd(0);
+    // Set to -1 as special flag that this has not loaded yet
+    this.urlRank(-1); 
+    this.prd(-1); 
+    this.domainRank(-1); 
+    this.drd(-1); 
+  }
+
+  private allAPISLoaded() {
+    return this.urlRank != -1 && this.prd != -1 && this.domainRank != -1 && this.drd != -1;
   }
 }
