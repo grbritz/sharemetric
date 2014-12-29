@@ -1,6 +1,7 @@
 /// <reference path='./jquery.d.ts' />
 /// <reference path='./knockout.d.ts' />
 /// <reference path='./cryptojs.d.ts' />
+/// <reference path='./purl-jquery.d.ts' />
 // declare var ga = function(...args: any[]){};
 
 declare var ga : any;
@@ -218,9 +219,9 @@ class LinkedIn extends SocialAPI {
     this.formattedResults("loading...");
     $.get("http://www.linkedin.com/countserv/count/share",
           {"url" : appManager.getURL(), "format" : "json"},
-          this.queryCallback
+          this.queryCallback,
           "json")
-     .fail(this.queryFail)
+     .fail(this.queryFail);
   }
 
   private queryCallback(results : any) {
@@ -289,7 +290,7 @@ class Reddit extends SocialAPI {
   }
 
   private queryCallback(results : any) {
-    $(results.data.children).each(function(index, obj){
+    $(results.data.children).each(function(index, obj : any){
       this.totalCount += obj.data.score;
       this.ups += obj.data.ups;
       this.downs += obj.data.downs;
@@ -361,7 +362,7 @@ class Pinterest extends SocialAPI {
       results = results.substr(0, results.length - 1); //remove right paren
       results = JSON.parse(results);
       var count = results.count;
-      this.totalCount = isNaN(count) : 0 ? parseInt(count);
+      this.totalCount = isNaN(count) ? 0 : parseInt(count);
     }
 
     this.setFormattedResults();
