@@ -6,6 +6,13 @@
 
 declare var ga : any;
 declare var chrome : any;
+var APP_VERSION = "2.0.0";
+
+// This var can be a function that accepts a settings object (that was saved to local storage)
+// It is used when the APP_VERSION changes in a way that modifies the data stored to storage
+// and those changes need to be applied on top of the user's stored preferences.
+declare var applyVersionUpdate : any;
+
 
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -34,10 +41,11 @@ ko.applyBindings(appManager);
 class AppManager {
   private socialAPIs : KnockoutObservableArray<any>;
   private linkAPIs : KnockoutObservableArray<any>;
-  private keywordsAPIs : KnockoutObservableArray<any>;
-  private showResearch : KnockoutObservable<boolean>;
+  private semrush : KnockoutObservable<any>;
   
+  private showResearch : KnockoutObservable<boolean>;
   private autoloadSocial : KnockoutObservable<boolean>;
+  
   private badgeCount : number = 0;
   private URL : string;
 
@@ -81,20 +89,133 @@ class AppManager {
 
   public querySocialAPIs() {
     var self = this;
-    $.each(self.socialAPIs, function(index, api) {
+    $.each(self.socialAPIs(), function(index, api) {
       api.queryData();  
     });
   }
 
   // Saves all API settings into local storage
   // to persist the settings between sessions.
-  public persistState() {
-    // TODO:
+  public persistSettings() {
+    var self = this;
+    var settings = {};
+    settings["social"] = {
+      autoLoad  : self.autoloadSocial(),
+      apis      : []
+    };
+
+    $.each(self.socialAPIs(), function(index, api) {
+      settings["social"].apis.push(api.toJSON());
+    });
+
+    settings["links"] = [];
+    $.each(self.linkAPIs(), function(index, api) {
+      settings["links"].push(api.toJSON());
+    });
+
+    settings["semrush"] = self.semrush().toJSON();
+    settings["showResearch"] = self.showResearch();
+    settings["APP_VERSION"] = APP_VERSION;
+
+    // TODO: Notifications
+    // settings["dismissedNotifications"]
+  
+    localStorage["ShareMetric"] = JSON.stringify(settings);
   }
 
   // Loads the API settings from local storage
   public loadSettings() {
-    // TODO:
+    var self = this;
+    self.socialAPIs.removeAll();
+    self.linkAPIs.removeAll();
+    self.semrush(null);
+    self.setBadgeCount(0);
+
+    if(localStorage.getItem("ShareMetric")) {
+      var settings = localStorage.getItem("ShareMetric");
+      if(settings["APP_VERSION"] != APP_VERSION) {
+        settings = applyVersionUpdate(settings);
+      }
+
+      // SOCIAL
+      self.autoloadSocial(settings["social"]["autoloadSocial"]);
+      $.each(settings.social.apis, function(index, api) {
+        //TODO: Explore more graceful alternatives to this
+        switch(api.name) {
+          case "Facebook":
+            self.socialAPIs.push(ko.observable(new Facebook(api)));
+            break;
+          case "Google+":
+            self.socialAPIs.push(ko.observable(new GooglePlus(api)));
+            break;
+          case "LinkedIn":
+            self.socialAPIs.push(ko.observable(new LinkedIn(api)));
+            break;
+          case "Twitter":
+            self.socialAPIs.push(ko.observable(new Twitter(api)));
+            break;
+          case "Reddit":
+            self.socialAPIs.push(ko.observable(new Reddit(api)));
+            break;
+          case "StumbleUpon":
+            self.socialAPIs.push(ko.observable(new StumbleUpon(api)));
+            break;
+          case "Pinterest":
+            self.socialAPIs.push(ko.observable(new Pinterest(api)));
+            break;
+          case "Delicious":
+            self.socialAPIs.push(ko.observable(new Delicious(api)));
+            break;
+        }
+      });
+
+      // LINKS (e.g MOZ & Ahrefs)
+      $.each(settings["links"], function(index, api) {
+        switch(api.name) {
+          case "Moz":
+            self.linkAPIs.push(ko.observable(new MozAPI(api)));
+            break;
+          case "Ahrefs":
+            self.linkAPIs.push(ko.observable(new AhrefsAPI(api)));
+            break;
+        }
+      });
+
+      self.semrush(new SEMRush(settings["semrush"]));
+      self.showResearch(settings["showResearch"]);
+
+      //TODO: Notifications
+      //self.notifications(settings.notifications);
+    }
+    else {
+      self.loadDefaultSettings();
+    }
+  }
+
+  private loadDefaultSettings() {
+    var self = this;
+    
+    // SOCIALS
+    self.autoloadSocial(true);
+    self.socialAPIs.push(ko.observable(new Facebook({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new GooglePlus({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new LinkedIn({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new Twitter({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new Reddit({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new StumbleUpon({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new Pinterest({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new Delicious({ isActive : true })));
+
+    // LINKS
+    self.linkAPIs.push(ko.observable(new MozAPI({
+      isActive : false, 
+      mozID : null, 
+      mozSecret: null 
+    })));
+    self.linkAPIs.push(ko.observable(new AhrefsAPI({ isActive : false, authToken: null})));
+
+    self.semrush(new SEMRush({ isActive: false, authToken: "" }));
+    self.showResearch(true);
   }
 }
 
@@ -172,6 +293,7 @@ class Facebook extends SocialAPI {
   private comments : number;
 
   constructor(json) {
+    json.name = "Facebook";
     super(json);
   }
 
@@ -206,6 +328,7 @@ class Facebook extends SocialAPI {
 
 class GooglePlus extends SocialAPI {
   constructor(json) {
+    json.name = "Google+";
     super(json);
   }
 
@@ -228,6 +351,7 @@ class GooglePlus extends SocialAPI {
 
 class LinkedIn extends SocialAPI {
   constructor(json) {
+    json.name = "LinkedIn";
     super(json);
   }
 
@@ -254,6 +378,7 @@ class LinkedIn extends SocialAPI {
 class Twitter extends SocialAPI {
 
   constructor(json) {
+    json.name = "Twitter";
     super(json);
   }
 
@@ -293,6 +418,7 @@ class Reddit extends SocialAPI {
   private downs : number;
 
   constructor(json) {
+    json.name = "Reddit";
     super(json);
   }
 
@@ -330,6 +456,7 @@ class Reddit extends SocialAPI {
 
 class StumbleUpon extends SocialAPI {
   constructor(json) {
+    json.name = "StumbleUpon";
     super(json);
   }
 
@@ -356,6 +483,7 @@ class StumbleUpon extends SocialAPI {
 
 class Pinterest extends SocialAPI {
   constructor(json) {
+    json.name = "Pinterest";
     super(json);
   }
 
@@ -397,6 +525,7 @@ class Pinterest extends SocialAPI {
 class Delicious extends SocialAPI {
   // TODO: Discover how to find a delicious link and put that in the formattedResults
   constructor(json) {
+    json.name = "Delicious";
     super(json);
   }
 
@@ -445,6 +574,7 @@ class MozAPI extends AuthenticatedAPI {
 
 
   constructor(json) {
+    json.name = "Moz";
     super(json);
     this.mozID(json.mozID);
     this.mozSecret(json.mozSecret);
@@ -527,6 +657,7 @@ class AhrefsAPI extends AuthenticatedAPI {
   private authToken : string;
 
   constructor(json) {
+    json.name = "Ahrefs";
     super(json);
     this.clearCounts();
     if(this.isActive && !this.authToken) {
@@ -681,7 +812,7 @@ class AhrefsAPI extends AuthenticatedAPI {
                           ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
                           chrome.tabs.remove(oAuthTabID);
                           
-                          appManager.persistState();
+                          appManager.persistSettings();
 
                           // TODO: Do I need these two trackers?
                           self.isAuthenticated = true;
@@ -742,6 +873,7 @@ class SEMRush extends API {
 
 
   constructor(json) {
+    json.name = "SEMRush";
     super(json);
     this.authToken(json.authToken);
   }

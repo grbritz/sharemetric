@@ -9,6 +9,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var APP_VERSION = "2.0.0";
 (function (w, d, s, l, i) {
     w[l] = w[l] || [];
     w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
@@ -69,18 +70,114 @@ var AppManager = (function () {
     };
     AppManager.prototype.querySocialAPIs = function () {
         var self = this;
-        $.each(self.socialAPIs, function (index, api) {
+        $.each(self.socialAPIs(), function (index, api) {
             api.queryData();
         });
     };
     // Saves all API settings into local storage
     // to persist the settings between sessions.
-    AppManager.prototype.persistState = function () {
-        // TODO:
+    AppManager.prototype.persistSettings = function () {
+        var self = this;
+        var settings = {};
+        settings["social"] = {
+            autoLoad: self.autoloadSocial(),
+            apis: []
+        };
+        $.each(self.socialAPIs(), function (index, api) {
+            settings["social"].apis.push(api.toJSON());
+        });
+        settings["links"] = [];
+        $.each(self.linkAPIs(), function (index, api) {
+            settings["links"].push(api.toJSON());
+        });
+        settings["semrush"] = self.semrush().toJSON();
+        settings["showResearch"] = self.showResearch();
+        settings["APP_VERSION"] = APP_VERSION;
+        // TODO: Notifications
+        // settings["dismissedNotifications"]
+        localStorage["ShareMetric"] = JSON.stringify(settings);
     };
     // Loads the API settings from local storage
     AppManager.prototype.loadSettings = function () {
-        // TODO:
+        var self = this;
+        self.socialAPIs.removeAll();
+        self.linkAPIs.removeAll();
+        self.semrush(null);
+        self.setBadgeCount(0);
+        if (localStorage.getItem("ShareMetric")) {
+            var settings = localStorage.getItem("ShareMetric");
+            if (settings["APP_VERSION"] != APP_VERSION) {
+                settings = applyVersionUpdate(settings);
+            }
+            // SOCIAL
+            self.autoloadSocial(settings["social"]["autoloadSocial"]);
+            $.each(settings.social.apis, function (index, api) {
+                switch (api.name) {
+                    case "Facebook":
+                        self.socialAPIs.push(ko.observable(new Facebook(api)));
+                        break;
+                    case "Google+":
+                        self.socialAPIs.push(ko.observable(new GooglePlus(api)));
+                        break;
+                    case "LinkedIn":
+                        self.socialAPIs.push(ko.observable(new LinkedIn(api)));
+                        break;
+                    case "Twitter":
+                        self.socialAPIs.push(ko.observable(new Twitter(api)));
+                        break;
+                    case "Reddit":
+                        self.socialAPIs.push(ko.observable(new Reddit(api)));
+                        break;
+                    case "StumbleUpon":
+                        self.socialAPIs.push(ko.observable(new StumbleUpon(api)));
+                        break;
+                    case "Pinterest":
+                        self.socialAPIs.push(ko.observable(new Pinterest(api)));
+                        break;
+                    case "Delicious":
+                        self.socialAPIs.push(ko.observable(new Delicious(api)));
+                        break;
+                }
+            });
+            // LINKS (e.g MOZ & Ahrefs)
+            $.each(settings["links"], function (index, api) {
+                switch (api.name) {
+                    case "Moz":
+                        self.linkAPIs.push(ko.observable(new MozAPI(api)));
+                        break;
+                    case "Ahrefs":
+                        self.linkAPIs.push(ko.observable(new AhrefsAPI(api)));
+                        break;
+                }
+            });
+            self.semrush(new SEMRush(settings["semrush"]));
+            self.showResearch(settings["showResearch"]);
+        }
+        else {
+            self.loadDefaultSettings();
+        }
+    };
+    AppManager.prototype.loadDefaultSettings = function () {
+        var self = this;
+        // SOCIALS
+        self.autoloadSocial(true);
+        self.socialAPIs.push(ko.observable(new Facebook({ isActive: true })));
+        self.socialAPIs.push(ko.observable(new GooglePlus({ isActive: true })));
+        self.socialAPIs.push(ko.observable(new LinkedIn({ isActive: true })));
+        self.socialAPIs.push(ko.observable(new Twitter({ isActive: true })));
+        self.socialAPIs.push(ko.observable(new Reddit({ isActive: true })));
+        self.socialAPIs.push(ko.observable(new StumbleUpon({ isActive: true })));
+        self.socialAPIs.push(ko.observable(new Pinterest({ isActive: true })));
+        self.socialAPIs.push(ko.observable(new Delicious({ isActive: true })));
+        // LINKS
+        self.linkAPIs.push(ko.observable(new MozAPI({
+            isActive: false,
+            mozID: null,
+            mozSecret: null
+        })));
+        self.linkAPIs.push(ko.observable(new AhrefsAPI({ isActive: false, authToken: null })));
+        self.semrush(new SEMRush({ isActive: false, authToken: "" }));
+        self.showResearch(true);
     };
     return AppManager;
 })();
@@ -141,6 +238,7 @@ var SocialAPI = (function (_super) {
 var Facebook = (function (_super) {
     __extends(Facebook, _super);
     function Facebook(json) {
+        json.name = "Facebook";
         _super.call(this, json);
     }
     Facebook.prototype.queryData = function () {
@@ -168,6 +266,7 @@ var Facebook = (function (_super) {
 var GooglePlus = (function (_super) {
     __extends(GooglePlus, _super);
     function GooglePlus(json) {
+        json.name = "Google+";
         _super.call(this, json);
     }
     GooglePlus.prototype.queryData = function () {
@@ -185,6 +284,7 @@ var GooglePlus = (function (_super) {
 var LinkedIn = (function (_super) {
     __extends(LinkedIn, _super);
     function LinkedIn(json) {
+        json.name = "LinkedIn";
         _super.call(this, json);
     }
     LinkedIn.prototype.queryData = function () {
@@ -205,6 +305,7 @@ var LinkedIn = (function (_super) {
 var Twitter = (function (_super) {
     __extends(Twitter, _super);
     function Twitter(json) {
+        json.name = "Twitter";
         _super.call(this, json);
     }
     Twitter.prototype.queryData = function () {
@@ -235,6 +336,7 @@ var Twitter = (function (_super) {
 var Reddit = (function (_super) {
     __extends(Reddit, _super);
     function Reddit(json) {
+        json.name = "Reddit";
         _super.call(this, json);
     }
     Reddit.prototype.queryData = function () {
@@ -265,6 +367,7 @@ var Reddit = (function (_super) {
 var StumbleUpon = (function (_super) {
     __extends(StumbleUpon, _super);
     function StumbleUpon(json) {
+        json.name = "StumbleUpon";
         _super.call(this, json);
     }
     StumbleUpon.prototype.queryData = function () {
@@ -285,6 +388,7 @@ var StumbleUpon = (function (_super) {
 var Pinterest = (function (_super) {
     __extends(Pinterest, _super);
     function Pinterest(json) {
+        json.name = "Pinterest";
         _super.call(this, json);
     }
     Pinterest.prototype.queryData = function () {
@@ -318,6 +422,7 @@ var Delicious = (function (_super) {
     __extends(Delicious, _super);
     // TODO: Discover how to find a delicious link and put that in the formattedResults
     function Delicious(json) {
+        json.name = "Delicious";
         _super.call(this, json);
     }
     Delicious.prototype.queryData = function () {
@@ -350,6 +455,7 @@ var AuthenticatedAPI = (function (_super) {
 var MozAPI = (function (_super) {
     __extends(MozAPI, _super);
     function MozAPI(json) {
+        json.name = "Moz";
         _super.call(this, json);
         this.mozID(json.mozID);
         this.mozSecret(json.mozSecret);
@@ -413,6 +519,7 @@ var MozAPI = (function (_super) {
 var AhrefsAPI = (function (_super) {
     __extends(AhrefsAPI, _super);
     function AhrefsAPI(json) {
+        json.name = "Ahrefs";
         _super.call(this, json);
         this.clearCounts();
         if (this.isActive && !this.authToken) {
@@ -533,7 +640,7 @@ var AhrefsAPI = (function (_super) {
                                     self.authToken = results.access_token;
                                     ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
                                     chrome.tabs.remove(oAuthTabID);
-                                    appManager.persistState();
+                                    appManager.persistSettings();
                                     // TODO: Do I need these two trackers?
                                     self.isAuthenticated = true;
                                     self.numAuthAttempts = 0;
@@ -579,6 +686,7 @@ var AhrefsAPI = (function (_super) {
 var SEMRush = (function (_super) {
     __extends(SEMRush, _super);
     function SEMRush(json) {
+        json.name = "SEMRush";
         _super.call(this, json);
         this.authToken(json.authToken);
     }
