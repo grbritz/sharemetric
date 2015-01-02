@@ -2,17 +2,15 @@
 /// <reference path='./knockout.d.ts' />
 /// <reference path='./cryptojs.d.ts' />
 /// <reference path='./purl-jquery.d.ts' />
-// declare var ga = function(...args: any[]){};
-
-declare var ga : any;
 declare var chrome : any;
+var ga = function(...any) {};
+
 var APP_VERSION = "2.0.0";
 
 // This var can be a function that accepts a settings object (that was saved to local storage)
 // It is used when the APP_VERSION changes in a way that modifies the data stored to storage
 // and those changes need to be applied on top of the user's stored preferences.
 declare var applyVersionUpdate : any;
-
 
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -35,8 +33,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   }
 });
 
-var appManager = new AppManager();
-
 class AppManager {
   private socialAPIs : KnockoutObservableArray<any>;
   private linkAPIs : KnockoutObservableArray<any>;
@@ -49,6 +45,12 @@ class AppManager {
   private URL : string;
 
   constructor() {
+    this.socialAPIs = ko.observableArray([]);
+    this.linkAPIs = ko.observableArray([]);
+    this.semrush = ko.observable({});
+    this.showResearch = ko.observable(true);
+    this.autoloadSocial = ko.observable(true);
+
     this.loadSettings();
   }
 
@@ -83,7 +85,7 @@ class AppManager {
 
   private setBadgeCount(count : number) {
     this.badgeCount = count;
-    chrome.browserAction.setBadgeText({'text' : count});
+    chrome.browserAction.setBadgeText({'text' : "" + count});
   }
 
   public increaseBadgeCount(count : number) {
@@ -93,12 +95,12 @@ class AppManager {
   public querySocialAPIs() {
     var self = this;
     $.each(self.socialAPIs(), function(index, api) {
-      api.queryData();  
+      api().queryData();  
     });
   }
 
   public queryNonSocialAPIs() {
-
+    // TODO:
   }
 
   // Saves all API settings into local storage
@@ -272,7 +274,7 @@ class SocialAPI extends API {
   constructor(json) {
     super(json);
     this.totalCount = 0;
-    this.formattedResults("");
+    this.formattedResults = ko.observable("");
   }
 
   public querySuccess() {
@@ -304,14 +306,22 @@ class Facebook extends SocialAPI {
     super(json);
   }
 
+  public setFormattedResults() {
+    var tmp = ""+ this.totalCount;
+    tmp += "<br /><span class=\"indent\">Likes: " + this.likes + "</span>";
+    tmp += "<br /><span class=\"indent\">Shares: " + this.shares + "</span>";
+    tmp += "<br /><span class=\"indent\">Comments: " + this.comments + "</span>";
+    this.formattedResults(tmp);
+  }
+
   public queryData() {
     this.totalCount = 0;
     this.formattedResults("loading...");
     $.get("https://api.facebook.com/method/fql.query", 
           { "query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+ appManager.getURL() +'"'}, 
-          this.queryCallback,
+          this.queryCallback.bind(this),
           "xml")
-     .fail(this.queryFail);
+     .fail(this.queryFail.bind(this));
   }
 
   private queryCallback(results : any) {
@@ -324,13 +334,7 @@ class Facebook extends SocialAPI {
     this.querySuccess();
   }
 
-  public setFormattedResults() {
-    var tmp = ""+ this.totalCount;
-    tmp += "<br /><span class=\"indent\">Likes: " + this.likes + "</span>";
-    tmp += "<br /><span class=\"indent\">Shares: " + this.shares + "</span>";
-    tmp += "<br /><span class=\"indent\">Comments: " + this.comments + "</span>";
-    this.formattedResults(tmp);
-  }
+  
 }
 
 class GooglePlus extends SocialAPI {
@@ -344,9 +348,9 @@ class GooglePlus extends SocialAPI {
     this.formattedResults("loading...");
     $.get("http://sharemetric.com",
           {"url" : appManager.getURL(), "callType" : "extension"},
-          this.queryCallback, 
+          this.queryCallback.bind(this), 
           "text")
-     .fail(this.queryFail);
+     .fail(this.queryFail.bind(this));
   }
 
   private queryCallback(results: any) {
@@ -367,9 +371,9 @@ class LinkedIn extends SocialAPI {
     this.formattedResults("loading...");
     $.get("http://www.linkedin.com/countserv/count/share",
           {"url" : appManager.getURL(), "format" : "json"},
-          this.queryCallback,
+          this.queryCallback.bind(this),
           "json")
-     .fail(this.queryFail);
+     .fail(this.queryFail.bind(this));
   }
 
   private queryCallback(results : any) {
@@ -394,9 +398,9 @@ class Twitter extends SocialAPI {
     this.formattedResults("loading...");
     $.get("http://urls.api.twitter.com/1/urls/count.json",
           {"url": appManager.getURL()},
-          this.queryCallack,
+          this.queryCallack.bind(this),
           "json")
-     .fail(this.queryFail);
+     .fail(this.queryFail.bind(this));
   }
 
   private queryCallack(results : any) {
@@ -434,9 +438,9 @@ class Reddit extends SocialAPI {
     this.formattedResults("loading...");
     $.get("http://www.reddit.com/api/info.json",
           {"url" : appManager.getURL()},
-          this.queryCallback,
+          this.queryCallback.bind(this),
           "json")
-     .fail(this.queryFail);
+     .fail(this.queryFail.bind(this));
   }
 
   private queryCallback(results : any) {
@@ -472,9 +476,9 @@ class StumbleUpon extends SocialAPI {
     this.formattedResults("loading...");
     $.get("http://www.stumbleupon.com/services/1.01/badge.getinfo",
           {"url" : appManager.getURL()},
-          this.queryCallback,
+          this.queryCallback.bind(this),
           "json")
-     .fail(this.queryFail);
+     .fail(this.queryFail.bind(this));
   }
 
   private queryCallback(results : any) {
@@ -499,9 +503,9 @@ class Pinterest extends SocialAPI {
     this.formattedResults("loading...");
     $.get("http://api.pinterest.com/v1/urls/count.json",
           {"url" : appManager.getURL(), "callback" : "receiveCount"},
-          this.queryCallback,
+          this.queryCallback.bind(this),
           "text")
-     .fail(this.queryFail);
+     .fail(this.queryFail.bind(this));
   }
 
   private queryCallback(results : any) {
@@ -541,9 +545,9 @@ class Delicious extends SocialAPI {
     this.formattedResults("loading...");
     $.get("http://feeds.delicious.com/v2/json/urlinfo/data",
           {"url" : appManager.getURL()},
-          this.queryCallback,
+          this.queryCallback.bind(this),
           "json")
-     .fail(this.queryFail); 
+     .fail(this.queryFail.bind(this)); 
   }
   
   private queryCallback(data : any) {
@@ -583,9 +587,12 @@ class MozAPI extends AuthenticatedAPI {
   constructor(json) {
     json.name = "Moz";
     super(json);
-    this.mozID(json.mozID);
-    this.mozSecret(json.mozSecret);
-    this.clearCounts();
+    this.mozID = ko.observable(json.mozID);
+    this.mozSecret = ko.observable(json.mozSecret);
+    this.pa = ko.observable(-1);
+    this.plrd = ko.observable(-1);
+    this.da = ko.observable(-1);
+    this.dlrd = ko.observable(-1);
   }
 
   public toJSON() {
@@ -605,9 +612,9 @@ class MozAPI extends AuthenticatedAPI {
 
     $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + this.genQueryURL(),
           {},
-          this.queryCallback,
+          this.queryCallback.bind(this),
           "json")
-     .fail(this.queryFail);
+     .fail(this.queryFail.bind(this));
   }
 
   public queryCallback(results : any) {
@@ -648,10 +655,10 @@ class MozAPI extends AuthenticatedAPI {
   }
 
   private clearCounts() {
-    this.pa(0);
-    this.plrd(0);
-    this.da(0);
-    this.dlrd(0);
+    this.pa(-1);
+    this.plrd(-1);
+    this.da(-1);
+    this.dlrd(-1);
   }
 }
 
@@ -666,7 +673,11 @@ class AhrefsAPI extends AuthenticatedAPI {
   constructor(json) {
     json.name = "Ahrefs";
     super(json);
-    this.clearCounts();
+    this.urlRank = ko.observable(-1);
+    this.prd = ko.observable(-1);
+    this.domainRank = ko.observable(-1);
+    this.drd = ko.observable(-1);
+    
     if(this.isActive && !this.authToken) {
       // If this was created as an active and
       // did not have a saved auth token
@@ -711,7 +722,7 @@ class AhrefsAPI extends AuthenticatedAPI {
             }
           },
           "json")
-       .fail(self.queryFail);
+       .fail(self.queryFail.bind(self));
 
        // GET domainRank
        $.get("http://apiv2.ahrefs.com", {
@@ -728,7 +739,7 @@ class AhrefsAPI extends AuthenticatedAPI {
               ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
             }
           }, "json")
-       .fail(self.queryFail);
+       .fail(self.queryFail.bind(self));
 
        // GET drd
        $.get("http://apiv2.ahrefs.com", {
@@ -746,7 +757,7 @@ class AhrefsAPI extends AuthenticatedAPI {
             ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
           }
         }, "json")
-       .fail(self.queryFail);
+       .fail(self.queryFail.bind(self));
 
        // GET prd
       $.get("http://apiv2.ahrefs.com", {
@@ -764,6 +775,7 @@ class AhrefsAPI extends AuthenticatedAPI {
             ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
           }
         }, "json")
+      .fail(self.queryFail.bind(self));
 
     }
   }
@@ -882,7 +894,9 @@ class SEMRush extends API {
   constructor(json) {
     json.name = "SEMRush";
     super(json);
-    this.authToken(json.authToken);
+
+    this.resultRows = ko.observableArray([]);
+    this.authToken = ko.observable(json.authToken);
   }
 
   public toJSON() {
@@ -905,8 +919,8 @@ class SEMRush extends API {
           "export"    : "api",
           "export_columns": "Ph,Po,Nq,Cp",
           "url"     : appManager.getURL()
-      }, self.queryCallback)
-    .fail(self.queryFail);
+      }, self.queryCallback.bind(self))
+    .fail(self.queryFail.bind(self));
   }
 
   public queryCallback(results : any) {
@@ -932,7 +946,10 @@ class SEMRush extends API {
   // private queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
   //   ga('send', 'event', 'Error', 'API Error - SEMRush', jqXHR.status);
   // }
-
-
-
 }
+
+
+/**************************************************************************************************
+* Background script initialization
+**************************************************************************************************/
+var appManager = new AppManager();

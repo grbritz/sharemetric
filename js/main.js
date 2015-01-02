@@ -1,13 +1,18 @@
-/// <reference path='./jquery.d.ts' />
-/// <reference path='./knockout.d.ts' />
-/// <reference path='./cryptojs.d.ts' />
-/// <reference path='./purl-jquery.d.ts' />
-// declare var ga = function(...args: any[]){};
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
+};
+/// <reference path='./jquery.d.ts' />
+/// <reference path='./knockout.d.ts' />
+/// <reference path='./cryptojs.d.ts' />
+/// <reference path='./purl-jquery.d.ts' />
+var ga = function () {
+    var any = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        any[_i - 0] = arguments[_i];
+    }
 };
 var APP_VERSION = "2.0.0";
 (function (w, d, s, l, i) {
@@ -31,11 +36,15 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         appManager.setURL(tab.url);
     }
 });
-var appManager = new AppManager();
-ko.applyBindings(appManager);
 var AppManager = (function () {
     function AppManager() {
         this.badgeCount = 0;
+        this.socialAPIs = ko.observableArray([]);
+        this.linkAPIs = ko.observableArray([]);
+        this.semrush = ko.observable({});
+        this.showResearch = ko.observable(true);
+        this.autoloadSocial = ko.observable(true);
+        this.loadSettings();
     }
     AppManager.prototype.getURL = function () {
         return this.URL;
@@ -63,7 +72,7 @@ var AppManager = (function () {
     };
     AppManager.prototype.setBadgeCount = function (count) {
         this.badgeCount = count;
-        chrome.browserAction.setBadgeText({ 'text': count });
+        chrome.browserAction.setBadgeText({ 'text': "" + count });
     };
     AppManager.prototype.increaseBadgeCount = function (count) {
         this.setBadgeCount(count + this.badgeCount);
@@ -71,8 +80,11 @@ var AppManager = (function () {
     AppManager.prototype.querySocialAPIs = function () {
         var self = this;
         $.each(self.socialAPIs(), function (index, api) {
-            api.queryData();
+            api().queryData();
         });
+    };
+    AppManager.prototype.queryNonSocialAPIs = function () {
+        // TODO:
     };
     // Saves all API settings into local storage
     // to persist the settings between sessions.
@@ -215,7 +227,7 @@ var SocialAPI = (function (_super) {
     function SocialAPI(json) {
         _super.call(this, json);
         this.totalCount = 0;
-        this.formattedResults("");
+        this.formattedResults = ko.observable("");
     }
     SocialAPI.prototype.querySuccess = function () {
         appManager.increaseBadgeCount(this.totalCount);
@@ -241,10 +253,17 @@ var Facebook = (function (_super) {
         json.name = "Facebook";
         _super.call(this, json);
     }
+    Facebook.prototype.setFormattedResults = function () {
+        var tmp = "" + this.totalCount;
+        tmp += "<br /><span class=\"indent\">Likes: " + this.likes + "</span>";
+        tmp += "<br /><span class=\"indent\">Shares: " + this.shares + "</span>";
+        tmp += "<br /><span class=\"indent\">Comments: " + this.comments + "</span>";
+        this.formattedResults(tmp);
+    };
     Facebook.prototype.queryData = function () {
         this.totalCount = 0;
         this.formattedResults("loading...");
-        $.get("https://api.facebook.com/method/fql.query", { "query": 'select total_count, share_count, like_count, comment_count from link_stat where url ="' + appManager.getURL() + '"' }, this.queryCallback, "xml").fail(this.queryFail);
+        $.get("https://api.facebook.com/method/fql.query", { "query": 'select total_count, share_count, like_count, comment_count from link_stat where url ="' + appManager.getURL() + '"' }, this.queryCallback.bind(this), "xml").fail(this.queryFail.bind(this));
     };
     Facebook.prototype.queryCallback = function (results) {
         this.likes = parseInt($(results).find("like_count").text());
@@ -253,13 +272,6 @@ var Facebook = (function (_super) {
         this.totalCount = parseInt($(results).find("total_count").text());
         this.setFormattedResults();
         this.querySuccess();
-    };
-    Facebook.prototype.setFormattedResults = function () {
-        var tmp = "" + this.totalCount;
-        tmp += "<br /><span class=\"indent\">Likes: " + this.likes + "</span>";
-        tmp += "<br /><span class=\"indent\">Shares: " + this.shares + "</span>";
-        tmp += "<br /><span class=\"indent\">Comments: " + this.comments + "</span>";
-        this.formattedResults(tmp);
     };
     return Facebook;
 })(SocialAPI);
@@ -272,7 +284,7 @@ var GooglePlus = (function (_super) {
     GooglePlus.prototype.queryData = function () {
         this.totalCount = 0;
         this.formattedResults("loading...");
-        $.get("http://sharemetric.com", { "url": appManager.getURL(), "callType": "extension" }, this.queryCallback, "text").fail(this.queryFail);
+        $.get("http://sharemetric.com", { "url": appManager.getURL(), "callType": "extension" }, this.queryCallback.bind(this), "text").fail(this.queryFail.bind(this));
     };
     GooglePlus.prototype.queryCallback = function (results) {
         this.totalCount = isNaN(results) ? parseInt(results) : results;
@@ -290,7 +302,7 @@ var LinkedIn = (function (_super) {
     LinkedIn.prototype.queryData = function () {
         this.totalCount = 0;
         this.formattedResults("loading...");
-        $.get("http://www.linkedin.com/countserv/count/share", { "url": appManager.getURL(), "format": "json" }, this.queryCallback, "json").fail(this.queryFail);
+        $.get("http://www.linkedin.com/countserv/count/share", { "url": appManager.getURL(), "format": "json" }, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };
     LinkedIn.prototype.queryCallback = function (results) {
         if (results != undefined) {
@@ -311,7 +323,7 @@ var Twitter = (function (_super) {
     Twitter.prototype.queryData = function () {
         this.totalCount = 0;
         this.formattedResults("loading...");
-        $.get("http://urls.api.twitter.com/1/urls/count.json", { "url": appManager.getURL() }, this.queryCallack, "json").fail(this.queryFail);
+        $.get("http://urls.api.twitter.com/1/urls/count.json", { "url": appManager.getURL() }, this.queryCallack.bind(this), "json").fail(this.queryFail.bind(this));
     };
     Twitter.prototype.queryCallack = function (results) {
         if (results != undefined) {
@@ -342,7 +354,7 @@ var Reddit = (function (_super) {
     Reddit.prototype.queryData = function () {
         this.totalCount = 0;
         this.formattedResults("loading...");
-        $.get("http://www.reddit.com/api/info.json", { "url": appManager.getURL() }, this.queryCallback, "json").fail(this.queryFail);
+        $.get("http://www.reddit.com/api/info.json", { "url": appManager.getURL() }, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };
     Reddit.prototype.queryCallback = function (results) {
         $(results.data.children).each(function (index, obj) {
@@ -373,7 +385,7 @@ var StumbleUpon = (function (_super) {
     StumbleUpon.prototype.queryData = function () {
         this.totalCount = 0;
         this.formattedResults("loading...");
-        $.get("http://www.stumbleupon.com/services/1.01/badge.getinfo", { "url": appManager.getURL() }, this.queryCallback, "json").fail(this.queryFail);
+        $.get("http://www.stumbleupon.com/services/1.01/badge.getinfo", { "url": appManager.getURL() }, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };
     StumbleUpon.prototype.queryCallback = function (results) {
         if (results != undefined && results.result != undefined) {
@@ -394,7 +406,7 @@ var Pinterest = (function (_super) {
     Pinterest.prototype.queryData = function () {
         this.totalCount = 0;
         this.formattedResults("loading...");
-        $.get("http://api.pinterest.com/v1/urls/count.json", { "url": appManager.getURL(), "callback": "receiveCount" }, this.queryCallback, "text").fail(this.queryFail);
+        $.get("http://api.pinterest.com/v1/urls/count.json", { "url": appManager.getURL(), "callback": "receiveCount" }, this.queryCallback.bind(this), "text").fail(this.queryFail.bind(this));
     };
     Pinterest.prototype.queryCallback = function (results) {
         if (results != undefined) {
@@ -428,7 +440,7 @@ var Delicious = (function (_super) {
     Delicious.prototype.queryData = function () {
         this.totalCount = 0;
         this.formattedResults("loading...");
-        $.get("http://feeds.delicious.com/v2/json/urlinfo/data", { "url": appManager.getURL() }, this.queryCallback, "json").fail(this.queryFail);
+        $.get("http://feeds.delicious.com/v2/json/urlinfo/data", { "url": appManager.getURL() }, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };
     Delicious.prototype.queryCallback = function (data) {
         if (data != undefined && data.length != 0) {
@@ -457,9 +469,12 @@ var MozAPI = (function (_super) {
     function MozAPI(json) {
         json.name = "Moz";
         _super.call(this, json);
-        this.mozID(json.mozID);
-        this.mozSecret(json.mozSecret);
-        this.clearCounts();
+        this.mozID = ko.observable(json.mozID);
+        this.mozSecret = ko.observable(json.mozSecret);
+        this.pa = ko.observable(-1);
+        this.plrd = ko.observable(-1);
+        this.da = ko.observable(-1);
+        this.dlrd = ko.observable(-1);
     }
     MozAPI.prototype.toJSON = function () {
         var self = this;
@@ -474,7 +489,7 @@ var MozAPI = (function (_super) {
     MozAPI.prototype.queryData = function () {
         this.clearCounts();
         this.numAuthAttempts += 1;
-        $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + this.genQueryURL(), {}, this.queryCallback, "json").fail(this.queryFail);
+        $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + this.genQueryURL(), {}, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };
     MozAPI.prototype.queryCallback = function (results) {
         this.pa(results.upa);
@@ -509,10 +524,10 @@ var MozAPI = (function (_super) {
         return encodeURIComponent(CryptoJS.HmacSHA1(sig, this.mozSecret()).toString(CryptoJS.enc.Base64));
     };
     MozAPI.prototype.clearCounts = function () {
-        this.pa(0);
-        this.plrd(0);
-        this.da(0);
-        this.dlrd(0);
+        this.pa(-1);
+        this.plrd(-1);
+        this.da(-1);
+        this.dlrd(-1);
     };
     return MozAPI;
 })(AuthenticatedAPI);
@@ -521,7 +536,10 @@ var AhrefsAPI = (function (_super) {
     function AhrefsAPI(json) {
         json.name = "Ahrefs";
         _super.call(this, json);
-        this.clearCounts();
+        this.urlRank = ko.observable(-1);
+        this.prd = ko.observable(-1);
+        this.domainRank = ko.observable(-1);
+        this.drd = ko.observable(-1);
         if (this.isActive && !this.authToken) {
             // If this was created as an active and
             // did not have a saved auth token
@@ -558,7 +576,7 @@ var AhrefsAPI = (function (_super) {
                 if (self.allAPISLoaded()) {
                     ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
                 }
-            }, "json").fail(self.queryFail);
+            }, "json").fail(self.queryFail.bind(self));
             // GET domainRank
             $.get("http://apiv2.ahrefs.com", {
                 token: self.authToken,
@@ -571,7 +589,7 @@ var AhrefsAPI = (function (_super) {
                 if (self.allAPISLoaded()) {
                     ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
                 }
-            }, "json").fail(self.queryFail);
+            }, "json").fail(self.queryFail.bind(self));
             // GET drd
             $.get("http://apiv2.ahrefs.com", {
                 token: self.authToken,
@@ -585,7 +603,7 @@ var AhrefsAPI = (function (_super) {
                 if (self.allAPISLoaded()) {
                     ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
                 }
-            }, "json").fail(self.queryFail);
+            }, "json").fail(self.queryFail.bind(self));
             // GET prd
             $.get("http://apiv2.ahrefs.com", {
                 token: self.authToken,
@@ -599,7 +617,7 @@ var AhrefsAPI = (function (_super) {
                 if (self.allAPISLoaded()) {
                     ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
                 }
-            }, "json");
+            }, "json").fail(self.queryFail.bind(self));
         }
     };
     AhrefsAPI.prototype.queryFail = function () {
@@ -688,7 +706,8 @@ var SEMRush = (function (_super) {
     function SEMRush(json) {
         json.name = "SEMRush";
         _super.call(this, json);
-        this.authToken(json.authToken);
+        this.resultRows = ko.observableArray([]);
+        this.authToken = ko.observable(json.authToken);
     }
     SEMRush.prototype.toJSON = function () {
         var self = this;
@@ -708,7 +727,7 @@ var SEMRush = (function (_super) {
             "export": "api",
             "export_columns": "Ph,Po,Nq,Cp",
             "url": appManager.getURL()
-        }, self.queryCallback).fail(self.queryFail);
+        }, self.queryCallback.bind(self)).fail(self.queryFail.bind(self));
     };
     SEMRush.prototype.queryCallback = function (results) {
         this.resultRows.removeAll();
@@ -729,3 +748,7 @@ var SEMRush = (function (_super) {
     };
     return SEMRush;
 })(API);
+/**************************************************************************************************
+* Background script initialization
+**************************************************************************************************/
+var appManager = new AppManager();
