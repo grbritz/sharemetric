@@ -36,7 +36,11 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         appManager.setURL(tab.url);
     }
 });
+/****
+ * Main background class & viewmodel manager
+ ****/
 var AppManager = (function () {
+    // private hasLinks : any;
     function AppManager() {
         this.badgeCount = 0;
         this.socialAPIs = ko.observableArray([]);
@@ -57,9 +61,11 @@ var AppManager = (function () {
         this.rightColSocialAPIs = ko.computed(function () {
             return this.activeSocialAPIs().slice(this.numActiveSocialAPIs() / 2, this.numActiveSocialAPIs());
         }, this);
-        this.hasLinks = ko.computed(function () {
-            return this.mozAPI().isActive() || this.ahrefsAPI().isActive();
-        }, this);
+        // this.hasLinks = ko.computed(function(){
+        //   var moz = this.mozAPI().isActive();
+        //   var ahrefs = this.ahrefsAPI().isActive();
+        //   return  moz || ahrefs;
+        // }, this);
         this.loadSettings();
     }
     AppManager.prototype.numActiveSocialAPIs = function () {
@@ -78,9 +84,9 @@ var AppManager = (function () {
     };
     AppManager.prototype.reloadAPIs = function () {
         var self = this;
-        console.debug("reloadAPIs()");
+        // console.debug("reloadAPIs()");
         chrome.tabs.query({ "active": true, "currentWindow": true }, function (tabs) {
-            console.debug("reloadAPIs() - tab query callback");
+            // console.debug("reloadAPIs() - tab query callback");
             self.URL = tabs[0].url;
             self.setBadgeCount(0);
             self.querySocialAPIs();
@@ -309,7 +315,6 @@ var Facebook = (function (_super) {
     Facebook.prototype.queryData = function () {
         this.totalCount = 0;
         this.isLoaded(false);
-        console.debug("" + this.isLoaded());
         $.get("https://api.facebook.com/method/fql.query", { "query": 'select total_count, share_count, like_count, comment_count from link_stat where url ="' + appManager.getURL() + '"' }, this.queryCallback.bind(this), "xml").fail(this.queryFail.bind(this));
     };
     Facebook.prototype.queryCallback = function (results) {

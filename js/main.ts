@@ -37,6 +37,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   }
 });
 
+/****
+ * Main background class & viewmodel manager
+ ****/
 class AppManager {
   private socialAPIs : KnockoutObservableArray<any>;
   private mozAPI : KnockoutObservable<any>;
@@ -54,7 +57,7 @@ class AppManager {
   // Related to popup api display
   private leftColSocialAPIs : any;
   private rightColSocialAPIs : any;
-  private hasLinks : any;
+  // private hasLinks : any;
 
   constructor() {
     this.socialAPIs = ko.observableArray([]);
@@ -80,9 +83,11 @@ class AppManager {
     }, this);
 
 
-    this.hasLinks = ko.computed(function(){
-      return this.mozAPI().isActive() || this.ahrefsAPI().isActive();
-    }, this);
+    // this.hasLinks = ko.computed(function(){
+    //   var moz = this.mozAPI().isActive();
+    //   var ahrefs = this.ahrefsAPI().isActive();
+    //   return  moz || ahrefs;
+    // }, this);
 
     this.loadSettings();
   }
@@ -107,16 +112,13 @@ class AppManager {
 
   public reloadAPIs()  {
     var self = this;
-    console.debug("reloadAPIs()");
+    // console.debug("reloadAPIs()");
     chrome.tabs.query({"active" : true, "currentWindow" : true}, function(tabs) {
-      console.debug("reloadAPIs() - tab query callback");
-
+      // console.debug("reloadAPIs() - tab query callback");
       self.URL = tabs[0].url;
       self.setBadgeCount(0);
       self.querySocialAPIs();
       self.queryNonSocialAPIs();
-      
-
       ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.getRedactedURL());
     });
   }
@@ -390,8 +392,6 @@ class Facebook extends SocialAPI {
   public queryData() {
     this.totalCount = 0;
     this.isLoaded(false);
-
-    console.debug("" + this.isLoaded());
     $.get("https://api.facebook.com/method/fql.query", 
           { "query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+ appManager.getURL() +'"'}, 
           this.queryCallback.bind(this),
