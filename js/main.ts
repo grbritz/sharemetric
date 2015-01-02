@@ -36,7 +36,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 });
 
 var appManager = new AppManager();
-ko.applyBindings(appManager);
 
 class AppManager {
   private socialAPIs : KnockoutObservableArray<any>;
@@ -48,6 +47,10 @@ class AppManager {
   
   private badgeCount : number = 0;
   private URL : string;
+
+  constructor() {
+    this.loadSettings();
+  }
 
   public getURL() : string {
     return this.URL;
@@ -92,6 +95,10 @@ class AppManager {
     $.each(self.socialAPIs(), function(index, api) {
       api.queryData();  
     });
+  }
+
+  public queryNonSocialAPIs() {
+
   }
 
   // Saves all API settings into local storage
