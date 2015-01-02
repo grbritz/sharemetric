@@ -5,6 +5,9 @@
 declare var chrome : any;
 var ga = function(...any) {};
 
+// TODO: Disable debugs 
+// console.debug = function() {};
+
 var APP_VERSION = "2.0.0";
 
 // This var can be a function that accepts a settings object (that was saved to local storage)
@@ -85,10 +88,17 @@ class AppManager {
 
   private setBadgeCount(count : number) {
     this.badgeCount = count;
+    
+    //
+    // console.debug("setBadgeCount(" + count + ");");
     chrome.browserAction.setBadgeText({'text' : "" + count});
   }
 
   public increaseBadgeCount(count : number) {
+    console.debug("increaseBadgeCount(" + count + ");");
+    console.debug(typeof(count));
+    
+    
     this.setBadgeCount(count + this.badgeCount);
   }
 
@@ -278,6 +288,7 @@ class SocialAPI extends API {
   }
 
   public querySuccess() {
+    console.debug(this.name + ".querySuccess()");
     appManager.increaseBadgeCount(this.totalCount);
     ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
   }
@@ -354,7 +365,7 @@ class GooglePlus extends SocialAPI {
   }
 
   private queryCallback(results: any) {
-    this.totalCount = isNaN(results) ? parseInt(results) : results;
+    this.totalCount = parseInt(results);
     this.setFormattedResults();
     this.querySuccess();
   }
@@ -398,12 +409,12 @@ class Twitter extends SocialAPI {
     this.formattedResults("loading...");
     $.get("http://urls.api.twitter.com/1/urls/count.json",
           {"url": appManager.getURL()},
-          this.queryCallack.bind(this),
+          this.queryCallback.bind(this),
           "json")
      .fail(this.queryFail.bind(this));
   }
 
-  private queryCallack(results : any) {
+  private queryCallback(results : any) {
     if(results != undefined) {
       results.count = parseInt(results.count);
       this.totalCount = isNaN(results.count) ? 0 : results.count;
@@ -516,8 +527,8 @@ class Pinterest extends SocialAPI {
       results = results.replace("receiveCount(", "");
       results = results.substr(0, results.length - 1); //remove right paren
       results = JSON.parse(results);
-      var count = results.count;
-      this.totalCount = isNaN(count) ? 0 : parseInt(count);
+      var count = parseInt(results.count);
+      this.totalCount = isNaN(count) ? 0 : count;
     }
 
     this.setFormattedResults();
@@ -552,8 +563,8 @@ class Delicious extends SocialAPI {
   
   private queryCallback(data : any) {
     if(data != undefined && data.length != 0) {
-      var posts = data[0].total_posts;
-      this.totalCount = isNaN(posts) ? 0 : parseInt(posts);
+      var posts = parseInt(data[0].total_posts);
+      this.totalCount = isNaN(posts) ? 0 : posts;
     }
     this.setFormattedResults();
     this.querySuccess();
@@ -678,7 +689,7 @@ class AhrefsAPI extends AuthenticatedAPI {
     this.domainRank = ko.observable(-1);
     this.drd = ko.observable(-1);
     
-    if(this.isActive && !this.authToken) {
+    if(this.isActive() && !this.authToken) {
       // If this was created as an active and
       // did not have a saved auth token
       this.requestToken(function(){});   

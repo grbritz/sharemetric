@@ -14,6 +14,8 @@ var ga = function () {
         any[_i - 0] = arguments[_i];
     }
 };
+// TODO: Disable debugs 
+// console.debug = function() {};
 var APP_VERSION = "2.0.0";
 (function (w, d, s, l, i) {
     w[l] = w[l] || [];
@@ -72,9 +74,13 @@ var AppManager = (function () {
     };
     AppManager.prototype.setBadgeCount = function (count) {
         this.badgeCount = count;
+        //
+        // console.debug("setBadgeCount(" + count + ");");
         chrome.browserAction.setBadgeText({ 'text': "" + count });
     };
     AppManager.prototype.increaseBadgeCount = function (count) {
+        console.debug("increaseBadgeCount(" + count + ");");
+        console.debug(typeof (count));
         this.setBadgeCount(count + this.badgeCount);
     };
     AppManager.prototype.querySocialAPIs = function () {
@@ -230,6 +236,7 @@ var SocialAPI = (function (_super) {
         this.formattedResults = ko.observable("");
     }
     SocialAPI.prototype.querySuccess = function () {
+        console.debug(this.name + ".querySuccess()");
         appManager.increaseBadgeCount(this.totalCount);
         ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
     };
@@ -287,7 +294,7 @@ var GooglePlus = (function (_super) {
         $.get("http://sharemetric.com", { "url": appManager.getURL(), "callType": "extension" }, this.queryCallback.bind(this), "text").fail(this.queryFail.bind(this));
     };
     GooglePlus.prototype.queryCallback = function (results) {
-        this.totalCount = isNaN(results) ? parseInt(results) : results;
+        this.totalCount = parseInt(results);
         this.setFormattedResults();
         this.querySuccess();
     };
@@ -323,9 +330,9 @@ var Twitter = (function (_super) {
     Twitter.prototype.queryData = function () {
         this.totalCount = 0;
         this.formattedResults("loading...");
-        $.get("http://urls.api.twitter.com/1/urls/count.json", { "url": appManager.getURL() }, this.queryCallack.bind(this), "json").fail(this.queryFail.bind(this));
+        $.get("http://urls.api.twitter.com/1/urls/count.json", { "url": appManager.getURL() }, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };
-    Twitter.prototype.queryCallack = function (results) {
+    Twitter.prototype.queryCallback = function (results) {
         if (results != undefined) {
             results.count = parseInt(results.count);
             this.totalCount = isNaN(results.count) ? 0 : results.count;
@@ -416,8 +423,8 @@ var Pinterest = (function (_super) {
             results = results.replace("receiveCount(", "");
             results = results.substr(0, results.length - 1); //remove right paren
             results = JSON.parse(results);
-            var count = results.count;
-            this.totalCount = isNaN(count) ? 0 : parseInt(count);
+            var count = parseInt(results.count);
+            this.totalCount = isNaN(count) ? 0 : count;
         }
         this.setFormattedResults();
         this.querySuccess();
@@ -444,8 +451,8 @@ var Delicious = (function (_super) {
     };
     Delicious.prototype.queryCallback = function (data) {
         if (data != undefined && data.length != 0) {
-            var posts = data[0].total_posts;
-            this.totalCount = isNaN(posts) ? 0 : parseInt(posts);
+            var posts = parseInt(data[0].total_posts);
+            this.totalCount = isNaN(posts) ? 0 : posts;
         }
         this.setFormattedResults();
         this.querySuccess();
@@ -540,7 +547,7 @@ var AhrefsAPI = (function (_super) {
         this.prd = ko.observable(-1);
         this.domainRank = ko.observable(-1);
         this.drd = ko.observable(-1);
-        if (this.isActive && !this.authToken) {
+        if (this.isActive() && !this.authToken) {
             // If this was created as an active and
             // did not have a saved auth token
             this.requestToken(function () {
