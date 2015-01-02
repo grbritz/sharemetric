@@ -1,3 +1,5 @@
+// TODO: total count should be knockout
+
 /// <reference path='./jquery.d.ts' />
 /// <reference path='./knockout.d.ts' />
 /// <reference path='./cryptojs.d.ts' />
@@ -47,6 +49,14 @@ class AppManager {
   private badgeCount : number = 0;
   private URL : string;
 
+  private activeSocialAPIs : any;
+  
+  // Related to popup api display
+  private leftColSocialAPIs : any;
+  private rightColSocialAPIs : any;
+
+  private testarray : KnockoutObservableArray<any>;
+
   constructor() {
     this.socialAPIs = ko.observableArray([]);
     this.linkAPIs = ko.observableArray([]);
@@ -54,7 +64,28 @@ class AppManager {
     this.showResearch = ko.observable(true);
     this.autoloadSocial = ko.observable(true);
 
+    // Related to popup api display
+    this.activeSocialAPIs = ko.computed(function() {
+       return this.socialAPIs().filter(function(api, index, arr) {
+        return api().isActive() == true;
+      });
+    }, this);
+
+    this.leftColSocialAPIs = ko.computed(function() {
+      var actives = this.activeSocialAPIs();
+
+      return actives.slice(0, this.numActiveSocialAPIs() / 2);
+    }, this);
+    this.rightColSocialAPIs = ko.computed(function() {
+      return this.activeSocialAPIs().slice(this.numActiveSocialAPIs() / 2, this.numActiveSocialAPIs() );
+    }, this);
+
+    this.testarray = ko.observableArray(["hip", "dee", "doo"]);
     this.loadSettings();
+  }
+
+  private numActiveSocialAPIs() : number {
+    return this.activeSocialAPIs().length;
   }
 
   public getURL() : string {
@@ -119,7 +150,7 @@ class AppManager {
 
   public querySocialAPIs() {
     var self = this;
-    $.each(self.socialAPIs(), function(index, api) {
+    $.each(self.activeSocialAPIs(), function(index, api) {
       api().queryData();  
     });
   }
@@ -232,12 +263,12 @@ class AppManager {
     // SOCIALS
     self.autoloadSocial(true);
     self.socialAPIs.push(ko.observable(new Facebook({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new GooglePlus({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new LinkedIn({ isActive : true })));
     self.socialAPIs.push(ko.observable(new Twitter({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new Reddit({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new StumbleUpon({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new LinkedIn({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new GooglePlus({ isActive : true })));
     self.socialAPIs.push(ko.observable(new Pinterest({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new StumbleUpon({ isActive : true })));
+    self.socialAPIs.push(ko.observable(new Reddit({ isActive : true })));
     self.socialAPIs.push(ko.observable(new Delicious({ isActive : true })));
 
     // LINKS
@@ -256,6 +287,7 @@ class AppManager {
 class API {
   name : string;
   public isActive : KnockoutObservable<boolean>;
+  //TODO: API Loading State
   public iconPath : string;
 
   constructor(json) {
@@ -294,21 +326,18 @@ class API {
 
 class SocialAPI extends API {
   totalCount : number;
-  formattedResults : KnockoutObservable<string>;
+  templateName : string;
 
   constructor(json) {
     super(json);
     this.totalCount = 0;
-    this.formattedResults = ko.observable("");
+    this.templateName = "social-template";
   }
 
   public querySuccess() {
+    // TODO: Toggle API Loading State off
     appManager.increaseBadgeCount(this.totalCount);
     ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
-  }
-
-  public setFormattedResults() {
-    this.formattedResults("" + this.totalCount);
   }
 
   public toJSON() {
@@ -320,7 +349,7 @@ class SocialAPI extends API {
     };
   }
 }
-// "/images/icons/facebook-16x16.png"
+
 class Facebook extends SocialAPI {
   private likes : number;
   private shares : number;
@@ -328,20 +357,15 @@ class Facebook extends SocialAPI {
 
   constructor(json) {
     json.name = "Facebook";
+    json.iconPath = "/images/icons/facebook-16x16.png";
     super(json);
-  }
 
-  public setFormattedResults() {
-    var tmp = ""+ this.totalCount;
-    tmp += "<br /><span class=\"indent\">Likes: " + this.likes + "</span>";
-    tmp += "<br /><span class=\"indent\">Shares: " + this.shares + "</span>";
-    tmp += "<br /><span class=\"indent\">Comments: " + this.comments + "</span>";
-    this.formattedResults(tmp);
+    this.templateName = "facebook-template";
   }
 
   public queryData() {
     this.totalCount = 0;
-    this.formattedResults("loading...");
+    // TODO: Toggle API Loading State on
     $.get("https://api.facebook.com/method/fql.query", 
           { "query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+ appManager.getURL() +'"'}, 
           this.queryCallback.bind(this),
@@ -354,23 +378,19 @@ class Facebook extends SocialAPI {
     this.shares = parseInt($(results).find("share_count").text());
     this.comments = parseInt($(results).find("comment_count").text());
     this.totalCount = parseInt($(results).find("total_count").text());
-
-    this.setFormattedResults();
     this.querySuccess();
-  }
-
-  
+  } 
 }
 
 class GooglePlus extends SocialAPI {
   constructor(json) {
     json.name = "Google+";
+    json.iconPath = "/images/icons/google+-16x16.png";
     super(json);
   }
 
   public queryData() {
     this.totalCount = 0;
-    this.formattedResults("loading...");
     $.get("http://sharemetric.com",
           {"url" : appManager.getURL(), "callType" : "extension"},
           this.queryCallback.bind(this), 
@@ -380,7 +400,6 @@ class GooglePlus extends SocialAPI {
 
   private queryCallback(results: any) {
     this.totalCount = parseInt(results);
-    this.setFormattedResults();
     this.querySuccess();
   }
 }
@@ -388,12 +407,12 @@ class GooglePlus extends SocialAPI {
 class LinkedIn extends SocialAPI {
   constructor(json) {
     json.name = "LinkedIn";
+    json.iconPath = "/images/icons/linkedin-16x16.png";
     super(json);
   }
 
   public queryData() {
     this.totalCount = 0;
-    this.formattedResults("loading...");
     $.get("http://www.linkedin.com/countserv/count/share",
           {"url" : appManager.getURL(), "format" : "json"},
           this.queryCallback.bind(this),
@@ -406,21 +425,31 @@ class LinkedIn extends SocialAPI {
       results.count = parseInt(results.count);
       this.totalCount = isNaN(results.count) ? 0 : results.count;
     }
-    this.setFormattedResults();
     this.querySuccess();
   }
 }
 
 class Twitter extends SocialAPI {
+  detailsAnchor : string;
 
   constructor(json) {
     json.name = "Twitter";
+    json.iconPath = "/images/icons/twitter-16x16.png";
     super(json);
+    
+    this.templateName = "social-template-with-link";
+    this.detailsAnchor = "Topsy";
+  }
+
+  public detailsHref() {
+    var url = "http://topsy.com/trackback?url=";
+    url += encodeURIComponent(appManager.getURL());
+    url += "&infonly=1";
+    return url;
   }
 
   public queryData() {
     this.totalCount = 0;
-    this.formattedResults("loading...");
     $.get("http://urls.api.twitter.com/1/urls/count.json",
           {"url": appManager.getURL()},
           this.queryCallback.bind(this),
@@ -432,35 +461,40 @@ class Twitter extends SocialAPI {
     if(results != undefined) {
       results.count = parseInt(results.count);
       this.totalCount = isNaN(results.count) ? 0 : results.count;
-      this.setFormattedResults();
       this.querySuccess();
     }
     else {
       this.totalCount = 0;
     }
   }
-
-  public setFormattedResults() {
-    var tmp = "" + this.totalCount + " (";
-    tmp += "<a href=\"http://topsy.com/trackback?url=";
-    tmp += encodeURIComponent(appManager.getURL());
-    tmp += "&infonly=1\">Topsy</a>)";
-    this.formattedResults(tmp);
-  }
 }
 
 class Reddit extends SocialAPI {
-  private ups : number;
-  private downs : number;
+  private ups : KnockoutObservable<number>;
+  private downs : KnockoutObservable<number>;
+
+  private detailsAnchor : string;
 
   constructor(json) {
     json.name = "Reddit";
+    json.iconPath = "/images/icons/reddit-16x16.png";
     super(json);
+
+    this.ups = ko.observable(0);
+    this.downs = ko.observable(0);
+
+    this.templateName = "reddit-template";
+    this.detailsAnchor = "Details";
+  }
+
+  public detailsHref() {
+    return "http://www.reddit.com/submit?url=" + encodeURIComponent(appManager.getURL());
   }
 
   public queryData() {
     this.totalCount = 0;
-    this.formattedResults("loading...");
+    this.ups(0);
+    this.downs(0);
     $.get("http://www.reddit.com/api/info.json",
           {"url" : appManager.getURL()},
           this.queryCallback.bind(this),
@@ -475,30 +509,19 @@ class Reddit extends SocialAPI {
       this.downs += obj.data.downs;
     });
 
-    this.setFormattedResults();
     this.querySuccess();
-  }
-
-  public setFormattedResults() {
-    var tmp = "" + this.totalCount + " (";
-    tmp += "<a href=\"http://www.reddit.com/submit?url=";
-    tmp += encodeURIComponent(appManager.getURL());
-    tmp += "\">Details</a>)";
-    tmp += "<br/><span class=\"indent\">Ups: " + this.ups + "</span>";
-    tmp += "<br/><span class=\"indent\">Downs: " + this.downs + "</span>";
-    this.formattedResults(tmp);
   }
 }
 
 class StumbleUpon extends SocialAPI {
   constructor(json) {
     json.name = "StumbleUpon";
+    json.iconPath = "/images/icons/stumbleupon-16x16.png";
     super(json);
   }
 
   public queryData() {
     this.totalCount = 0;
-    this.formattedResults("loading...");
     $.get("http://www.stumbleupon.com/services/1.01/badge.getinfo",
           {"url" : appManager.getURL()},
           this.queryCallback.bind(this),
@@ -512,20 +535,28 @@ class StumbleUpon extends SocialAPI {
       this.totalCount = isNaN(total) ? 0 : total;
     }
 
-    this.setFormattedResults();
     this.querySuccess();
   }
 }
 
 class Pinterest extends SocialAPI {
+  detailsAnchor : string;
+
   constructor(json) {
     json.name = "Pinterest";
+    json.iconPath = "/images/icons/pinterest-16x16.png";
     super(json);
+
+    this.templateName = "social-template-with-link";
+    this.detailsAnchor = "details";
+  }
+
+  public detailsHref() {
+    return "http://www.pinterest.com/source/" + appManager.getURL()
   }
 
   public queryData() {
     this.totalCount = 0;
-    this.formattedResults("loading...");
     $.get("http://api.pinterest.com/v1/urls/count.json",
           {"url" : appManager.getURL(), "callback" : "receiveCount"},
           this.queryCallback.bind(this),
@@ -544,30 +575,23 @@ class Pinterest extends SocialAPI {
       var count = parseInt(results.count);
       this.totalCount = isNaN(count) ? 0 : count;
     }
-
-    this.setFormattedResults();
     this.querySuccess();
-  }
-
-  public setFormattedResults() {
-    var tmp = "" + this.totalCount + " (";
-    tmp += "<a href=\"http://www.pinterest.com/source/" + appManager.getURL();
-    tmp += "\">Details</a>)";
-    this.formattedResults(tmp);
   }
 }
 
 
 class Delicious extends SocialAPI {
+
+
   // TODO: Discover how to find a delicious link and put that in the formattedResults
   constructor(json) {
     json.name = "Delicious";
+    json.iconPath = "/images/icons/delicious-16x16.png";
     super(json);
   }
 
   public queryData() {
     this.totalCount = 0;
-    this.formattedResults("loading...");
     $.get("http://feeds.delicious.com/v2/json/urlinfo/data",
           {"url" : appManager.getURL()},
           this.queryCallback.bind(this),
@@ -580,7 +604,6 @@ class Delicious extends SocialAPI {
       var posts = parseInt(data[0].total_posts);
       this.totalCount = isNaN(posts) ? 0 : posts;
     }
-    this.setFormattedResults();
     this.querySuccess();
   }
 }

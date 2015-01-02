@@ -15,11 +15,78 @@
       <div class="row" id="head">
         <h1><a href="http://www.contentharmony.com">
         <img src="/images/content-harmony-header.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric</h1>
-        <p><strong>Data for: </strong><span id="url" data-bind="value: URL"></span></p>
+        <p><strong>Data for: </strong><span id="url" data-bind="text: URL"></span></p>
         <image id="refresh-page" src="/images/reload_refresh.png" alt="refresh page"/>
       </div>
-      <div id="content"></div>
-      <div class="divider"></div>
+      <div id="content">
+        <hr />
+        <div class="row social">
+          <h2>Social:</h2>
+          <div class="col-xs-6">
+            <div data-bind="foreach: leftColSocialAPIs()">
+              <div class="social-metric">
+                <img data-bind="attr: { src: iconPath }" /> 
+                <strong data-bind="text: name"></strong>:
+                <span data-bind="template: templateName"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-6">
+            <div data-bind="foreach: rightColSocialAPIs()">
+              <div class="social-metric">
+                <img data-bind="attr: { src: iconPath }" /> 
+                <strong data-bind="text: name"></strong>:
+                <span data-bind="template: templateName"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script type="text/html" id="social-template">
+          <span data-bind="text: totalCount"></span>
+        </script>
+        
+        <script type="text/html" id="social-template-with-link">
+          <span data-bind="text: totalCount"></span>
+           (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
+        </script>
+
+        <script type="text/html" id="facebook-template">
+          <span data-bind="text: totalCount"></span>
+          <br/>
+          <span class="indent inline-block">
+            Likes: 
+            <span data-bind="text: likes" />
+          </span>
+          
+          <br/>
+          <span class="indent inline-block">
+            Shares: 
+            <span data-bind="text: shares" />
+          </span>
+          
+          <br/>
+          <span class="indent inline-block">
+            Comments: 
+            <span data-bind="text: comments" />
+          </span>
+          
+        </script>
+        <script type="text/html" id="reddit-template">
+          <span data-bind="text: totalCount"></span>
+           (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
+           <br />
+          <span class="indent inline-block">
+            Ups: <span class="indent" data-bind="text: ups()"></span>
+          </span>
+           <br />
+          <span class="indent inline-block">
+            Downs: <span class="indent" data-bind="text: downs()"></span>
+          </span>
+        </script>
+
+      </div>
+      <hr />
       <div class="row" id="footer">
         <ul class="horizontal">
           <li><a data-ga-action="Options" id="options-link" href="#">Options</a></li>

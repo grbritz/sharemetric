@@ -24,6 +24,13 @@ h2 {
 	
 }
 
+hr {
+	/*margin-top: 0px;*/
+	margin-bottom:10px;
+	height: 2px;
+	background: #e5e5e5;
+}
+
 .social-source{
 	padding:5px;	
 }
@@ -92,8 +99,13 @@ a{
 }
 
 .indent {
-	text-indent:15px;
+	text-indent:35px;
 }
+
+.inline-block {
+	display: inline-block;
+}
+
 
 .link-label {
 	font-size:18px;
