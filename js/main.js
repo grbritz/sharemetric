@@ -1,4 +1,3 @@
-// TODO: total count should be knockout
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -237,6 +236,7 @@ var API = (function () {
         this.name = json.name;
         this.isActive = ko.observable(json.isActive);
         this.iconPath = json.iconPath;
+        this.isLoaded = ko.observable(false);
     }
     API.prototype.getName = function () {
         return this.name;
@@ -244,6 +244,7 @@ var API = (function () {
     API.prototype.queryData = function () {
     };
     API.prototype.querySuccess = function () {
+        this.isLoaded(true);
         ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
     };
     API.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
@@ -269,7 +270,7 @@ var SocialAPI = (function (_super) {
         this.templateName = "social-template";
     }
     SocialAPI.prototype.querySuccess = function () {
-        // TODO: Toggle API Loading State off
+        this.isLoaded(true);
         appManager.increaseBadgeCount(this.totalCount);
         ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
     };
@@ -293,7 +294,7 @@ var Facebook = (function (_super) {
     }
     Facebook.prototype.queryData = function () {
         this.totalCount = 0;
-        // TODO: Toggle API Loading State on
+        this.isLoaded(false);
         $.get("https://api.facebook.com/method/fql.query", { "query": 'select total_count, share_count, like_count, comment_count from link_stat where url ="' + appManager.getURL() + '"' }, this.queryCallback.bind(this), "xml").fail(this.queryFail.bind(this));
     };
     Facebook.prototype.queryCallback = function (results) {
@@ -314,6 +315,7 @@ var GooglePlus = (function (_super) {
     }
     GooglePlus.prototype.queryData = function () {
         this.totalCount = 0;
+        this.isLoaded(false);
         $.get("http://sharemetric.com", { "url": appManager.getURL(), "callType": "extension" }, this.queryCallback.bind(this), "text").fail(this.queryFail.bind(this));
     };
     GooglePlus.prototype.queryCallback = function (results) {
@@ -330,6 +332,7 @@ var LinkedIn = (function (_super) {
         _super.call(this, json);
     }
     LinkedIn.prototype.queryData = function () {
+        this.isLoaded(false);
         this.totalCount = 0;
         $.get("http://www.linkedin.com/countserv/count/share", { "url": appManager.getURL(), "format": "json" }, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };
@@ -358,6 +361,7 @@ var Twitter = (function (_super) {
         return url;
     };
     Twitter.prototype.queryData = function () {
+        this.isLoaded(false);
         this.totalCount = 0;
         $.get("http://urls.api.twitter.com/1/urls/count.json", { "url": appManager.getURL() }, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };
@@ -388,6 +392,7 @@ var Reddit = (function (_super) {
         return "http://www.reddit.com/submit?url=" + encodeURIComponent(appManager.getURL());
     };
     Reddit.prototype.queryData = function () {
+        this.isLoaded(false);
         this.totalCount = 0;
         this.ups(0);
         this.downs(0);
@@ -411,6 +416,7 @@ var StumbleUpon = (function (_super) {
         _super.call(this, json);
     }
     StumbleUpon.prototype.queryData = function () {
+        this.isLoaded(false);
         this.totalCount = 0;
         $.get("http://www.stumbleupon.com/services/1.01/badge.getinfo", { "url": appManager.getURL() }, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };
@@ -436,6 +442,7 @@ var Pinterest = (function (_super) {
         return "http://www.pinterest.com/source/" + appManager.getURL();
     };
     Pinterest.prototype.queryData = function () {
+        this.isLoaded(false);
         this.totalCount = 0;
         $.get("http://api.pinterest.com/v1/urls/count.json", { "url": appManager.getURL(), "callback": "receiveCount" }, this.queryCallback.bind(this), "text").fail(this.queryFail.bind(this));
     };
@@ -463,6 +470,7 @@ var Delicious = (function (_super) {
         _super.call(this, json);
     }
     Delicious.prototype.queryData = function () {
+        this.isLoaded(false);
         this.totalCount = 0;
         $.get("http://feeds.delicious.com/v2/json/urlinfo/data", { "url": appManager.getURL() }, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
     };

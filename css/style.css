@@ -113,7 +113,7 @@ a{
 	padding-right:5px;
 }
 
-.link-label .loading, .social-metric .loading {
+.api-loading, .link-label .loading, .social-metric .loading {
 	background-image: url('/images/loading-icon.gif');
 	background-repeat: no-repeat;
 	display: inline-block;

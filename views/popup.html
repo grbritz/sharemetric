@@ -27,7 +27,11 @@
               <div class="social-metric">
                 <img data-bind="attr: { src: iconPath }" /> 
                 <strong data-bind="text: name"></strong>:
-                <span data-bind="template: templateName"></span>
+                <div class="api-loading" data-bind="visible: !isLoaded()"></div>
+                <!-- ko if: isLoaded() -->
+                  <span data-bind="template: templateName"></span>  
+                <!-- /ko -->
+
               </div>
             </div>
           </div>
@@ -36,7 +40,11 @@
               <div class="social-metric">
                 <img data-bind="attr: { src: iconPath }" /> 
                 <strong data-bind="text: name"></strong>:
-                <span data-bind="template: templateName"></span>
+                <div class="api-loading" data-bind="visible: !isLoaded()"></div>
+                <!-- ko if: isLoaded() -->
+                  <span data-bind="template: templateName"></span>  
+                <!-- /ko -->
+                
               </div>
             </div>
           </div>

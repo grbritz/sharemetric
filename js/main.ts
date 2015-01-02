@@ -1,5 +1,3 @@
-// TODO: total count should be knockout
-
 /// <reference path='./jquery.d.ts' />
 /// <reference path='./knockout.d.ts' />
 /// <reference path='./cryptojs.d.ts' />
@@ -287,13 +285,15 @@ class AppManager {
 class API {
   name : string;
   public isActive : KnockoutObservable<boolean>;
-  //TODO: API Loading State
+  
+  public isLoaded : KnockoutObservable<boolean>;
   public iconPath : string;
 
   constructor(json) {
     this.name = json.name;
     this.isActive = ko.observable(json.isActive);
     this.iconPath = json.iconPath;
+    this.isLoaded = ko.observable(false);
   }
 
 
@@ -304,6 +304,7 @@ class API {
   public queryData() {}
 
   public querySuccess() {
+    this.isLoaded(true);
     ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL()); 
   }
 
@@ -335,7 +336,7 @@ class SocialAPI extends API {
   }
 
   public querySuccess() {
-    // TODO: Toggle API Loading State off
+    this.isLoaded(true);
     appManager.increaseBadgeCount(this.totalCount);
     ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
   }
@@ -365,7 +366,7 @@ class Facebook extends SocialAPI {
 
   public queryData() {
     this.totalCount = 0;
-    // TODO: Toggle API Loading State on
+    this.isLoaded(false);
     $.get("https://api.facebook.com/method/fql.query", 
           { "query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+ appManager.getURL() +'"'}, 
           this.queryCallback.bind(this),
@@ -391,6 +392,7 @@ class GooglePlus extends SocialAPI {
 
   public queryData() {
     this.totalCount = 0;
+    this.isLoaded(false);
     $.get("http://sharemetric.com",
           {"url" : appManager.getURL(), "callType" : "extension"},
           this.queryCallback.bind(this), 
@@ -412,6 +414,7 @@ class LinkedIn extends SocialAPI {
   }
 
   public queryData() {
+    this.isLoaded(false);
     this.totalCount = 0;
     $.get("http://www.linkedin.com/countserv/count/share",
           {"url" : appManager.getURL(), "format" : "json"},
@@ -449,6 +452,7 @@ class Twitter extends SocialAPI {
   }
 
   public queryData() {
+    this.isLoaded(false);
     this.totalCount = 0;
     $.get("http://urls.api.twitter.com/1/urls/count.json",
           {"url": appManager.getURL()},
@@ -492,6 +496,7 @@ class Reddit extends SocialAPI {
   }
 
   public queryData() {
+    this.isLoaded(false);
     this.totalCount = 0;
     this.ups(0);
     this.downs(0);
@@ -521,6 +526,7 @@ class StumbleUpon extends SocialAPI {
   }
 
   public queryData() {
+    this.isLoaded(false);
     this.totalCount = 0;
     $.get("http://www.stumbleupon.com/services/1.01/badge.getinfo",
           {"url" : appManager.getURL()},
@@ -556,6 +562,7 @@ class Pinterest extends SocialAPI {
   }
 
   public queryData() {
+    this.isLoaded(false);
     this.totalCount = 0;
     $.get("http://api.pinterest.com/v1/urls/count.json",
           {"url" : appManager.getURL(), "callback" : "receiveCount"},
@@ -591,6 +598,7 @@ class Delicious extends SocialAPI {
   }
 
   public queryData() {
+    this.isLoaded(false);
     this.totalCount = 0;
     $.get("http://feeds.delicious.com/v2/json/urlinfo/data",
           {"url" : appManager.getURL()},
