@@ -88,18 +88,33 @@ class AppManager {
 
   private setBadgeCount(count : number) {
     this.badgeCount = count;
-    
-    //
-    // console.debug("setBadgeCount(" + count + ");");
-    chrome.browserAction.setBadgeText({'text' : "" + count});
+    chrome.browserAction.setBadgeText({'text' : this.formatBadgeCount(this.badgeCount)});
   }
 
   public increaseBadgeCount(count : number) {
-    console.debug("increaseBadgeCount(" + count + ");");
-    console.debug(typeof(count));
-    
-    
     this.setBadgeCount(count + this.badgeCount);
+  }
+
+  private formatBadgeCount(count : number) : string {
+    var abbrCount = count,
+    symbol = "";
+  
+    if(count > 1000){
+      if(count < 1000000){
+        abbrCount /= 1000;
+        symbol = "K";
+      }
+      else if(count < 1000000000){ // Round to millions
+        abbrCount /= 1000000;
+        symbol = "M";
+      }
+      else if(count < 1000000000000){ //Round to billions
+        abbrCount /= 1000000000000;
+        symbol = "B";
+      }
+    }
+    abbrCount = Math.ceil(abbrCount); // Round up to integer
+    return abbrCount + symbol;
   }
 
   public querySocialAPIs() {
@@ -288,7 +303,6 @@ class SocialAPI extends API {
   }
 
   public querySuccess() {
-    console.debug(this.name + ".querySuccess()");
     appManager.increaseBadgeCount(this.totalCount);
     ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
   }
