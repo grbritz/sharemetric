@@ -15,11 +15,12 @@ var APP_VERSION = "2.0.0";
 // and those changes need to be applied on top of the user's stored preferences.
 declare var applyVersionUpdate : any;
 
-(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MBCM4N');
+// TODO: Reactivate GA
+// (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+// new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+// j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+// 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+// })(window,document,'script','dataLayer','GTM-MBCM4N');
 
 /****
  * Listeners for active tab changes and new page loads
@@ -93,11 +94,27 @@ class AppManager {
   public setURL(url : string) {
     this.URL = url;
     this.setBadgeCount(0);
-    ga('send', 'pageview', {'page' : 'background-url-load'});
-    
-    if(this.autoloadSocial) {
+    if(this.autoloadSocial()) {
       this.querySocialAPIs();
     }
+
+    ga('send', 'pageview', {'page' : 'background-url-load'});
+  }
+
+  public reloadAPIs()  {
+    var self = this;
+    console.debug("reloadAPIs()");
+    chrome.tabs.query({"active" : true, "currentWindow" : true}, function(tabs) {
+      console.debug("reloadAPIs() - tab query callback");
+
+      self.URL = tabs[0].url;
+      self.setBadgeCount(0);
+      self.querySocialAPIs();
+      self.queryNonSocialAPIs();
+      
+
+      ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.getRedactedURL());
+    });
   }
 
   public getRedactedURL() : string {
@@ -286,6 +303,7 @@ class API {
   name : string;
   public isActive : KnockoutObservable<boolean>;
   
+  //TODO: Isloaded does not appear to be data binding properly or some such
   public isLoaded : KnockoutObservable<boolean>;
   public iconPath : string;
 
@@ -304,6 +322,7 @@ class API {
   public queryData() {}
 
   public querySuccess() {
+    // TODO: Why is this necessary?
     this.isLoaded(true);
     ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL()); 
   }
@@ -367,6 +386,8 @@ class Facebook extends SocialAPI {
   public queryData() {
     this.totalCount = 0;
     this.isLoaded(false);
+
+    console.debug("" + this.isLoaded());
     $.get("https://api.facebook.com/method/fql.query", 
           { "query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+ appManager.getURL() +'"'}, 
           this.queryCallback.bind(this),
