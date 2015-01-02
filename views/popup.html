@@ -32,7 +32,6 @@
                 <!-- ko if: isLoaded() -->
                   <span data-bind="template: templateName"></span>  
                 <!-- /ko -->
-
               </div>
             </div>
           </div>
@@ -45,55 +44,16 @@
                 <!-- ko if: isLoaded() -->
                   <span data-bind="template: templateName"></span>  
                 <!-- /ko -->
-                
               </div>
             </div>
           </div>
         </div>
-
-        <script type="text/html" id="social-template">
-          <span data-bind="text: totalCount"></span>
-        </script>
-        
-        <script type="text/html" id="social-template-with-link">
-          <span data-bind="text: totalCount"></span>
-           (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
-        </script>
-
-        <script type="text/html" id="facebook-template">
-          <span data-bind="text: totalCount"></span>
-          <br/>
-          <span class="indent inline-block">
-            Likes: 
-            <span data-bind="text: likes" />
-          </span>
+        <!-- ko if: hasLinks() -->
+        <hr />
+        <div class="row links">
           
-          <br/>
-          <span class="indent inline-block">
-            Shares: 
-            <span data-bind="text: shares" />
-          </span>
-          
-          <br/>
-          <span class="indent inline-block">
-            Comments: 
-            <span data-bind="text: comments" />
-          </span>
-          
-        </script>
-        <script type="text/html" id="reddit-template">
-          <span data-bind="text: totalCount"></span>
-           (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
-           <br />
-          <span class="indent inline-block">
-            Ups: <span class="indent" data-bind="text: ups()"></span>
-          </span>
-           <br />
-          <span class="indent inline-block">
-            Downs: <span class="indent" data-bind="text: downs()"></span>
-          </span>
-        </script>
-
+        </div>
+        <!-- /ko -->
       </div>
       <hr />
       <div class="row" id="footer">
@@ -108,5 +68,48 @@
         </ul>
       </div>
     </div>
+    <!-- KO Templates -->
+    <script type="text/html" id="social-template">
+      <span data-bind="text: totalCount"></span>
+    </script>
+    
+    <script type="text/html" id="social-template-with-link">
+      <span data-bind="text: totalCount"></span>
+       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
+    </script>
+
+    <script type="text/html" id="facebook-template">
+      <span data-bind="text: totalCount"></span>
+      <br/>
+      <span class="indent inline-block">
+        Likes: 
+        <span data-bind="text: likes" />
+      </span>
+      
+      <br/>
+      <span class="indent inline-block">
+        Shares: 
+        <span data-bind="text: shares" />
+      </span>
+      
+      <br/>
+      <span class="indent inline-block">
+        Comments: 
+        <span data-bind="text: comments" />
+      </span>
+      
+    </script>
+    <script type="text/html" id="reddit-template">
+      <span data-bind="text: totalCount"></span>
+       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
+       <br />
+      <span class="indent inline-block">
+        Ups: <span class="indent" data-bind="text: ups()"></span>
+      </span>
+       <br />
+      <span class="indent inline-block">
+        Downs: <span class="indent" data-bind="text: downs()"></span>
+      </span>
+    </script>
   </body>
 </html>

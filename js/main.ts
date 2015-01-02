@@ -39,7 +39,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 class AppManager {
   private socialAPIs : KnockoutObservableArray<any>;
-  private linkAPIs : KnockoutObservableArray<any>;
+  private mozAPI : KnockoutObservable<any>;
+  private ahrefsAPI : KnockoutObservable<any>;
   private semrush : KnockoutObservable<any>;
   
   private showResearch : KnockoutObservable<boolean>;
@@ -53,13 +54,14 @@ class AppManager {
   // Related to popup api display
   private leftColSocialAPIs : any;
   private rightColSocialAPIs : any;
-
-  private testarray : KnockoutObservableArray<any>;
+  private hasLinks : any;
 
   constructor() {
     this.socialAPIs = ko.observableArray([]);
-    this.linkAPIs = ko.observableArray([]);
+    this.mozAPI = ko.observable({});
+    this.ahrefsAPI = ko.observable({});
     this.semrush = ko.observable({});
+
     this.showResearch = ko.observable(true);
     this.autoloadSocial = ko.observable(true);
 
@@ -71,15 +73,17 @@ class AppManager {
     }, this);
 
     this.leftColSocialAPIs = ko.computed(function() {
-      var actives = this.activeSocialAPIs();
-
-      return actives.slice(0, this.numActiveSocialAPIs() / 2);
+      return this.activeSocialAPIs().slice(0, this.numActiveSocialAPIs() / 2);
     }, this);
     this.rightColSocialAPIs = ko.computed(function() {
       return this.activeSocialAPIs().slice(this.numActiveSocialAPIs() / 2, this.numActiveSocialAPIs() );
     }, this);
 
-    this.testarray = ko.observableArray(["hip", "dee", "doo"]);
+
+    this.hasLinks = ko.computed(function(){
+      return this.mozAPI().isActive() || this.ahrefsAPI().isActive();
+    }, this);
+
     this.loadSettings();
   }
 
@@ -185,13 +189,12 @@ class AppManager {
     };
 
     $.each(self.socialAPIs(), function(index, api) {
-      settings["social"].apis.push(api.toJSON());
+      settings["social"].apis.push(api().toJSON());
     });
 
     settings["links"] = [];
-    $.each(self.linkAPIs(), function(index, api) {
-      settings["links"].push(api.toJSON());
-    });
+    settings["links"].push(this.mozAPI().toJSON());
+    settings["links"].push(this.ahrefsAPI().toJSON());
 
     settings["semrush"] = self.semrush().toJSON();
     settings["showResearch"] = self.showResearch();
@@ -199,7 +202,6 @@ class AppManager {
 
     // TODO: Notifications
     // settings["dismissedNotifications"]
-  
     localStorage["ShareMetric"] = JSON.stringify(settings);
   }
 
@@ -207,7 +209,8 @@ class AppManager {
   public loadSettings() {
     var self = this;
     self.socialAPIs.removeAll();
-    self.linkAPIs.removeAll();
+    self.mozAPI(null);
+    self.ahrefsAPI(null);
     self.semrush(null);
     self.setBadgeCount(0);
 
@@ -253,10 +256,10 @@ class AppManager {
       $.each(settings["links"], function(index, api) {
         switch(api.name) {
           case "Moz":
-            self.linkAPIs.push(ko.observable(new MozAPI(api)));
+            self.mozAPI(new MozAPI(api));
             break;
           case "Ahrefs":
-            self.linkAPIs.push(ko.observable(new AhrefsAPI(api)));
+            self.ahrefsAPI(new AhrefsAPI(api));
             break;
         }
       });
@@ -287,13 +290,14 @@ class AppManager {
     self.socialAPIs.push(ko.observable(new Delicious({ isActive : true })));
 
     // LINKS
-    self.linkAPIs.push(ko.observable(new MozAPI({
+    self.mozAPI(new MozAPI({
       isActive : false, 
       mozID : null, 
       mozSecret: null 
-    })));
-    self.linkAPIs.push(ko.observable(new AhrefsAPI({ isActive : false, authToken: null})));
+    }));
+    self.ahrefsAPI(new AhrefsAPI({ isActive : false, authToken: null}));
 
+    // OTHER
     self.semrush(new SEMRush({ isActive: false, authToken: "" }));
     self.showResearch(true);
   }
@@ -860,9 +864,7 @@ class AhrefsAPI extends AuthenticatedAPI {
   public queryFail() {
     // TODO:
     console.error("AHREFS API CALL FAILURE");
-    
   }
-
 
   private requestToken(successCallback : any) {
     var self = this;

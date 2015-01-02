@@ -40,7 +40,8 @@ var AppManager = (function () {
     function AppManager() {
         this.badgeCount = 0;
         this.socialAPIs = ko.observableArray([]);
-        this.linkAPIs = ko.observableArray([]);
+        this.mozAPI = ko.observable({});
+        this.ahrefsAPI = ko.observable({});
         this.semrush = ko.observable({});
         this.showResearch = ko.observable(true);
         this.autoloadSocial = ko.observable(true);
@@ -51,13 +52,14 @@ var AppManager = (function () {
             });
         }, this);
         this.leftColSocialAPIs = ko.computed(function () {
-            var actives = this.activeSocialAPIs();
-            return actives.slice(0, this.numActiveSocialAPIs() / 2);
+            return this.activeSocialAPIs().slice(0, this.numActiveSocialAPIs() / 2);
         }, this);
         this.rightColSocialAPIs = ko.computed(function () {
             return this.activeSocialAPIs().slice(this.numActiveSocialAPIs() / 2, this.numActiveSocialAPIs());
         }, this);
-        this.testarray = ko.observableArray(["hip", "dee", "doo"]);
+        this.hasLinks = ko.computed(function () {
+            return this.mozAPI().isActive() || this.ahrefsAPI().isActive();
+        }, this);
         this.loadSettings();
     }
     AppManager.prototype.numActiveSocialAPIs = function () {
@@ -144,12 +146,11 @@ var AppManager = (function () {
             apis: []
         };
         $.each(self.socialAPIs(), function (index, api) {
-            settings["social"].apis.push(api.toJSON());
+            settings["social"].apis.push(api().toJSON());
         });
         settings["links"] = [];
-        $.each(self.linkAPIs(), function (index, api) {
-            settings["links"].push(api.toJSON());
-        });
+        settings["links"].push(this.mozAPI().toJSON());
+        settings["links"].push(this.ahrefsAPI().toJSON());
         settings["semrush"] = self.semrush().toJSON();
         settings["showResearch"] = self.showResearch();
         settings["APP_VERSION"] = APP_VERSION;
@@ -161,7 +162,8 @@ var AppManager = (function () {
     AppManager.prototype.loadSettings = function () {
         var self = this;
         self.socialAPIs.removeAll();
-        self.linkAPIs.removeAll();
+        self.mozAPI(null);
+        self.ahrefsAPI(null);
         self.semrush(null);
         self.setBadgeCount(0);
         if (localStorage.getItem("ShareMetric")) {
@@ -203,10 +205,10 @@ var AppManager = (function () {
             $.each(settings["links"], function (index, api) {
                 switch (api.name) {
                     case "Moz":
-                        self.linkAPIs.push(ko.observable(new MozAPI(api)));
+                        self.mozAPI(new MozAPI(api));
                         break;
                     case "Ahrefs":
-                        self.linkAPIs.push(ko.observable(new AhrefsAPI(api)));
+                        self.ahrefsAPI(new AhrefsAPI(api));
                         break;
                 }
             });
@@ -230,12 +232,13 @@ var AppManager = (function () {
         self.socialAPIs.push(ko.observable(new Reddit({ isActive: true })));
         self.socialAPIs.push(ko.observable(new Delicious({ isActive: true })));
         // LINKS
-        self.linkAPIs.push(ko.observable(new MozAPI({
+        self.mozAPI(new MozAPI({
             isActive: false,
             mozID: null,
             mozSecret: null
-        })));
-        self.linkAPIs.push(ko.observable(new AhrefsAPI({ isActive: false, authToken: null })));
+        }));
+        self.ahrefsAPI(new AhrefsAPI({ isActive: false, authToken: null }));
+        // OTHER
         self.semrush(new SEMRush({ isActive: false, authToken: "" }));
         self.showResearch(true);
     };
@@ -281,7 +284,6 @@ var SocialAPI = (function (_super) {
         this.templateName = "social-template";
     }
     SocialAPI.prototype.querySuccess = function () {
-        // TODO: Why is the popup not updating content when these update
         this.isLoaded(true);
         appManager.increaseBadgeCount(this.totalCount);
         ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
