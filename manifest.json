@@ -4,7 +4,7 @@
  	"manifest_version"  : 2,
 	"homepage_url"		: "http://contentharmony.com/tools/sharemetric/",
  	"description"		: "Social, link, and keyword data for your current browser URL",
-	"options_page"		: "/templ/options.html",
+	"options_page"		: "/views/options.html",
 	"icons"				: { 
 			"16": "/images/icons/sharemetric-16.png",
           	"48": "/images/icons/sharemetric-48.png",

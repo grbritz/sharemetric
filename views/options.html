@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ShareMetric Options</title>
+    <link href="/lib/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <script src="/lib/js/jquery-2.1.0.min.js"></script>
+    <script src="/lib/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/options.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row" id="head">
+            <h1>
+                <a data-ga-action="Content Harmony" href="http://www.contentharmony.com"><img src="/images/content-harmony-options.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric
+            </h1>
+            <ul class="horizontal" style="padding-left:0px">
+                <li><a data-ga-action="Report An Issue" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
+                <li class="spacer">|</li>
+                <li><a data-ga-action="Request a Feature" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
+                <li class="spacer">|</li>
+                <li><a data-ga-action="Show Some Love" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
+            </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <h2>Social Metrics:</h2>
+            <div class="col-sm-10 col-md-10">
+                <p>
+                    <label>
+                        <input type="radio" name="autoloadSocial" data-bind="checked: autoloadSocial" value="false" />
+                        Check share counts when icon is clicked
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="radio"  name="autoloadSocial" data-bind="checked: autoloadSocial" value="true" />
+                        Check share counts on page load
+                    </label>
+                </p>
+                <div id="social-apis" class="row">
+                    <div class="col-sm-6 col-md-6">
+                        <div class="row">
+                            <div class="col-sm-4 col-md-4">
+                                <label>
+                                    <input type="checkbox" name="social.apis.facebook"> Facebook
+                                </label>
+                            </div>
+                            <div class="col-sm-4 col-md-4">
+                                <label>
+                                    <input type="checkbox" name="social.apis.twitter"> Twitter
+                                </label>
+                            </div>
+                            <div class="col-sm-4 col-md-4">
+                                <label>
+                                    <input type="checkbox" name="social.apis.pinterest"> Pinterest
+                                </label>
+                                <span class="text-danger">**</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 col-md-4">
+                                <label>
+                                        <input type="checkbox" name="social.apis.linkedIn"> LinkedIn
+                                </label>
+                            </div>
+                            <div class="col-sm-4 col-md-4">
+                                <label>
+                                        <input type="checkbox" name="social.apis.reddit"> Reddit
+                                </label>
+                            </div>
+                            <div class="col-sm-4 col-md-4">
+                                <label>
+                                        <input type="checkbox" name="social.apis.stumbleUpon"> StumbleUpon
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 col-md-4">
+                                <label>
+                                    <input type="checkbox" name="social.apis.google"> Google
+                                </label>
+                                <span class="text-danger">**</span>
+                            </div>
+                            <div class="col-sm-4 col-md-4">
+                                <label>
+                                    <input type="checkbox" name="social.apis.delicious"> Delicious
+                                </label>
+                                <span class="text-danger">**</span>
+                            </div>
+                        </div>
+                        <p>
+                        <br />
+                        <strong>Note:</strong> API's succeeded by <span class="text-danger">**</span> are unofficial and may have unusual behavior. If you encounter unusual behavior, please contact us at <a href="mailto:tools@contentharmony.com">tools@contentharmony.com</a>.
+                        </p>
+                    </div>
+                </div>
+                <button class="save-options">Update</button>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <h2>Link Metrics:</h2>
+            <div class="col-sm-6 col-md-6">
+                <form>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="links.moz.isActive" />
+                            Enable Moz metrics (requires <a href="http://moz.com/products/api/keys">Moz API key and secret</a>)
+                        </label>
+                    </div>
+                    <div class="moz">
+                        <div class="form-group">
+                            <label for="links.moz.id">Moz AccessID</label>
+                            <input class="form-control" type="text" id="links.moz.id" name="links.moz.id" />
+                        </div>
+                        <div class="form-group">
+                            <label for="links.moz.secret">Moz Secret</label>
+                            <input class="form-control" type="text" id="links.moz.secret" name="links.moz.secret" />
+                        </div>
+                    </div>
+                   <!--  <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="links.ahrefs.isActive" />
+                            Enable ahrefs metrics (requires ahrefs API key)
+                        </label>
+                    </div> -->
+                </form>
+                <button class="save-options">Update</button>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <h2>Keyword Metrics</h2>
+            <div class="col-sm-6 col-md-6">
+                <form>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="keywords.semrush.isActive" />
+                            Enable SEMRush metrics (requires <a href="http://www.semrush.com/api.html">SEMRush API key</a>)
+                        </label>
+                    </div>
+                    <div class="form-group semrush">
+                        <label for="keywords.semrush.token">SEMRush API Key</label>
+                        <input class="form-control" type="text" id="keywords.semrush.token" name="keywords.semrush.token" />
+                    </div>
+                </form>
+                <button class="save-options">Update</button>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <h2>Page Research</h2>
+            <div class="col-sm-6 col-md-6">
+                <label>
+                    <input type="checkbox" name="showResearch" />
+                    Enable page research links (WHOIS, Schema.org, and Google Cache)
+                </label>
+                <div>
+                    <button class="save-options">Update</button>    
+                </div>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div id="notifications" class="row">
+            <h2>Notifications</h2>
+            <div class="col-sm-12 col-sm-12">
+
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row" id="foot">
+            <h2>Credits</h2>
+            <div class="col-sm-12 col-md-12">
+                 <p>The ShareMetric extension was created by <a data-ga-action="Graeme Britz" href="http://graemebritz.com">Graeme Britz</a> and <a data-ga-action="Kane Jamison" href="http://kanejamison.com">Kane Jamison</a> at <a data-ga-action="Content Harmony" href="http://contentharmony.com">Content Harmony</a>. Full documentation for this extension can be found at <a data-ga-action="ShareMetric Documentation" href="http://contentharmony.com/tools/sharemetric">here</a>.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
