@@ -24,7 +24,7 @@
         <div class="row social">
           <h2>Social:</h2>
           <div class="col-xs-6">
-            <div data-bind="foreach: leftColSocialAPIs()">
+            <div data-bind="foreach: popupLeftColSocialAPIs()">
               <div class="social-metric">
                 <img data-bind="attr: { src: iconPath }" /> 
                 <strong data-bind="text: name"></strong>:
@@ -36,7 +36,7 @@
             </div>
           </div>
           <div class="col-xs-6">
-            <div data-bind="foreach: rightColSocialAPIs()">
+            <div data-bind="foreach: popupRightColSocialAPIs()">
               <div class="social-metric">
                 <img data-bind="attr: { src: iconPath }" /> 
                 <strong data-bind="text: name"></strong>:

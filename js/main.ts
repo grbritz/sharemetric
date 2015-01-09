@@ -37,27 +37,33 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   }
 });
 
+// TODO: Factor out AppManager into PopopViewModel, OptionsViewModel, and AppManager
+
 /****
  * Main background class & viewmodel manager
  ****/
 class AppManager {
-  private socialAPIs : KnockoutObservableArray<any>;
-  private mozAPI : KnockoutObservable<any>;
-  private ahrefsAPI : KnockoutObservable<any>;
-  private semrush : KnockoutObservable<any>;
+  socialAPIs : KnockoutObservableArray<any>;
+  mozAPI : KnockoutObservable<any>;
+  ahrefsAPI : KnockoutObservable<any>;
+  semrush : KnockoutObservable<any>;
   
-  private showResearch : KnockoutObservable<boolean>;
-  private autoloadSocial : KnockoutObservable<boolean>;
+  showResearch : KnockoutObservable<boolean>;
+  autoloadSocial : KnockoutObservable<boolean>;
   
-  private badgeCount : number = 0;
-  private URL : string;
+  badgeCount : number = 0;
+  URL : string;
 
-  private activeSocialAPIs : any;
+  activeSocialAPIs : any;
   
   // Related to popup api display
-  private leftColSocialAPIs : any;
-  private rightColSocialAPIs : any;
+  popupLeftColSocialAPIs : any;
+  popupRightColSocialAPIs : any;
   // private hasLinks : any;
+  // 
+  
+  optionsLeftColSocialAPIs : any;
+  optionsRightColSocialAPIs : any;
 
   constructor() {
     this.socialAPIs = ko.observableArray([]);
@@ -68,18 +74,26 @@ class AppManager {
     this.showResearch = ko.observable(true);
     this.autoloadSocial = ko.observable(true);
 
-    // Related to popup api display
     this.activeSocialAPIs = ko.computed(function() {
        return this.socialAPIs().filter(function(api, index, arr) {
         return api().isActive() == true;
       });
     }, this);
 
-    this.leftColSocialAPIs = ko.computed(function() {
+    this.popupLeftColSocialAPIs = ko.computed(function() {
       return this.activeSocialAPIs().slice(0, this.numActiveSocialAPIs() / 2);
     }, this);
-    this.rightColSocialAPIs = ko.computed(function() {
+    this.popupRightColSocialAPIs = ko.computed(function() {
       return this.activeSocialAPIs().slice(this.numActiveSocialAPIs() / 2, this.numActiveSocialAPIs() );
+    }, this);
+
+
+    this.optionsLeftColSocialAPIs = ko.computed(function() {
+      return this.socialAPIs().slice(0, this.numSocialAPIs() / 2);
+    }, this);
+
+    this.optionsRightColSocialAPIs = ko.computed(function() {
+      return this.socialAPIs().slice(this.numSocialAPIs() / 2, this.numSocialAPIs());
     }, this);
 
 
@@ -94,6 +108,10 @@ class AppManager {
 
   private numActiveSocialAPIs() : number {
     return this.activeSocialAPIs().length;
+  }
+
+  public numSocialAPIs() : number {
+    return this.socialAPIs().length;
   }
 
   public getURL() : string {

@@ -36,11 +36,11 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         appManager.setURL(tab.url);
     }
 });
+// TODO: Factor out AppManager into PopopViewModel, OptionsViewModel, and AppManager
 /****
  * Main background class & viewmodel manager
  ****/
 var AppManager = (function () {
-    // private hasLinks : any;
     function AppManager() {
         this.badgeCount = 0;
         this.socialAPIs = ko.observableArray([]);
@@ -49,17 +49,22 @@ var AppManager = (function () {
         this.semrush = ko.observable({});
         this.showResearch = ko.observable(true);
         this.autoloadSocial = ko.observable(true);
-        // Related to popup api display
         this.activeSocialAPIs = ko.computed(function () {
             return this.socialAPIs().filter(function (api, index, arr) {
                 return api().isActive() == true;
             });
         }, this);
-        this.leftColSocialAPIs = ko.computed(function () {
+        this.popupLeftColSocialAPIs = ko.computed(function () {
             return this.activeSocialAPIs().slice(0, this.numActiveSocialAPIs() / 2);
         }, this);
-        this.rightColSocialAPIs = ko.computed(function () {
+        this.popupRightColSocialAPIs = ko.computed(function () {
             return this.activeSocialAPIs().slice(this.numActiveSocialAPIs() / 2, this.numActiveSocialAPIs());
+        }, this);
+        this.optionsLeftColSocialAPIs = ko.computed(function () {
+            return this.socialAPIs().slice(0, this.numSocialAPIs() / 2);
+        }, this);
+        this.optionsRightColSocialAPIs = ko.computed(function () {
+            return this.socialAPIs().slice(this.numSocialAPIs() / 2, this.numSocialAPIs());
         }, this);
         // this.hasLinks = ko.computed(function(){
         //   var moz = this.mozAPI().isActive();
@@ -70,6 +75,9 @@ var AppManager = (function () {
     }
     AppManager.prototype.numActiveSocialAPIs = function () {
         return this.activeSocialAPIs().length;
+    };
+    AppManager.prototype.numSocialAPIs = function () {
+        return this.socialAPIs().length;
     };
     AppManager.prototype.getURL = function () {
         return this.URL;
