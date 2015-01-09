@@ -17,26 +17,26 @@
         <img src="/images/content-harmony-header.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric</h1>
         <p><strong>Data for: </strong><span id="url" data-bind="text: URL"></span></p>
         <image id="refresh-page" src="/images/reload_refresh.png" alt="refresh popup results" 
-        data-bind="click: reloadAPIs" />
+        data-bind="click: refreshPopup" />
       </div>
       <div id="content">
         <hr />
         <div class="row social">
           <h2>Social:</h2>
           <div class="col-xs-6">
-            <div data-bind="foreach: popupLeftColSocialAPIs()">
+            <div data-bind="foreach: leftColSocialAPIs">
               <div class="social-metric">
                 <img data-bind="attr: { src: iconPath }" /> 
                 <strong data-bind="text: name"></strong>:
-                <div class="api-loading" data-bind="visible: !isLoaded()"></div>
-                <!-- ko if: isLoaded() -->
+                <!-- <div class="api-loading" data-bind="visible: !isLoaded()"></div> -->
+
                   <span data-bind="template: templateName"></span>  
-                <!-- /ko -->
+
               </div>
             </div>
           </div>
           <div class="col-xs-6">
-            <div data-bind="foreach: popupRightColSocialAPIs()">
+            <div data-bind="foreach: rightColSocialAPIs">
               <div class="social-metric">
                 <img data-bind="attr: { src: iconPath }" /> 
                 <strong data-bind="text: name"></strong>:
@@ -48,7 +48,7 @@
             </div>
           </div>
         </div>
-        <!-- ko if: hasLinks() -->
+        <!-- ko if: hasLinks -->
         <hr />
         <div class="row links">
           
@@ -70,37 +70,37 @@
     </div>
     <!-- KO Templates -->
     <script type="text/html" id="social-template">
-      <span data-bind="text: totalCount"></span>
+      <span data-bind="text: totalCount()"></span>
     </script>
     
     <script type="text/html" id="social-template-with-link">
-      <span data-bind="text: totalCount"></span>
+      <span data-bind="text: totalCount()"></span>
        (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
     </script>
 
     <script type="text/html" id="facebook-template">
-      <span data-bind="text: totalCount"></span>
+      <span data-bind="text: totalCount()"></span>
       <br/>
       <span class="indent inline-block">
         Likes: 
-        <span data-bind="text: likes" />
+        <span data-bind="text: likes()" />
       </span>
       
       <br/>
       <span class="indent inline-block">
         Shares: 
-        <span data-bind="text: shares" />
+        <span data-bind="text: shares()" />
       </span>
       
       <br/>
       <span class="indent inline-block">
         Comments: 
-        <span data-bind="text: comments" />
+        <span data-bind="text: comments()" />
       </span>
       
     </script>
     <script type="text/html" id="reddit-template">
-      <span data-bind="text: totalCount"></span>
+      <span data-bind="text: totalCount()"></span>
        (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
        <br />
       <span class="indent inline-block">
