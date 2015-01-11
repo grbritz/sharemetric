@@ -55,15 +55,6 @@ class AppManager {
   URL : string;
 
   activeSocialAPIs : any;
-  
-  // Related to popup api display
-  popupLeftColSocialAPIs : any;
-  popupRightColSocialAPIs : any;
-  // private hasLinks : any;
-  // 
-  
-  optionsLeftColSocialAPIs : any;
-  optionsRightColSocialAPIs : any;
 
   constructor() {
     // this.socialAPIs = ko.observableArray([]);
@@ -75,11 +66,6 @@ class AppManager {
     this.showResearch = ko.observable(true);
     this.autoloadSocial = ko.observable(true);
 
-    // this.activeSocialAPIs = ko.computed(function() {
-    //    return this.socialAPIs.filter(function(api, index, arr) {
-    //     return api().isActive() == true;
-    //   });
-    // }, this);
     this.activeSocialAPIs = function() {
       return this.socialAPIs.filter(function(api, index, arr) {
         return api().isActive() == true;
@@ -202,11 +188,10 @@ class AppManager {
       settings["social"].apis.push(api().toJSON());
     });
 
-    settings["links"] = [];
-    settings["links"].push(this.mozAPI().toJSON());
-    settings["links"].push(this.ahrefsAPI().toJSON());
-
+    settings["moz"] = this.mozAPI().toJSON();
+    settings["ahrefs"] = this.ahrefsAPI().toJSON();
     settings["semrush"] = self.semrush().toJSON();
+
     settings["showResearch"] = self.showResearch();
     settings["APP_VERSION"] = APP_VERSION;
 
@@ -235,6 +220,8 @@ class AppManager {
       self.autoloadSocial(settings["social"]["autoloadSocial"]);
       $.each(settings.social.apis, function(index, api) {
         //TODO: Explore more graceful alternatives to this
+        api["appManager"] = self;
+
         switch(api.name) {
           case "Facebook":
             self.socialAPIs.push(ko.observable(new Facebook(api)));
@@ -264,17 +251,12 @@ class AppManager {
       });
 
       // LINKS (e.g MOZ & Ahrefs)
-      $.each(settings["links"], function(index, api) {
-        switch(api.name) {
-          case "Moz":
-            self.mozAPI(new MozAPI(api));
-            break;
-          case "Ahrefs":
-            self.ahrefsAPI(new AhrefsAPI(api));
-            break;
-        }
-      });
+      settings["moz"]["appManager"] = self;
+      self.mozAPI(new MozAPI(settings["moz"]));
+      settings["ahrefs"]["appManager"] = self;
+      self.mozAPI(new AhrefsAPI(settings["ahrefs"]));
 
+      settings["semrush"]["appManager"] = self;
       self.semrush(new SEMRush(settings["semrush"]));
       self.showResearch(settings["showResearch"]);
 
@@ -291,25 +273,27 @@ class AppManager {
     
     // SOCIALS
     self.autoloadSocial(true);
-    self.socialAPIs.push(ko.observable(new Facebook({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new Twitter({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new LinkedIn({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new GooglePlus({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new Pinterest({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new StumbleUpon({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new Reddit({ isActive : true })));
-    self.socialAPIs.push(ko.observable(new Delicious({ isActive : true })));
+    var activeSocial = { isActive : true, appManager : self };
+    self.socialAPIs.push(ko.observable(new Facebook(activeSocial)));
+    self.socialAPIs.push(ko.observable(new Twitter(activeSocial)));
+    self.socialAPIs.push(ko.observable(new LinkedIn(activeSocial)));
+    self.socialAPIs.push(ko.observable(new GooglePlus(activeSocial)));
+    self.socialAPIs.push(ko.observable(new Pinterest(activeSocial)));
+    self.socialAPIs.push(ko.observable(new StumbleUpon(activeSocial)));
+    self.socialAPIs.push(ko.observable(new Reddit(activeSocial)));
+    self.socialAPIs.push(ko.observable(new Delicious({ isActive : false, appManager : self })));
 
     // LINKS
     self.mozAPI(new MozAPI({
       isActive : false, 
       mozID : null, 
-      mozSecret: null 
+      mozSecret: null,
+      appManager : self
     }));
-    self.ahrefsAPI(new AhrefsAPI({ isActive : false, authToken: null}));
+    self.ahrefsAPI(new AhrefsAPI({ isActive : false, authToken: null, appManager : self}));
 
     // OTHER
-    self.semrush(new SEMRush({ isActive: false, authToken: "" }));
+    self.semrush(new SEMRush({ isActive: false, authToken: "" , appManager : self}));
     self.showResearch(true);
   }
 }
@@ -317,12 +301,14 @@ class AppManager {
 class API {
   name : string;
   public isActive : KnockoutObservable<boolean>;
+  appManager : any;
   
   //TODO: Isloaded does not appear to be data binding properly or some such
   public isLoaded : KnockoutObservable<boolean>;
   public iconPath : string;
 
   constructor(json) {
+    this.appManager = json.appManager;
     this.name = json.name;
     this.isActive = ko.observable(json.isActive);
     this.iconPath = json.iconPath;
@@ -339,7 +325,7 @@ class API {
   public querySuccess() {
     // TODO: Why is this necessary?
     this.isLoaded(true);
-    ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL()); 
+    ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL()); 
   }
 
   public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
@@ -371,8 +357,8 @@ class SocialAPI extends API {
 
   public querySuccess() {
     this.isLoaded(true);
-    appManager.increaseBadgeCount(this.totalCount());
-    ga('send', 'event', 'API Load', 'API Load - ' + this.name, appManager.getRedactedURL());
+    this.appManager.increaseBadgeCount(this.totalCount());
+    ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
   }
 
   public toJSON() {
@@ -404,11 +390,13 @@ class Facebook extends SocialAPI {
   public queryData() {
     this.totalCount(0);
     this.isLoaded(false);
+    var self = this;
     $.get("https://api.facebook.com/method/fql.query", 
-          { "query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+ appManager.getURL() +'"'}, 
-          this.queryCallback.bind(this),
-          "xml")
-     .fail(this.queryFail.bind(this));
+        { "query" : 'select total_count, share_count, like_count, comment_count from link_stat where url ="'+ self.appManager.getURL() +'"'}, 
+        self.queryCallback.bind(self),
+        "xml")
+   .fail(self.queryFail.bind(self));
+    
   }
 
   private queryCallback(results : any) {
@@ -431,7 +419,7 @@ class GooglePlus extends SocialAPI {
     this.totalCount(0);
     this.isLoaded(false);
     $.get("http://sharemetric.com",
-          {"url" : appManager.getURL(), "callType" : "extension"},
+          {"url" : this.appManager.getURL(), "callType" : "extension"},
           this.queryCallback.bind(this), 
           "text")
      .fail(this.queryFail.bind(this));
@@ -443,18 +431,50 @@ class GooglePlus extends SocialAPI {
   }
 }
 
-class LinkedIn extends SocialAPI {
+class LinkedIn {
+  totalCount : KnockoutObservable<number>;
+  templateName : string;
+
+  name : KnockoutObservable<string>;
+  public isActive : KnockoutObservable<boolean>;
+  
+  //TODO: Isloaded does not appear to be data binding properly or some such
+  public isLoaded : KnockoutObservable<boolean>;
+  public iconPath : string;
+
+
+
   constructor(json) {
     json.name = "LinkedIn";
     json.iconPath = "/images/icons/linkedin-16x16.png";
-    super(json);
+    this.totalCount = ko.observable(0);
+    this.templateName = "social-template";
+    this.name = ko.observable(json.name);
+    this.isActive = ko.observable(json.isActive);
+    this.iconPath = json.iconPath;
+    this.isLoaded = ko.observable(false);
+  }
+
+  public querySuccess() {
+    this.isLoaded(true);
+    this.appManager.increaseBadgeCount(this.totalCount());
+    ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
+  }
+
+  public toJSON() {
+    var self = this;
+    return { 
+      name : self.name,
+      isActive : self.isActive(),
+      type : "social"
+    };
   }
 
   public queryData() {
     this.isLoaded(false);
     this.totalCount(0);
     $.get("http://www.linkedin.com/countserv/count/share",
-          {"url" : appManager.getURL(), "format" : "json"},
+          {"url" : this.appManager.getURL(), "format" : "json"},
           this.queryCallback.bind(this),
           "json")
      .fail(this.queryFail.bind(this));
@@ -467,7 +487,39 @@ class LinkedIn extends SocialAPI {
     }
     this.querySuccess();
   }
+
+
+  public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
+    ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
+  }
+
 }
+
+// class LinkedIn extends SocialAPI {
+//   constructor(json) {
+//     json.name = "LinkedIn";
+//     json.iconPath = "/images/icons/linkedin-16x16.png";
+//     super(json);
+//   }
+
+//   public queryData() {
+//     this.isLoaded(false);
+//     this.totalCount(0);
+//     $.get("http://www.linkedin.com/countserv/count/share",
+//           {"url" : this.appManager.getURL(), "format" : "json"},
+//           this.queryCallback.bind(this),
+//           "json")
+//      .fail(this.queryFail.bind(this));
+//   }
+
+//   private queryCallback(results : any) {
+//     if(results != undefined) {
+//       results.count = parseInt(results.count);
+//       this.totalCount(isNaN(results.count) ? 0 : results.count);
+//     }
+//     this.querySuccess();
+//   }
+// }
 
 class Twitter extends SocialAPI {
   detailsAnchor : string;
@@ -483,7 +535,7 @@ class Twitter extends SocialAPI {
 
   public detailsHref() {
     var url = "http://topsy.com/trackback?url=";
-    url += encodeURIComponent(appManager.getURL());
+    url += encodeURIComponent(this.appManager.getURL());
     url += "&infonly=1";
     return url;
   }
@@ -492,7 +544,7 @@ class Twitter extends SocialAPI {
     this.isLoaded(false);
     this.totalCount(0);
     $.get("http://urls.api.twitter.com/1/urls/count.json",
-          {"url": appManager.getURL()},
+          {"url": this.appManager.getURL()},
           this.queryCallback.bind(this),
           "json")
      .fail(this.queryFail.bind(this));
@@ -529,7 +581,7 @@ class Reddit extends SocialAPI {
   }
 
   public detailsHref() {
-    return "http://www.reddit.com/submit?url=" + encodeURIComponent(appManager.getURL());
+    return "http://www.reddit.com/submit?url=" + encodeURIComponent(this.appManager.getURL());
   }
 
   public queryData() {
@@ -538,7 +590,7 @@ class Reddit extends SocialAPI {
     this.ups(0);
     this.downs(0);
     $.get("http://www.reddit.com/api/info.json",
-          {"url" : appManager.getURL()},
+          {"url" : this.appManager.getURL()},
           this.queryCallback.bind(this),
           "json")
      .fail(this.queryFail.bind(this));
@@ -572,7 +624,7 @@ class StumbleUpon extends SocialAPI {
     this.isLoaded(false);
     this.totalCount(0);
     $.get("http://www.stumbleupon.com/services/1.01/badge.getinfo",
-          {"url" : appManager.getURL()},
+          {"url" : this.appManager.getURL()},
           this.queryCallback.bind(this),
           "json")
      .fail(this.queryFail.bind(this));
@@ -601,14 +653,14 @@ class Pinterest extends SocialAPI {
   }
 
   public detailsHref() {
-    return "http://www.pinterest.com/source/" + appManager.getURL()
+    return "http://www.pinterest.com/source/" + this.appManager.getURL()
   }
 
   public queryData() {
     this.isLoaded(false);
     this.totalCount(0);
     $.get("http://api.pinterest.com/v1/urls/count.json",
-          {"url" : appManager.getURL(), "callback" : "receiveCount"},
+          {"url" : this.appManager.getURL(), "callback" : "receiveCount"},
           this.queryCallback.bind(this),
           "text")
      .fail(this.queryFail.bind(this));
@@ -644,7 +696,7 @@ class Delicious extends SocialAPI {
     this.isLoaded(false);
     this.totalCount(0);
     $.get("http://feeds.delicious.com/v2/json/urlinfo/data",
-          {"url" : appManager.getURL()},
+          {"url" : this.appManager.getURL()},
           this.queryCallback.bind(this),
           "json")
      .fail(this.queryFail.bind(this)); 
@@ -744,7 +796,7 @@ class MozAPI extends AuthenticatedAPI {
     var date = new Date();
     var expiresAt = date.getTime() + 360;
     var signature = this.genSignature(expiresAt);
-    return encodeURIComponent(appManager.getURL()) + "?Cols=" + APICols + "&AccessID=" + this.mozID
+    return encodeURIComponent(this.appManager.getURL()) + "?Cols=" + APICols + "&AccessID=" + this.mozID
            + "&Expires=" + expiresAt + "&Signature=" + signature;
    }
 
@@ -807,7 +859,7 @@ class AhrefsAPI extends AuthenticatedAPI {
       // GET urlRank
       $.get("http://apiv2.ahrefs.com", {
             token     : self.authToken,
-            target    : appManager.getURL(),
+            target    : self.appManager.getURL(),
             from      : "ahrefs_rank",
             mode      : "exact",
             limit     : "5",
@@ -817,7 +869,7 @@ class AhrefsAPI extends AuthenticatedAPI {
             self.urlRank = results.pages[0].ahrefs_rank;
 
             if(self.allAPISLoaded()) {
-              ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
+              ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
             }
           },
           "json")
@@ -826,7 +878,7 @@ class AhrefsAPI extends AuthenticatedAPI {
        // GET domainRank
        $.get("http://apiv2.ahrefs.com", {
              token    : self.authToken,
-             target   : appManager.getURL(),
+             target   : self.appManager.getURL(),
              from     : "domain_rating",
              mode     : "domain",
              output   : "json"
@@ -835,7 +887,7 @@ class AhrefsAPI extends AuthenticatedAPI {
             self.domainRank = results.domain.domain_rating;
 
             if(self.allAPISLoaded()) {
-              ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
+              ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
             }
           }, "json")
        .fail(self.queryFail.bind(self));
@@ -843,7 +895,7 @@ class AhrefsAPI extends AuthenticatedAPI {
        // GET drd
        $.get("http://apiv2.ahrefs.com", {
           token       : self.authToken,
-          target      : appManager.getURL(),
+          target      : self.appManager.getURL(),
           from        : "refdomains",
           mode        : "domain",
           limit       : "1",
@@ -853,7 +905,7 @@ class AhrefsAPI extends AuthenticatedAPI {
           self.drd = results.stats.refdomains;
         
           if(self.allAPISLoaded()) {
-            ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
+            ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
           }
         }, "json")
        .fail(self.queryFail.bind(self));
@@ -861,7 +913,7 @@ class AhrefsAPI extends AuthenticatedAPI {
        // GET prd
       $.get("http://apiv2.ahrefs.com", {
             token     : self.authToken,
-            target    : appManager.getURL(),
+            target    : self.appManager.getURL(),
             from      : "refdomains",
             mode      : "exact",
             limit     : "1",
@@ -871,7 +923,7 @@ class AhrefsAPI extends AuthenticatedAPI {
           self.prd = results.stats.refdomains;
 
           if(self.allAPISLoaded()) {
-            ga('send', 'event', 'API Load', 'API Load - Ahrefs', appManager.getRedactedURL());
+            ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
           }
         }, "json")
       .fail(self.queryFail.bind(self));
@@ -928,7 +980,7 @@ class AhrefsAPI extends AuthenticatedAPI {
                           ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
                           chrome.tabs.remove(oAuthTabID);
                           
-                          appManager.persistSettings();
+                          self.appManager.persistSettings();
 
                           // TODO: Do I need these two trackers?
                           self.isAuthenticated = true;
@@ -1015,7 +1067,7 @@ class SEMRush extends API {
           "display_limit" : 5,
           "export"    : "api",
           "export_columns": "Ph,Po,Nq,Cp",
-          "url"     : appManager.getURL()
+          "url"     : self.appManager.getURL()
       }, self.queryCallback.bind(self))
     .fail(self.queryFail.bind(self));
   }
@@ -1037,7 +1089,7 @@ class SEMRush extends API {
         this.resultRows.push(row);
       }
     }
-    ga('send', 'event', 'API Load', 'API Load - SEMRush', appManager.getRedactedURL());
+    ga('send', 'event', 'API Load', 'API Load - SEMRush', this.appManager.getRedactedURL());
   }
 
   // private queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
