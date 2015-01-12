@@ -45,6 +45,56 @@ var API = (function () {
 /**************************************************************************************************
 * SOCIAL APIs
 **************************************************************************************************/
+var SocialAPIContainer = (function () {
+    function SocialAPIContainer(APIList, appManager) {
+        var self = this;
+        self.apis = [];
+        APIList.forEach(function (apiSettings, index, APIList) {
+            apiSettings["appManager"] = appManager;
+            switch (apiSettings.name) {
+                case "Facebook":
+                    self.apis.push(new Facebook(apiSettings));
+                    break;
+                case "Google+":
+                    self.apis.push(new GooglePlus(apiSettings));
+                    break;
+                case "LinkedIn":
+                    self.apis.push(new LinkedIn(apiSettings));
+                    break;
+                case "Twitter":
+                    self.apis.push(new Twitter(apiSettings));
+                    break;
+                case "Reddit":
+                    self.apis.push(new Reddit(apiSettings));
+                    break;
+                case "StumbleUpon":
+                    self.apis.push(new StumbleUpon(apiSettings));
+                    break;
+                case "Pinterest":
+                    self.apis.push(new Pinterest(apiSettings));
+                    break;
+                case "Delicious":
+                    self.apis.push(new Delicious(apiSettings));
+                    break;
+            }
+        });
+        var even = (self.apis.length % 2 == 0);
+        self.firstHalf = self.apis.slice(0, even ? self.apis.length / 2 : Math.ceil(self.apis.length / 2));
+        self.secondHalf = self.apis.slice(even ? self.apis.length / 2 : self.apis.length / 2 + 1, self.apis.length);
+    }
+    SocialAPIContainer.prototype.queryAll = function () {
+        var self = this;
+        self.apis.forEach(function (api, index, apis) {
+            api.queryData();
+        });
+    };
+    SocialAPIContainer.prototype.toJSON = function () {
+        return this.apis.map(function (api, idnex, apis) {
+            return api.toJSON();
+        });
+    };
+    return SocialAPIContainer;
+})();
 var SocialAPI = (function (_super) {
     __extends(SocialAPI, _super);
     function SocialAPI(json) {
@@ -582,7 +632,8 @@ var SEMRush = (function (_super) {
         return {
             name: self.name,
             isActive: self.isActive(),
-            authToken: self.authToken
+            authToken: self.authToken,
+            type: "keywords"
         };
     };
     SEMRush.prototype.queryData = function () {

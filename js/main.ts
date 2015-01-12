@@ -11,11 +11,6 @@ var ga = function(...any) {};
 
 var APP_VERSION = "2.0.0";
 
-// This var can be a function that accepts a settings object (that was saved to local storage)
-// It is used when the APP_VERSION changes in a way that modifies the data stored to storage
-// and those changes need to be applied on top of the user's stored preferences.
-declare var applyVersionUpdate : any;
-
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -38,58 +33,77 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   }
 });
 
-// TODO: Factor out AppManager into PopopViewModel, OptionsViewModel, and AppManager
 
 /****
- * Main background class & viewmodel manager
+ * Main background model
  ****/
 class AppManager {
-  socialAPIs : any;
-  mozAPI : KnockoutObservable<any>;
-  ahrefsAPI : KnockoutObservable<any>;
-  semrush : KnockoutObservable<any>;
-  
-  showResearch : KnockoutObservable<boolean>;
-  autoloadSocial : KnockoutObservable<boolean>;
+  socialAPIContainer : any;
   
   badgeCount : number = 0;
   URL : string;
 
-  activeSocialAPIs : any;
-
-  constructor() {
-    // this.socialAPIs = ko.observableArray([]);
-    this.socialAPIs = [];
-    this.mozAPI = ko.observable({});
-    this.ahrefsAPI = ko.observable({});
-    this.semrush = ko.observable({});
-
-    this.showResearch = ko.observable(true);
-    this.autoloadSocial = ko.observable(true);
-
-    this.activeSocialAPIs = function() {
-      return this.socialAPIs.filter(function(api, index, arr) {
-        return api().isActive() == true;
-      });
-    };
+  constructor() {    
+    this.buildSocialAPIContainer();
+  }
 
 
-    // this.hasLinks = ko.computed(function(){
-    //   var moz = this.mozAPI().isActive();
-    //   var ahrefs = this.ahrefsAPI().isActive();
-    //   return  moz || ahrefs;
-    // }, this);
+  /************************************************************************
+   * API Methods
+   ************************************************************************/
+  
+  public numSocialAPIs() : number {
+    return this.socialAPIs().length;
+  }
 
-    this.loadSettings();
+  public socialAPIs() {
+    return this.getSettings().apis.filter(function(api, index, arr) {
+      return api.type === "social";
+    });
+  }
+
+  public activeSocialAPIs() {
+    return this.socialAPIs().filter(function(api, index, arr) {
+      return api.isActive === true || api.isActive === "true";
+    });
+  }
+
+  private buildSocialAPIContainer() {
+    this.setBadgeCount(0);
+    if (this.autoloadSocial()) {
+      this.socialAPIContainer = new SocialAPIContainer(this.activeSocialAPIs(), this);
+    }
+    else {
+      this.socialAPIContainer = {};
+    }
+  }
+
+  private autoloadSocial() : boolean {
+    var settings = this.getSettings();
+    return settings.meta.autoloadSocial === true || settings.meta.autoloadSocial === "true";
   }
 
   private numActiveSocialAPIs() : number {
     return this.activeSocialAPIs().length;
   }
 
-  public numSocialAPIs() : number {
-    return this.socialAPIs().length;
-  }
+
+  // public reloadAPIs()  {
+  //   var self = this;
+  //   // console.debug("reloadAPIs()");
+  //   chrome.tabs.query({"active" : true, "currentWindow" : true}, function(tabs) {
+  //     // console.debug("reloadAPIs() - tab query callback");
+  //     self.URL = tabs[0].url;
+  //     self.setBadgeCount(0);
+  //     self.querySocialAPIs();
+  //     self.queryNonSocialAPIs();
+  //     ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.getRedactedURL());
+  //   });
+  // }
+
+  /************************************************************************
+   * URL Methods
+   ************************************************************************/
 
   public getURL() : string {
     return this.URL;
@@ -98,24 +112,11 @@ class AppManager {
   public setURL(url : string) {
     this.URL = url;
     this.setBadgeCount(0);
-    if(this.autoloadSocial()) {
-      this.querySocialAPIs();
+    if(this.autoloadSocial) {
+      this.socialAPIContainer.queryAll();
     }
 
     ga('send', 'pageview', {'page' : 'background-url-load'});
-  }
-
-  public reloadAPIs()  {
-    var self = this;
-    // console.debug("reloadAPIs()");
-    chrome.tabs.query({"active" : true, "currentWindow" : true}, function(tabs) {
-      // console.debug("reloadAPIs() - tab query callback");
-      self.URL = tabs[0].url;
-      self.setBadgeCount(0);
-      self.querySocialAPIs();
-      self.queryNonSocialAPIs();
-      ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.getRedactedURL());
-    });
   }
 
   public getRedactedURL() : string {
@@ -132,6 +133,10 @@ class AppManager {
     var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
     return matches && matches[1];
   }
+
+  /************************************************************************
+   * Badge Count Methods
+   ************************************************************************/
 
   private setBadgeCount(count : number) {
     this.badgeCount = count;
@@ -164,138 +169,65 @@ class AppManager {
     return abbrCount + symbol;
   }
 
-  public querySocialAPIs() {
-    var self = this;
-    $.each(self.activeSocialAPIs(), function(index, api) {
-      api().queryData();  
-    });
-  }
+  /************************************************************************
+   * Settings Methods
+   ************************************************************************/
 
-  public queryNonSocialAPIs() {
-    // TODO:
-  }
-
-  // Saves all API settings into local storage
-  // to persist the settings between sessions.
-  public persistSettings() {
-    var self = this;
-    var settings = {};
-    settings["social"] = {
-      autoLoad  : self.autoloadSocial(),
-      apis      : []
-    };
-
-    $.each(self.socialAPIs, function(index, api) {
-      settings["social"].apis.push(api().toJSON());
-    });
-
-    settings["moz"] = this.mozAPI().toJSON();
-    settings["ahrefs"] = this.ahrefsAPI().toJSON();
-    settings["semrush"] = self.semrush().toJSON();
-
-    settings["showResearch"] = self.showResearch();
-    settings["APP_VERSION"] = APP_VERSION;
-
-    // TODO: Notifications
-    // settings["dismissedNotifications"]
+  public updateSettings(settings) : any {
+    // To act in accordance with how getSettings is implemented,
+    // updateSettings must immediately update the settings in localstorage
     localStorage["ShareMetric"] = JSON.stringify(settings);
+    this.buildSocialAPIContainer();
   }
 
-  // Loads the API settings from local storage
-  public loadSettings() {
-    var self = this;
-    self.socialAPIs = [];
-    // self.socialAPIs.removeAll();
-    self.mozAPI(null);
-    self.ahrefsAPI(null);
-    self.semrush(null);
-    self.setBadgeCount(0);
-
-    if(localStorage.getItem("ShareMetric")) {
-      var settings = localStorage.getItem("ShareMetric");
-      if(settings["APP_VERSION"] != APP_VERSION) {
-        settings = applyVersionUpdate(settings);
-      }
-
-      // SOCIAL
-      self.autoloadSocial(settings["social"]["autoloadSocial"]);
-      $.each(settings.social.apis, function(index, api) {
-        //TODO: Explore more graceful alternatives to this
-        api["appManager"] = self;
-
-        switch(api.name) {
-          case "Facebook":
-            self.socialAPIs.push(ko.observable(new Facebook(api)));
-            break;
-          case "Google+":
-            self.socialAPIs.push(ko.observable(new GooglePlus(api)));
-            break;
-          case "LinkedIn":
-            self.socialAPIs.push(ko.observable(new LinkedIn(api)));
-            break;
-          case "Twitter":
-            self.socialAPIs.push(ko.observable(new Twitter(api)));
-            break;
-          case "Reddit":
-            self.socialAPIs.push(ko.observable(new Reddit(api)));
-            break;
-          case "StumbleUpon":
-            self.socialAPIs.push(ko.observable(new StumbleUpon(api)));
-            break;
-          case "Pinterest":
-            self.socialAPIs.push(ko.observable(new Pinterest(api)));
-            break;
-          case "Delicious":
-            self.socialAPIs.push(ko.observable(new Delicious(api)));
-            break;
-        }
-      });
-
-      // LINKS (e.g MOZ & Ahrefs)
-      settings["moz"]["appManager"] = self;
-      self.mozAPI(new MozAPI(settings["moz"]));
-      settings["ahrefs"]["appManager"] = self;
-      self.mozAPI(new AhrefsAPI(settings["ahrefs"]));
-
-      settings["semrush"]["appManager"] = self;
-      self.semrush(new SEMRush(settings["semrush"]));
-      self.showResearch(settings["showResearch"]);
-
-      //TODO: Notifications
-      //self.notifications(settings.notifications);
-    }
-    else {
-      self.loadDefaultSettings();
-    }
-  }
-
-  private loadDefaultSettings() {
+  public getSettings() : any {
+    // To simplify things, we will always read our settings functionally
+    // If there are settings in local storage, we will use those, if there arent, we
+    // will use the default settings
     var self = this;
     
-    // SOCIALS
-    self.autoloadSocial(true);
-    var activeSocial = { isActive : true, appManager : self };
-    self.socialAPIs.push(ko.observable(new Facebook(activeSocial)));
-    self.socialAPIs.push(ko.observable(new Twitter(activeSocial)));
-    self.socialAPIs.push(ko.observable(new LinkedIn(activeSocial)));
-    self.socialAPIs.push(ko.observable(new GooglePlus(activeSocial)));
-    self.socialAPIs.push(ko.observable(new Pinterest(activeSocial)));
-    self.socialAPIs.push(ko.observable(new StumbleUpon(activeSocial)));
-    self.socialAPIs.push(ko.observable(new Reddit(activeSocial)));
-    self.socialAPIs.push(ko.observable(new Delicious({ isActive : false, appManager : self })));
+    if(localStorage.getItem("ShareMetric")) {
+      var settings = JSON.parse(localStorage.getItem("ShareMetric"));
+      if(settings["APP_VERSION"] != APP_VERSION) {
+        settings = self.applyVersionUpdate(settings);
+      }
+      
+      return settings;
+    }
+    else {
+      return self.defaultSettings();
+    }
+  }
 
-    // LINKS
-    self.mozAPI(new MozAPI({
-      isActive : false, 
-      mozID : null, 
-      mozSecret: null,
-      appManager : self
-    }));
-    self.ahrefsAPI(new AhrefsAPI({ isActive : false, authToken: null, appManager : self}));
+  private defaultSettings() : any {
+    return {
+      meta : {
+        autoloadSocial : true,
+        showResearch   : true
+      },
+      apis : [
+        { name : "Facebook",    isActive : true, type: "social" },
+        { name : "Google+",     isActive : true, type: "social" },
+        { name : "LinkedIn",    isActive : true, type: "social" },
+        { name : "Twitter" ,    isActive : true, type: "social" },
+        { name : "Reddit",      isActive : true, type: "social" },
+        { name : "StumbleUpon", isActive : true, type: "social" },
+        { name : "Pinterest",   isActive : true, type: "social" },
+        { name : "Delicious",   isActive : false, type: "social" },
+        { name : "Moz", isActive : false, mozID : "", mozSecret : "", type : "link" },
+        { name : "Ahrefs", isActive : false, authToken : "", type : "link" },
+        { name : "SEMRush", isActive : false, authToken : "", type : "keywords" }
+      ],
+      // notifications : []
+      "APP_VERSION" : APP_VERSION
+    };
+  }
 
-    // OTHER
-    self.semrush(new SEMRush({ isActive: false, authToken: "" , appManager : self}));
-    self.showResearch(true);
+  private applyVersionUpdate(settings) : any {
+    // This function accepts a settings object (that was saved to local storage)
+    // It is used when the APP_VERSION changes in a way that modifies the data stored to storage
+    // and those changes need to be applied on top of the user's stored preferences.
+    return settings;
   }
 }
 

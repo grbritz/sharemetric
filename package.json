@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile" : "cd js; ../node_modules/.bin/tsc ./*.ts;"
+    "compile" : "cd js; ../node_modules/.bin/tsc *.ts; ../node_modules/.bin/tsc --out ./main.js ./main.ts ./apis.ts;"
   },
   "repository": {
     "type": "git",

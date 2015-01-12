@@ -1,71 +1,46 @@
-/// <reference path='./jquery.d.ts' />
-/// <reference path='./knockout.d.ts' />
+/// <reference path='../lib/ts/jquery.d.ts' />
+/// <reference path='../lib/ts/knockout.d.ts' />
 declare var chrome : any;
 var ga = function(...any) {};
 
 class PopupViewModel {
   private appManager : any; // Main data model
 
-  mozAPI : any;
-  ahrefsAPI : any;
-  semrush : any;
-  
+  // mozAPI : any;
+  // ahrefsAPI : any;
+  // semrush : any;
+
   showResearch : boolean;
   hasLinks : boolean;
   
-  URL : string;
-  
-  leftColSocialAPIs : any;
-  rightColSocialAPIs : any;
+  URL : KnockoutObservable<string>;
+  socialAPIContainer : any;
   
   constructor(appManager) {
+    var self = this;
     this.appManager = appManager;
+    // Load in appManager settings
+    this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
+    this.socialAPIContainer.queryAll();
 
-    this.URL = appManager.URL;
-    // this.leftColSocialAPIs = ko.computed(function() {
-    //   return this.appManager.activeSocialAPIs().slice(0, this.appManager.numActiveSocialAPIs() / 2);
-    // }, this);
-    
-    // this.rightColSocialAPIs = ko.computed(function() {
-    //   return this.appManager.activeSocialAPIs().slice(this.appManager.numActiveSocialAPIs() / 2, this.appManager.numActiveSocialAPIs() );
-    // }, this);
-    this.leftColSocialAPIs = this.appManager.activeSocialAPIs().slice(0, this.appManager.numActiveSocialAPIs() / 2);
-    this.rightColSocialAPIs = this.appManager.activeSocialAPIs().slice(this.appManager.numActiveSocialAPIs() / 2, this.appManager.numActiveSocialAPIs());
-
-
-
-    this.mozAPI = appManager.mozAPI;
-    this.ahrefsAPI = appManager.ahrefsAPI;
-    this.semrush = appManager.semrush;
-    this.showResearch = appManager.showResearch;
-    this.hasLinks = false;
-
+    this.URL = ko.observable(appManager.URL);
+    this.hasLinks = false;    
+    this.showResearch = false;
   }
 
   public refreshPopup() {
-    this.appManager.reloadAPIs();
-  }
-
-
-  // public reloadAPIs()  {
-  //   var self = this;
+    var self = this;
+    self.URL(self.appManager.getURL());
+    self.socialAPIContainer.queryAll();
+    //TODO: query non-social apis too
     
-  //   // console.debug("reloadAPIs()");
-  //   chrome.tabs.query({"active" : true, "currentWindow" : true}, function(tabs) {
-      
-  //     // console.debug("reloadAPIs() - tab query callback");
-  //     self.URL = tabs[0].url;
-  //     self.setBadgeCount(0);
-  //     ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.getRedactedURL());
-  //   });
-  // }
+    ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.appManager.getRedactedURL());
+  }
 }
 
 var vm;
 $(document).ready(function(){
   var backgroundPage = chrome.extension.getBackgroundPage();
-  
   vm = new PopupViewModel(backgroundPage.appManager);
   ko.applyBindings(vm);
-  console.log(vm);
 });

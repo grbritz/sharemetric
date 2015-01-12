@@ -1,5 +1,5 @@
-/// <reference path='./jquery.d.ts' />
-/// <reference path='./knockout.d.ts' />
+/// <reference path='../lib/ts/jquery.d.ts' />
+/// <reference path='../lib/ts/knockout.d.ts' />
 var ga = function () {
     var any = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -8,24 +8,21 @@ var ga = function () {
 };
 var PopupViewModel = (function () {
     function PopupViewModel(appManager) {
+        var self = this;
         this.appManager = appManager;
-        this.URL = appManager.URL;
-        // this.leftColSocialAPIs = ko.computed(function() {
-        //   return this.appManager.activeSocialAPIs().slice(0, this.appManager.numActiveSocialAPIs() / 2);
-        // }, this);
-        // this.rightColSocialAPIs = ko.computed(function() {
-        //   return this.appManager.activeSocialAPIs().slice(this.appManager.numActiveSocialAPIs() / 2, this.appManager.numActiveSocialAPIs() );
-        // }, this);
-        this.leftColSocialAPIs = this.appManager.activeSocialAPIs().slice(0, this.appManager.numActiveSocialAPIs() / 2);
-        this.rightColSocialAPIs = this.appManager.activeSocialAPIs().slice(this.appManager.numActiveSocialAPIs() / 2, this.appManager.numActiveSocialAPIs());
-        this.mozAPI = appManager.mozAPI;
-        this.ahrefsAPI = appManager.ahrefsAPI;
-        this.semrush = appManager.semrush;
-        this.showResearch = appManager.showResearch;
+        // Load in appManager settings
+        this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
+        this.socialAPIContainer.queryAll();
+        this.URL = ko.observable(appManager.URL);
         this.hasLinks = false;
+        this.showResearch = false;
     }
     PopupViewModel.prototype.refreshPopup = function () {
-        this.appManager.reloadAPIs();
+        var self = this;
+        self.URL(self.appManager.getURL());
+        self.socialAPIContainer.queryAll();
+        //TODO: query non-social apis too
+        ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.appManager.getRedactedURL());
     };
     return PopupViewModel;
 })();
@@ -34,5 +31,4 @@ $(document).ready(function () {
     var backgroundPage = chrome.extension.getBackgroundPage();
     vm = new PopupViewModel(backgroundPage.appManager);
     ko.applyBindings(vm);
-    console.log(vm);
 });

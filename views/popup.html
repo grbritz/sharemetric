@@ -5,10 +5,12 @@
       <link rel="stylesheet" type="text/css" href="/lib/css/bootstrap.min.css"/>
      <link rel="stylesheet" type="text/css" href="/css/style.css"/>
     <!-- JavaScript and HTML must be in separate files for security. -->
-    <script src="/lib/js/jquery-2.1.0.min.js"></script>
-    <script src="/lib/js/bootstrap.min.js"></script>
     <script src="/lib/js/knockout-3.2.0.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="/lib/js/bootstrap.min.js"></script>
+    <script src="/js/apis.js"></script>
     <script src="/js/popup.js"></script>
+    
   </head>
   <body class="popup">
     <div class="container">
@@ -23,30 +25,16 @@
         <hr />
         <div class="row social">
           <h2>Social:</h2>
+          <!-- ko with: socialAPIContainer -->
           <div class="col-xs-6">
-            <div data-bind="foreach: leftColSocialAPIs">
-              <div class="social-metric">
-                <img data-bind="attr: { src: iconPath }" /> 
-                <strong data-bind="text: name"></strong>:
-                <!-- <div class="api-loading" data-bind="visible: !isLoaded()"></div> -->
-
-                  <span data-bind="template: templateName"></span>  
-
-              </div>
-            </div>
+            <!-- ko template: { name: 'social-column', foreach: firstHalf } -->
+            <!-- /ko -->
           </div>
           <div class="col-xs-6">
-            <div data-bind="foreach: rightColSocialAPIs">
-              <div class="social-metric">
-                <img data-bind="attr: { src: iconPath }" /> 
-                <strong data-bind="text: name"></strong>:
-                <div class="api-loading" data-bind="visible: !isLoaded()"></div>
-                <!-- ko if: isLoaded() -->
-                  <span data-bind="template: templateName"></span>  
-                <!-- /ko -->
-              </div>
-            </div>
+            <!-- ko template: { name: 'social-column', foreach: secondHalf } -->
+            <!-- /ko -->
           </div>
+          <!-- /ko -->
         </div>
         <!-- ko if: hasLinks -->
         <hr />
@@ -69,39 +57,48 @@
       </div>
     </div>
     <!-- KO Templates -->
+    <script type="text/html" id="social-column">
+      <div class="social-metric">
+        <img data-bind="attr: { src: iconPath }" /> 
+        <strong data-bind="text: name"></strong>: 
+        <!-- ko template: templateName --> 
+        <!-- /ko -->
+      </div>
+    </script>
+
     <script type="text/html" id="social-template">
       <span data-bind="text: totalCount()"></span>
     </script>
     
     <script type="text/html" id="social-template-with-link">
       <span data-bind="text: totalCount()"></span>
-       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
+       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor" target="_blank"></a>)
     </script>
 
     <script type="text/html" id="facebook-template">
-      <span data-bind="text: totalCount()"></span>
+      <span data-bind="text: totalCount"></span>
       <br/>
       <span class="indent inline-block">
         Likes: 
-        <span data-bind="text: likes()" />
+        <span data-bind="text: likes" />
       </span>
       
       <br/>
       <span class="indent inline-block">
         Shares: 
-        <span data-bind="text: shares()" />
+        <span data-bind="text: shares" />
       </span>
       
       <br/>
       <span class="indent inline-block">
         Comments: 
-        <span data-bind="text: comments()" />
+        <span data-bind="text: comments" />
       </span>
       
     </script>
     <script type="text/html" id="reddit-template">
       <span data-bind="text: totalCount()"></span>
-       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor"></a>)
+       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor" target="_blank"></a>)
        <br />
       <span class="indent inline-block">
         Ups: <span class="indent" data-bind="text: ups()"></span>
@@ -111,5 +108,6 @@
         Downs: <span class="indent" data-bind="text: downs()"></span>
       </span>
     </script>
+    
   </body>
 </html>

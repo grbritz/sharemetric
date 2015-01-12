@@ -49,6 +49,64 @@ class API {
 * SOCIAL APIs
 **************************************************************************************************/
 
+class SocialAPIContainer {
+  apis : any;
+  firstHalf : any;
+  secondHalf : any;
+
+  constructor(APIList, appManager) {
+    var self = this;
+    self.apis = [];
+    
+    APIList.forEach(function(apiSettings, index, APIList) {
+      apiSettings["appManager"] = appManager;
+      switch (apiSettings.name) {
+        case "Facebook":
+            self.apis.push(new Facebook(apiSettings));
+            break;
+        case "Google+":
+            self.apis.push(new GooglePlus(apiSettings));
+            break;
+        case "LinkedIn":
+            self.apis.push(new LinkedIn(apiSettings));
+            break;
+        case "Twitter":
+            self.apis.push(new Twitter(apiSettings));
+            break;
+        case "Reddit":
+            self.apis.push(new Reddit(apiSettings));
+            break;
+        case "StumbleUpon":
+            self.apis.push(new StumbleUpon(apiSettings));
+            break;
+        case "Pinterest":
+            self.apis.push(new Pinterest(apiSettings));
+            break;
+        case "Delicious":
+            self.apis.push(new Delicious(apiSettings));
+            break;
+    }});
+
+
+    var even = (self.apis.length % 2 == 0);
+    self.firstHalf = self.apis.slice(0, even ? self.apis.length / 2 : Math.ceil(self.apis.length / 2));
+    self.secondHalf = self.apis.slice(even ? self.apis.length / 2 : self.apis.length / 2 + 1, self.apis.length);
+  }
+
+  public queryAll() {
+    var self = this;
+    self.apis.forEach(function(api, index, apis) {
+      api.queryData();
+    });
+  }
+
+  public toJSON() : any {
+    return this.apis.map(function(api, idnex, apis) {
+      return api.toJSON();
+    });
+  }
+}
+
 class SocialAPI extends API {
   totalCount : KnockoutObservable<number>;
   templateName : string;
@@ -146,8 +204,6 @@ class LinkedIn {
   //TODO: Isloaded does not appear to be data binding properly or some such
   public isLoaded : KnockoutObservable<boolean>;
   public iconPath : string;
-
-
 
   constructor(json) {
     json.name = "LinkedIn";
@@ -389,8 +445,6 @@ class Pinterest extends SocialAPI {
 
 
 class Delicious extends SocialAPI {
-
-
   // TODO: Discover how to find a delicious link and put that in the formattedResults
   constructor(json) {
     json.name = "Delicious";
@@ -759,7 +813,8 @@ class SEMRush extends API {
     return {
       name        : self.name,
       isActive    : self.isActive(),
-      authToken   : self.authToken
+      authToken   : self.authToken,
+      type        : "keywords"
     };
   }
 
