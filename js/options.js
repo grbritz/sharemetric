@@ -1,8 +1,15 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='./apis.ts' />
+// TODO: Reactivate GA
+// (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+// new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+// j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+// 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+// })(window,document,'script','dataLayer','GTM-MBCM4N');
 var OptionsViewModel = (function () {
     function OptionsViewModel(appManager) {
+        ga("send", "event", "Extension Usage", "Options Page Loaded");
         this.appManager = appManager;
         this.displaySettings();
     }
@@ -33,9 +40,9 @@ var OptionsViewModel = (function () {
         appSettings.apis.push(self.ahrefs.toJSON());
         appSettings.apis.push(self.semrush.toJSON());
         self.appManager.updateSettings(appSettings);
-        // self.displaySettings();
-        // TODO: remove clunky check here
-        window.location.reload();
+        self.displaySettings();
+        // TODO: remove clunky reload check below
+        // window.location.reload(); 
     };
     return OptionsViewModel;
 })();

@@ -2,6 +2,13 @@
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='./apis.ts' />
 
+// TODO: Reactivate GA
+// (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+// new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+// j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+// 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+// })(window,document,'script','dataLayer','GTM-MBCM4N');
+
 class OptionsViewModel {
   appManager : any;
 
@@ -10,12 +17,11 @@ class OptionsViewModel {
   ahrefs : any;
   semrush : any;
 
-
   autoloadSocial : KnockoutObservable<boolean>;
   showResearch : KnockoutObservable<boolean>;
 
-
   constructor(appManager) {
+    ga("send", "event", "Extension Usage", "Options Page Loaded");
     this.appManager = appManager;
     this.displaySettings();
   }
@@ -34,23 +40,19 @@ class OptionsViewModel {
   }
 
   public saveOptions() {
-    var self = this;
-    console.debug("saveOptions()");
-    console.log(self);
-    
-    var appSettings = self.appManager.getSettings();
-    appSettings.meta.autoloadSocial = self.autoloadSocial();
-    appSettings.meta.showResearch = self.showResearch();
+    ga("send", "event", "Options Interaction", "Options Updated");
 
-    appSettings.apis = self.socialAPIContainer.toJSON();
-    appSettings.apis.push(self.moz.toJSON());
-    appSettings.apis.push(self.ahrefs.toJSON());
-    appSettings.apis.push(self.semrush.toJSON());
+    var appSettings = this.appManager.getSettings();
+    appSettings.meta.autoloadSocial = this.autoloadSocial();
+    appSettings.meta.showResearch = this.showResearch();
+
+    appSettings.apis = this.socialAPIContainer.toJSON();
+    appSettings.apis.push(this.moz.toJSON());
+    appSettings.apis.push(this.ahrefs.toJSON());
+    appSettings.apis.push(this.semrush.toJSON());
     
-    self.appManager.updateSettings(appSettings);
-    // self.displaySettings();
-    // TODO: remove clunky reload check below
-    window.location.reload(); 
+    this.appManager.updateSettings(appSettings);
+    this.displaySettings();
   }
 }
 

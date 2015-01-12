@@ -23,8 +23,10 @@ class PopupViewModel {
   socialAPIContainer : any;
   
   constructor(appManager) {
+    ga("send", "event", "Extension Usage", "Popup Loaded");
     var self = this;
     this.appManager = appManager;
+
     // Load in appManager settings
     this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
     this.socialAPIContainer.queryAll();

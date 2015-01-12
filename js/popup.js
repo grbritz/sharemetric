@@ -9,6 +9,7 @@
 // })(window,document,'script','dataLayer','GTM-MBCM4N');
 var PopupViewModel = (function () {
     function PopupViewModel(appManager) {
+        ga("send", "event", "Extension Usage", "Popup Loaded");
         var self = this;
         this.appManager = appManager;
         // Load in appManager settings
