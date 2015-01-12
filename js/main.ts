@@ -68,6 +68,28 @@ class AppManager {
     });
   }
 
+  public moz() {
+    var json = this.apis().filter(function(api, index, apis) { return api.name === "Moz";})[0];
+    json.appManager = this;
+    return json;
+  }
+
+  public ahrefs() {
+    var json = this.apis().filter(function(api, index, apis) { return api.name === "Ahrefs";})[0];
+    json.appManager = this;
+    return json;
+  }
+
+  public semrush() {
+    var json = this.apis().filter(function(api, index, apis) { return api.name === "SEMRush";})[0];
+    json.appManager = this;
+    return json;
+  }
+
+  private apis() {
+    return this.getSettings().apis;
+  }
+
   private buildSocialAPIContainer() {
     this.setBadgeCount(0);
     if (this.autoloadSocial()) {
@@ -213,7 +235,7 @@ class AppManager {
         { name : "StumbleUpon", isActive : true, type: "social" },
         { name : "Pinterest",   isActive : true, type: "social" },
         { name : "Delicious",   isActive : false, type: "social" },
-        { name : "Moz", isActive : false, mozID : "", mozSecret : "", type : "link" },
+        { name : "Moz", isActive : true, mozID : "", mozSecret : "", type : "link" },
         { name : "Ahrefs", isActive : false, authToken : "", type : "link" },
         { name : "SEMRush", isActive : false, authToken : "", type : "keywords" }
       ],

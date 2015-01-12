@@ -34,9 +34,9 @@ class OptionsViewModel {
     
     this.socialAPIContainer = new SocialAPIContainer(this.appManager.socialAPIs(), this.appManager);
 
-    this.moz = new MozAPI(appSettings.apis.filter(function(api, index, apis) { return api.name === "Moz"; })[0]);
-    this.ahrefs = new AhrefsAPI(appSettings.apis.filter(function(api, index, apis) { return api.name === "Ahrefs"; })[0]);
-    this.semrush = new SEMRush(appSettings.apis.filter(function(api, index, apis) { return api.name === "SEMRush"; })[0]); 
+    this.moz = new MozAPI(this.appManager.moz());
+    this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
+    this.semrush = new SEMRush(this.appManager.semrush()); 
   }
 
   public saveOptions() {

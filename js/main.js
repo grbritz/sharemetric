@@ -342,6 +342,7 @@ var MozAPI = (function (_super) {
     __extends(MozAPI, _super);
     function MozAPI(json) {
         json.name = "Moz";
+        json.iconPath = "/images/icons/moz.png";
         _super.call(this, json);
         this.mozID = ko.observable(json.mozID);
         this.mozSecret = ko.observable(json.mozSecret);
@@ -349,7 +350,30 @@ var MozAPI = (function (_super) {
         this.plrd = ko.observable(-1);
         this.da = ko.observable(-1);
         this.dlrd = ko.observable(-1);
+        this.osePageMetrics = "http://www.opensiteexplorer.org/links?site=" + encodeURIComponent(this.appManager.getURL());
+        this.oseDomainMetrics = "http://www.opensiteexplorer.org/links?page=1&site=" + encodeURIComponent(this.appManager.getURL()) + "&sort=page_authority&filter=&source=&target=domain&group=0";
     }
+    MozAPI.prototype.viewMoreLinks = function () {
+        var encodedURL = this.appManager.getURL();
+        return [
+            {
+                href: "http://www.opensiteexplorer.org/pages?site=" + encodedURL,
+                anchor: "Top Pages"
+            },
+            {
+                href: "http://www.opensiteexplorer.org/just-discovered?site=" + encodedURL,
+                anchor: "Just-Discovered"
+            },
+            {
+                href: "http://www.opensiteexplorer.org/anchors?site=" + encodedURL,
+                anchor: "Anchor Text"
+            },
+            {
+                href: "https://freshwebexplorer.moz.com/results?q=%5B%22url%3A" + encodedURL + "%22%2C%22rd%3A" + this.appManager.getDomainOf(this.appManager.getURL()) + "%22%5D&time=last-four-weeks&sort=published&order=desc",
+                anchor: "Fresh Web Explorer"
+            }
+        ];
+    };
     MozAPI.prototype.toJSON = function () {
         var self = this;
         return {
@@ -409,6 +433,7 @@ var AhrefsAPI = (function (_super) {
     __extends(AhrefsAPI, _super);
     function AhrefsAPI(json) {
         json.name = "Ahrefs";
+        json.iconPath = "/images/icons/ahrefs.png";
         _super.call(this, json);
         this.urlRank = ko.observable(-1);
         this.prd = ko.observable(-1);
@@ -579,6 +604,7 @@ var SEMRush = (function (_super) {
     __extends(SEMRush, _super);
     function SEMRush(json) {
         json.name = "SEMRush";
+        json.iconPath = "/images/icons/semrush.png";
         _super.call(this, json);
         this.resultRows = ko.observableArray([]);
         this.authToken = ko.observable(json.authToken);
@@ -679,6 +705,30 @@ var AppManager = (function () {
         return this.socialAPIs().filter(function (api, index, arr) {
             return api.isActive === true || api.isActive === "true";
         });
+    };
+    AppManager.prototype.moz = function () {
+        var json = this.apis().filter(function (api, index, apis) {
+            return api.name === "Moz";
+        })[0];
+        json.appManager = this;
+        return json;
+    };
+    AppManager.prototype.ahrefs = function () {
+        var json = this.apis().filter(function (api, index, apis) {
+            return api.name === "Ahrefs";
+        })[0];
+        json.appManager = this;
+        return json;
+    };
+    AppManager.prototype.semrush = function () {
+        var json = this.apis().filter(function (api, index, apis) {
+            return api.name === "SEMRush";
+        })[0];
+        json.appManager = this;
+        return json;
+    };
+    AppManager.prototype.apis = function () {
+        return this.getSettings().apis;
     };
     AppManager.prototype.buildSocialAPIContainer = function () {
         this.setBadgeCount(0);
@@ -803,7 +853,7 @@ var AppManager = (function () {
                 { name: "StumbleUpon", isActive: true, type: "social" },
                 { name: "Pinterest", isActive: true, type: "social" },
                 { name: "Delicious", isActive: false, type: "social" },
-                { name: "Moz", isActive: false, mozID: "", mozSecret: "", type: "link" },
+                { name: "Moz", isActive: true, mozID: "", mozSecret: "", type: "link" },
                 { name: "Ahrefs", isActive: false, authToken: "", type: "link" },
                 { name: "SEMRush", isActive: false, authToken: "", type: "keywords" }
             ],

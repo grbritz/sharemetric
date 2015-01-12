@@ -15,9 +15,12 @@ var PopupViewModel = (function () {
         // Load in appManager settings
         this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
         this.socialAPIContainer.queryAll();
+        this.moz = new MozAPI(this.appManager.moz());
+        this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
+        this.semrush = new SEMRush(this.appManager.semrush());
         this.URL = ko.observable(appManager.URL);
-        this.hasLinks = false;
-        this.showResearch = false;
+        this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
+        this.showResearch = this.appManager.getSettings().meta.showResearch;
     }
     PopupViewModel.prototype.refreshPopup = function () {
         var self = this;

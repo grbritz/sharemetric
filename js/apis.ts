@@ -430,9 +430,13 @@ class MozAPI extends AuthenticatedAPI {
   public da : KnockoutObservable<number>;
   public dlrd : KnockoutObservable<number>;
 
+  public osePageMetrics : string;
+  public oseDomainMetrics : string;
+
 
   constructor(json) {
     json.name = "Moz";
+    json.iconPath = "/images/icons/moz.png";
     super(json);
     this.mozID = ko.observable(json.mozID);
     this.mozSecret = ko.observable(json.mozSecret);
@@ -440,6 +444,31 @@ class MozAPI extends AuthenticatedAPI {
     this.plrd = ko.observable(-1);
     this.da = ko.observable(-1);
     this.dlrd = ko.observable(-1);
+
+    this.osePageMetrics = "http://www.opensiteexplorer.org/links?site=" + encodeURIComponent(this.appManager.getURL());
+
+    this.oseDomainMetrics = "http://www.opensiteexplorer.org/links?page=1&site=" + encodeURIComponent(this.appManager.getURL()) + "&sort=page_authority&filter=&source=&target=domain&group=0";
+  }
+
+  public viewMoreLinks() {
+    var encodedURL = this.appManager.getURL();
+    return [
+      { 
+        href    : "http://www.opensiteexplorer.org/pages?site=" + encodedURL,
+        anchor  : "Top Pages"},
+      {
+        href    : "http://www.opensiteexplorer.org/just-discovered?site=" + encodedURL,
+        anchor  : "Just-Discovered"
+      },
+      {
+        href    : "http://www.opensiteexplorer.org/anchors?site=" + encodedURL,
+        anchor  : "Anchor Text"
+      },
+      {
+        href    : "https://freshwebexplorer.moz.com/results?q=%5B%22url%3A" + encodedURL + "%22%2C%22rd%3A" + this.appManager.getDomainOf(this.appManager.getURL()) + "%22%5D&time=last-four-weeks&sort=published&order=desc",
+        anchor  : "Fresh Web Explorer"
+      }
+    ];
   }
 
   public toJSON() {
@@ -519,6 +548,7 @@ class AhrefsAPI extends AuthenticatedAPI {
 
   constructor(json) {
     json.name = "Ahrefs";
+    json.iconPath = "/images/icons/ahrefs.png";
     super(json);
     this.urlRank = ko.observable(-1);
     this.prd = ko.observable(-1);
@@ -738,6 +768,7 @@ class SEMRush extends API {
 
   constructor(json) {
     json.name = "SEMRush";
+    json.iconPath = "/images/icons/semrush.png";
     super(json);
 
     this.resultRows = ko.observableArray([]);

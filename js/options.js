@@ -18,31 +18,21 @@ var OptionsViewModel = (function () {
         this.autoloadSocial = ko.observable(appSettings.meta.autoloadSocial);
         this.showResearch = ko.observable(appSettings.meta.showResearch);
         this.socialAPIContainer = new SocialAPIContainer(this.appManager.socialAPIs(), this.appManager);
-        this.moz = new MozAPI(appSettings.apis.filter(function (api, index, apis) {
-            return api.name === "Moz";
-        })[0]);
-        this.ahrefs = new AhrefsAPI(appSettings.apis.filter(function (api, index, apis) {
-            return api.name === "Ahrefs";
-        })[0]);
-        this.semrush = new SEMRush(appSettings.apis.filter(function (api, index, apis) {
-            return api.name === "SEMRush";
-        })[0]);
+        this.moz = new MozAPI(this.appManager.moz());
+        this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
+        this.semrush = new SEMRush(this.appManager.semrush());
     };
     OptionsViewModel.prototype.saveOptions = function () {
-        var self = this;
-        console.debug("saveOptions()");
-        console.log(self);
-        var appSettings = self.appManager.getSettings();
-        appSettings.meta.autoloadSocial = self.autoloadSocial();
-        appSettings.meta.showResearch = self.showResearch();
-        appSettings.apis = self.socialAPIContainer.toJSON();
-        appSettings.apis.push(self.moz.toJSON());
-        appSettings.apis.push(self.ahrefs.toJSON());
-        appSettings.apis.push(self.semrush.toJSON());
-        self.appManager.updateSettings(appSettings);
-        self.displaySettings();
-        // TODO: remove clunky reload check below
-        // window.location.reload(); 
+        ga("send", "event", "Options Interaction", "Options Updated");
+        var appSettings = this.appManager.getSettings();
+        appSettings.meta.autoloadSocial = this.autoloadSocial();
+        appSettings.meta.showResearch = this.showResearch();
+        appSettings.apis = this.socialAPIContainer.toJSON();
+        appSettings.apis.push(this.moz.toJSON());
+        appSettings.apis.push(this.ahrefs.toJSON());
+        appSettings.apis.push(this.semrush.toJSON());
+        this.appManager.updateSettings(appSettings);
+        this.displaySettings();
     };
     return OptionsViewModel;
 })();

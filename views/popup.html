@@ -21,28 +21,67 @@
         <image id="refresh-page" src="/images/reload_refresh.png" alt="refresh popup results" 
         data-bind="click: refreshPopup" />
       </div>
-      <div id="content">
-        <hr />
-        <div class="row social">
-          <h2>Social:</h2>
-          <!-- ko with: socialAPIContainer -->
-          <div class="col-xs-6">
-            <!-- ko template: { name: 'social-column', foreach: firstHalf } -->
-            <!-- /ko -->
-          </div>
-          <div class="col-xs-6">
-            <!-- ko template: { name: 'social-column', foreach: secondHalf } -->
-            <!-- /ko -->
-          </div>
+      <hr />
+      <div class="row social">
+        <h2>Social:</h2>
+        <!-- ko with: socialAPIContainer -->
+        <div class="col-xs-6">
+          <!-- ko template: { name: 'social-column', foreach: firstHalf } -->
           <!-- /ko -->
         </div>
-        <!-- ko if: hasLinks -->
-        <hr />
-        <div class="row links">
-          
+        <div class="col-xs-6">
+          <!-- ko template: { name: 'social-column', foreach: secondHalf } -->
+          <!-- /ko -->
         </div>
         <!-- /ko -->
       </div>
+      <!-- ko if: hasLinks -->
+      <hr />
+      <div class="row links">
+        <h2>Links:</h2>
+        <!-- ko if: moz.isActive() -->
+        <div id="moz" class="col-xs-12" data-bind="with: moz">
+          <div class="row">
+            <div class="col-xs-2"> <!-- logo -->
+              <img data-bind="attr: { src: iconPath }" />
+            </div>
+            <div class="api-data col-xs-6"> <!-- api data -->
+              <div class="row">
+                <div class="col-xs-4">
+                  PA: <strong data-bind="text: pa "></strong>
+                </div>
+                <div class="col-xs-4 col-xs-offset-2">
+                  PLRDs: <strong data-bind="text: plrd "></strong>
+                </div>
+              </div>
+              <div class="row">
+                <a data-bind="attr: { href: osePageMetrics }" target="_blank">View OSE Page Metrics</a>
+              </div>
+              <div class="row">
+                <div class="col-xs-4">
+                  DA: <strong data-bind="text: da "></strong>
+                </div>
+                <div class="col-xs-4 col-xs-offset-2">
+                  DLRDs: <strong data-bind="text: dlrd "></strong>
+                </div>
+              </div>
+              <div class="row">
+                <a data-bind="attr: { href: oseDomainMetrics }" target="_blank">View OSE Domain Metrics</a>
+              </div>
+            </div> <!-- /.api data -->
+            <div class="col-xs-3 col-xs-offset-1"> <!-- right col links -->
+              <ul class="list-unstyled">
+                <li><strong>View More:</strong></li>
+                <li data-bind="foreach: viewMoreLinks">
+                  <a data-bind="attr: { href: href }, text: anchor" target="_blank"></a> 
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div> <!-- #/moz -->
+        <!-- /ko -->
+      </div>
+      <!-- /ko -->
       <hr />
       <div class="row" id="footer">
         <ul class="horizontal">

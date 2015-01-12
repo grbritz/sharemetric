@@ -11,16 +11,15 @@
 
 class PopupViewModel {
   private appManager : any; // Main data model
-
-  // mozAPI : any;
-  // ahrefsAPI : any;
-  // semrush : any;
-
   showResearch : boolean;
   hasLinks : boolean;
   
   URL : KnockoutObservable<string>;
   socialAPIContainer : any;
+
+  moz : any;
+  ahrefs : any;
+  semrush : any;
   
   constructor(appManager) {
     ga("send", "event", "Extension Usage", "Popup Loaded");
@@ -31,9 +30,13 @@ class PopupViewModel {
     this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
     this.socialAPIContainer.queryAll();
 
+    this.moz = new MozAPI(this.appManager.moz());
+    this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
+    this.semrush = new SEMRush(this.appManager.semrush()); 
+
     this.URL = ko.observable(appManager.URL);
-    this.hasLinks = false;    
-    this.showResearch = false;
+    this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
+    this.showResearch = this.appManager.getSettings().meta.showResearch;
   }
 
   public refreshPopup() {
