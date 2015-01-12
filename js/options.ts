@@ -1,32 +1,62 @@
-/// <reference path='./jquery.d.ts' />
-/// <reference path='./knockout.d.ts' />
-declare var chrome : any;
+/// <reference path='../lib/ts/jquery.d.ts' />
+/// <reference path='../lib/ts/knockout.d.ts' />
+/// <reference path='./apis.ts' />
 
-// class OptionsViewModel {
-//   appManager : any;
+class OptionsViewModel {
+  appManager : any;
 
-//   leftColSocialAPIs : any;
-//   rightColSocialAPIs : any;
+  socialAPIContainer : any;
+  moz : any;
+  ahrefs : any;
+  semrush : any;
 
-//   constructor(appManager) {
-//     this.appManager = appManager;
-//     this.leftColSocialAPIs = ko.computed(function() {
-//       return this.appManager.socialAPIs().slice(0, this.numSocialAPIs() / 2);
-//     }, this);
 
-//     this.rightColSocialAPIs = ko.computed(function() {
-//       return this.appManager.socialAPIs().slice(this.numSocialAPIs() / 2, this.numSocialAPIs());
-//     }, this);
-//   }
+  autoloadSocial : KnockoutObservable<boolean>;
+  showResearch : KnockoutObservable<boolean>;
 
-//   public numSocialAPIs() : number {
-//     return this.appManager.socialAPIs().length;
-//   }
-// }
+
+  constructor(appManager) {
+    this.appManager = appManager;
+    this.displaySettings();
+  }
+
+  private displaySettings() {
+    var appSettings = this.appManager.getSettings();
+    
+    this.autoloadSocial = ko.observable(appSettings.meta.autoloadSocial);
+    this.showResearch = ko.observable(appSettings.meta.showResearch);
+    
+    this.socialAPIContainer = new SocialAPIContainer(this.appManager.socialAPIs(), this.appManager);
+
+    this.moz = new MozAPI(appSettings.apis.filter(function(api, index, apis) { return api.name === "Moz"; })[0]);
+    this.ahrefs = new AhrefsAPI(appSettings.apis.filter(function(api, index, apis) { return api.name === "Ahrefs"; })[0]);
+    this.semrush = new SEMRush(appSettings.apis.filter(function(api, index, apis) { return api.name === "SEMRush"; })[0]); 
+  }
+
+  public saveOptions() {
+    var self = this;
+    console.debug("saveOptions()");
+    console.log(self);
+    
+    var appSettings = self.appManager.getSettings();
+    appSettings.meta.autoloadSocial = self.autoloadSocial();
+    appSettings.meta.showResearch = self.showResearch();
+
+    appSettings.apis = self.socialAPIContainer.toJSON();
+    appSettings.apis.push(self.moz.toJSON());
+    appSettings.apis.push(self.ahrefs.toJSON());
+    appSettings.apis.push(self.semrush.toJSON());
+    
+    self.appManager.updateSettings(appSettings);
+    // self.displaySettings();
+    // TODO: remove clunky reload check below
+    window.location.reload(); 
+  }
+}
 
 $(document).ready(function(){
   var appManager = chrome.extension.getBackgroundPage().appManager;
-  // var vm = new OptionsViewModel(appManager);
-
-  ko.applyBindings(appManager);
+  var vm = new OptionsViewModel(appManager);
+  console.log(vm);
+  ko.applyBindings(vm);
 });

@@ -161,31 +161,13 @@ var GooglePlus = (function (_super) {
     };
     return GooglePlus;
 })(SocialAPI);
-var LinkedIn = (function () {
+var LinkedIn = (function (_super) {
+    __extends(LinkedIn, _super);
     function LinkedIn(json) {
         json.name = "LinkedIn";
         json.iconPath = "/images/icons/linkedin-16x16.png";
-        this.totalCount = ko.observable(0);
-        this.templateName = "social-template";
-        this.name = ko.observable(json.name);
-        this.isActive = ko.observable(json.isActive);
-        this.iconPath = json.iconPath;
-        this.isLoaded = ko.observable(false);
-        this.appManager = json.appManager;
+        _super.call(this, json);
     }
-    LinkedIn.prototype.querySuccess = function () {
-        this.isLoaded(true);
-        this.appManager.increaseBadgeCount(this.totalCount());
-        ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
-    };
-    LinkedIn.prototype.toJSON = function () {
-        var self = this;
-        return {
-            name: self.name,
-            isActive: self.isActive(),
-            type: "social"
-        };
-    };
     LinkedIn.prototype.queryData = function () {
         this.isLoaded(false);
         this.totalCount(0);
@@ -198,34 +180,8 @@ var LinkedIn = (function () {
         }
         this.querySuccess();
     };
-    LinkedIn.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
-        ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
-    };
     return LinkedIn;
-})();
-// class LinkedIn extends SocialAPI {
-//   constructor(json) {
-//     json.name = "LinkedIn";
-//     json.iconPath = "/images/icons/linkedin-16x16.png";
-//     super(json);
-//   }
-//   public queryData() {
-//     this.isLoaded(false);
-//     this.totalCount(0);
-//     $.get("http://www.linkedin.com/countserv/count/share",
-//           {"url" : this.appManager.getURL(), "format" : "json"},
-//           this.queryCallback.bind(this),
-//           "json")
-//      .fail(this.queryFail.bind(this));
-//   }
-//   private queryCallback(results : any) {
-//     if(results != undefined) {
-//       results.count = parseInt(results.count);
-//       this.totalCount(isNaN(results.count) ? 0 : results.count);
-//     }
-//     this.querySuccess();
-//   }
-// }
+})(SocialAPI);
 var Twitter = (function (_super) {
     __extends(Twitter, _super);
     function Twitter(json) {

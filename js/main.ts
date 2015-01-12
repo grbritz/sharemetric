@@ -176,7 +176,7 @@ class AppManager {
   public updateSettings(settings) : any {
     // To act in accordance with how getSettings is implemented,
     // updateSettings must immediately update the settings in localstorage
-    localStorage["ShareMetric"] = JSON.stringify(settings);
+    window.localStorage["ShareMetric"] = JSON.stringify(settings);
     this.buildSocialAPIContainer();
   }
 
@@ -184,18 +184,17 @@ class AppManager {
     // To simplify things, we will always read our settings functionally
     // If there are settings in local storage, we will use those, if there arent, we
     // will use the default settings
-    var self = this;
     
-    if(localStorage.getItem("ShareMetric")) {
-      var settings = JSON.parse(localStorage.getItem("ShareMetric"));
+    if(window.localStorage.getItem("ShareMetric")) {
+      var settings = JSON.parse(window.localStorage.getItem("ShareMetric"));
       if(settings["APP_VERSION"] != APP_VERSION) {
-        settings = self.applyVersionUpdate(settings);
+        settings = this.applyVersionUpdate(settings);
       }
       
       return settings;
     }
     else {
-      return self.defaultSettings();
+      return this.defaultSettings();
     }
   }
 

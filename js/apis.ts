@@ -193,43 +193,11 @@ class GooglePlus extends SocialAPI {
   }
 }
 
-class LinkedIn {
-  totalCount : KnockoutObservable<number>;
-  templateName : string;
-  appManager : any;
-
-  name : KnockoutObservable<string>;
-  public isActive : KnockoutObservable<boolean>;
-  
-  //TODO: Isloaded does not appear to be data binding properly or some such
-  public isLoaded : KnockoutObservable<boolean>;
-  public iconPath : string;
-
+class LinkedIn extends SocialAPI {
   constructor(json) {
     json.name = "LinkedIn";
     json.iconPath = "/images/icons/linkedin-16x16.png";
-    this.totalCount = ko.observable(0);
-    this.templateName = "social-template";
-    this.name = ko.observable(json.name);
-    this.isActive = ko.observable(json.isActive);
-    this.iconPath = json.iconPath;
-    this.isLoaded = ko.observable(false);
-    this.appManager = json.appManager;
-  }
-
-  public querySuccess() {
-    this.isLoaded(true);
-    this.appManager.increaseBadgeCount(this.totalCount());
-    ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
-  }
-
-  public toJSON() {
-    var self = this;
-    return { 
-      name : self.name,
-      isActive : self.isActive(),
-      type : "social"
-    };
+    super(json);
   }
 
   public queryData() {
@@ -249,39 +217,7 @@ class LinkedIn {
     }
     this.querySuccess();
   }
-
-
-  public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
-    ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
-  }
-
 }
-
-// class LinkedIn extends SocialAPI {
-//   constructor(json) {
-//     json.name = "LinkedIn";
-//     json.iconPath = "/images/icons/linkedin-16x16.png";
-//     super(json);
-//   }
-
-//   public queryData() {
-//     this.isLoaded(false);
-//     this.totalCount(0);
-//     $.get("http://www.linkedin.com/countserv/count/share",
-//           {"url" : this.appManager.getURL(), "format" : "json"},
-//           this.queryCallback.bind(this),
-//           "json")
-//      .fail(this.queryFail.bind(this));
-//   }
-
-//   private queryCallback(results : any) {
-//     if(results != undefined) {
-//       results.count = parseInt(results.count);
-//       this.totalCount(isNaN(results.count) ? 0 : results.count);
-//     }
-//     this.querySuccess();
-//   }
-// }
 
 class Twitter extends SocialAPI {
   detailsAnchor : string;

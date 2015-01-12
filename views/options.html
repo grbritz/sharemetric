@@ -8,6 +8,7 @@
 	<script src="/lib/js/jquery-2.1.0.min.js"></script>
 	<script src="/lib/js/bootstrap.min.js"></script>
   <script src="/lib/js/knockout-3.2.0.js"></script>
+	<script src="/js/apis.js"></script>
 	<script src="/js/options.js"></script>
 </head>
 <body>
@@ -25,9 +26,9 @@
 			</ul>
 		</div>
 		<hr />
-		<div class="row">
+		<div class="row outer-row-wrap">
 			<h2>Social Metrics:</h2>
-			<div class="col-sm-8">
+			<div class="col-sm-8 inner-col-wrap">
 				<p>
 					<label>
 						<input type="radio" name="autoloadSocial" data-bind="checked: autoloadSocial" value="false" />
@@ -40,89 +41,28 @@
 						Check share counts on page load
 					</label>
 				</p>
-        <div id="social-apis" class="row">
-          <div class="col-sm-8">
-            <div class="row">
-              <div class="col-sm-6">
-                <!-- ko foreach: optionsLeftColSocialAPIs() -->
-                <label>
-                  <input type="checkbox" data-bind="checked: isActive()" /> <span data-bind="text: name"></span>
-                </label>
-                <!-- /ko -->
-              </div>
-              <div class="col-sm-6">
-                <!-- ko foreach: optionsRightColSocialAPIs() -->
-                <label>
-                  <input type="checkbox" data-bind="checked: isActive()" /> <span data-bind="text: name"></span>
-                </label>
-                <!-- /ko -->
-              </div>
+        <div id="social-apis" class="row" data-bind="with: socialAPIContainer">
+          <script type="text/html" id="social-active-toggle">
+          	<div>
+	          	<label>
+	              <input type="checkbox" data-bind="checked: isActive" /> 
+	              <span data-bind="text: name"></span>
+	            </label>
             </div>
+          </script>
+          <div class="col-sm-6">
+            <!-- ko template: { name: 'social-active-toggle', foreach: firstHalf } -->
+            <!-- /ko -->
           </div>
-        </div>        
-
-
-				<div id="social-apis" class="row">
-					<div class="col-sm-6 col-md-6">
-						<div class="row">
-							<div class="col-sm-4 col-md-4">
-								<label>
-									<input type="checkbox" name="social.apis.facebook"> Facebook
-								</label>
-							</div>
-							<div class="col-sm-4 col-md-4">
-								<label>
-									<input type="checkbox" name="social.apis.twitter"> Twitter
-								</label>
-							</div>
-							<div class="col-sm-4 col-md-4">
-								<label>
-									<input type="checkbox" name="social.apis.pinterest"> Pinterest
-								</label>
-								<span class="text-danger">**</span>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-sm-4 col-md-4">
-								<label>
-										<input type="checkbox" name="social.apis.linkedIn"> LinkedIn
-								</label>
-							</div>
-							<div class="col-sm-4 col-md-4">
-								<label>
-										<input type="checkbox" name="social.apis.reddit"> Reddit
-								</label>
-							</div>
-							<div class="col-sm-4 col-md-4">
-								<label>
-										<input type="checkbox" name="social.apis.stumbleUpon"> StumbleUpon
-								</label>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-sm-4 col-md-4">
-								<label>
-									<input type="checkbox" name="social.apis.google"> Google
-								</label>
-								<span class="text-danger">**</span>
-							</div>
-							<div class="col-sm-4 col-md-4">
-								<label>
-									<input type="checkbox" name="social.apis.delicious"> Delicious
-								</label>
-								<span class="text-danger">**</span>
-							</div>
-						</div>
-						<p>
-						<br />
-						<strong>Note:</strong> API's succeeded by <span class="text-danger">**</span> are unofficial and may have unusual behavior. If you encounter unusual behavior, please contact us at <a href="mailto:tools@contentharmony.com">tools@contentharmony.com</a>.
-						</p>
-					</div>
-				</div>
-				<button class="save-options">Update</button>
-			</div>
-		</div>
-		<div class="divider"></div>
+          <div class="col-sm-6">
+            <!-- ko template: { name: 'social-active-toggle', foreach: secondHalf } -->
+            <!-- /ko -->
+          </div>
+        </div> <!-- #/social-apis -->
+      </div> <!-- /#inner-col-wrap -->
+    </div> <!-- /#outer-row-wrap -->
+		<button class="save-options" data-bind="click: saveOptions">Update</button>
+		<hr />
 		<div class="row">
 			<h2>Link Metrics:</h2>
 			<div class="col-sm-6 col-md-6">
