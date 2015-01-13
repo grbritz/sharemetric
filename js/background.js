@@ -17,6 +17,10 @@ function abbreviateNumber(count) {
     abbrCount = Math.ceil(abbrCount); // Round up to integer
     return abbrCount + symbol;
 }
+function getDomainOf(url) {
+    var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
+    return matches && matches[1];
+}
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -113,7 +117,7 @@ var SocialAPIContainer = (function () {
         });
     };
     SocialAPIContainer.prototype.toJSON = function () {
-        return this.apis.map(function (api, idnex, apis) {
+        return this.apis.map(function (api, index, apis) {
             return api.toJSON();
         });
     };
@@ -393,7 +397,7 @@ var MozAPI = (function (_super) {
                 anchor: "Anchor Text"
             },
             {
-                href: "https://freshwebexplorer.moz.com/results?q=%5B%22url%3A" + encodedURL + "%22%2C%22rd%3A" + this.appManager.getDomainOf(this.appManager.getURL()) + "%22%5D&time=last-four-weeks&sort=published&order=desc",
+                href: "https://freshwebexplorer.moz.com/results?q=%5B%22url%3A" + encodedURL + "%22%2C%22rd%3A" + getDomainOf(this.appManager.getURL()) + "%22%5D&time=last-four-weeks&sort=published&order=desc",
                 anchor: "Fresh Web Explorer"
             }
         ];
@@ -788,18 +792,6 @@ var AppManager = (function () {
     AppManager.prototype.numActiveSocialAPIs = function () {
         return this.activeSocialAPIs().length;
     };
-    // public reloadAPIs()  {
-    //   var self = this;
-    //   // console.debug("reloadAPIs()");
-    //   chrome.tabs.query({"active" : true, "currentWindow" : true}, function(tabs) {
-    //     // console.debug("reloadAPIs() - tab query callback");
-    //     self.URL = tabs[0].url;
-    //     self.setBadgeCount(0);
-    //     self.querySocialAPIs();
-    //     self.queryNonSocialAPIs();
-    //     ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.getRedactedURL());
-    //   });
-    // }
     /************************************************************************
      * URL Methods
      ************************************************************************/
@@ -831,10 +823,6 @@ var AppManager = (function () {
             return this.URL;
         }
     };
-    AppManager.prototype.getDomainOf = function (url) {
-        var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
-        return matches && matches[1];
-    };
     /************************************************************************
      * Badge Count Methods
      ************************************************************************/
@@ -863,6 +851,37 @@ var AppManager = (function () {
         }
         abbrCount = Math.ceil(abbrCount); // Round up to integer
         return abbrCount + symbol;
+    };
+    /************************************************************************
+     * Notifications Methods
+     ************************************************************************/
+    // The notifications are passed as the first argument to callbackFn
+    AppManager.prototype.getNotifications = function (callbackFn) {
+        var self = this;
+        $.get("http://sharemetric.com/push-notifications/sharemetric-push-notifications.json", {}, function (remoteNotifications) {
+            remoteNotifications = JSON.parse(remoteNotifications);
+            var now = new Date();
+            var localNotifications = remoteNotifications.filter(function (notif, index, arr) {
+                if (notif["date-expires"]) {
+                    // Normal notifs are only shown if they are in the future or on the curr day
+                    var dateExpires = new Date(notif["date-expires"]);
+                    return dateExpires.getTime() <= (now.getTime() + 86400000);
+                }
+                // 'Sticky' posts do not have an expiration date
+                return true;
+            });
+            // Remove all notifications a user has dismissed in the past
+            // Then sort by reverse chronological order
+            localNotifications = localNotifications.filter(function (notif, ind) {
+                return self.dismissedNotifications().indexOf(notif.id) == -1;
+            }).sort(function (o1, o2) {
+                return new Date(o1["date-posted"]).getTime() - new Date(o2["date-posted"]).getTime();
+            });
+            callbackFn(localNotifications);
+        });
+    };
+    AppManager.prototype.dismissedNotifications = function () {
+        return this.getSettings().notificationsDismissed;
     };
     /************************************************************************
      * Settings Methods
@@ -907,7 +926,7 @@ var AppManager = (function () {
                 { name: "Ahrefs", isActive: false, authToken: "", type: "link" },
                 { name: "SEMRush", isActive: true, authToken: "", type: "keywords" }
             ],
-            // notifications : []
+            notificationsDismissed: [],
             "APP_VERSION": APP_VERSION
         };
     };

@@ -22,6 +22,8 @@ var PopupViewModel = (function () {
         this.URL = ko.observable(appManager.URL);
         this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
         this.showResearch = this.appManager.getSettings().meta.showResearch;
+        this.notifications = ko.observableArray();
+        this.appManager.getNotifications(self.setNotifications.bind(self));
         self.queryAPIs();
     }
     PopupViewModel.prototype.refreshPopup = function () {
@@ -62,6 +64,21 @@ var PopupViewModel = (function () {
                 anchor: "Google Cache"
             }
         ];
+    };
+    PopupViewModel.prototype.popNotification = function () {
+        console.debug("Popped notification");
+        console.log(this);
+        var notif = this.notifications.shift();
+        var appSettings = this.appManager.getSettings();
+        appSettings.notificationsDismissed.push(notif.id);
+        this.appManager.updateSettings(appSettings);
+    };
+    PopupViewModel.prototype.setNotifications = function (notifications) {
+        var self = this;
+        self.notifications.removeAll();
+        notifications.forEach(function (notif, index, arr) {
+            self.notifications.push(notif);
+        });
     };
     return PopupViewModel;
 })();

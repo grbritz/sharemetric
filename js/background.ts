@@ -110,20 +110,6 @@ class AppManager {
     return this.activeSocialAPIs().length;
   }
 
-
-  // public reloadAPIs()  {
-  //   var self = this;
-  //   // console.debug("reloadAPIs()");
-  //   chrome.tabs.query({"active" : true, "currentWindow" : true}, function(tabs) {
-  //     // console.debug("reloadAPIs() - tab query callback");
-  //     self.URL = tabs[0].url;
-  //     self.setBadgeCount(0);
-  //     self.querySocialAPIs();
-  //     self.queryNonSocialAPIs();
-  //     ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.getRedactedURL());
-  //   });
-  // }
-
   /************************************************************************
    * URL Methods
    ************************************************************************/
@@ -161,11 +147,6 @@ class AppManager {
     }
   }
 
-  public getDomainOf(url : string) : string {
-    var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
-    return matches && matches[1];
-  }
-
   /************************************************************************
    * Badge Count Methods
    ************************************************************************/
@@ -200,6 +181,47 @@ class AppManager {
     abbrCount = Math.ceil(abbrCount); // Round up to integer
     return abbrCount + symbol;
   }
+
+  /************************************************************************
+   * Notifications Methods
+   ************************************************************************/
+
+
+  // The notifications are passed as the first argument to callbackFn
+  public getNotifications(callbackFn) {
+    var self = this;
+    
+    $.get("http://sharemetric.com/push-notifications/sharemetric-push-notifications.json", {}, 
+      function(remoteNotifications) {
+        remoteNotifications = JSON.parse(remoteNotifications);
+        
+        var now = new Date();
+        var localNotifications = remoteNotifications.filter(function(notif, index, arr) {
+          if(notif["date-expires"]) {
+            // Normal notifs are only shown if they are in the future or on the curr day
+            var dateExpires = new Date(notif["date-expires"]);
+            return dateExpires.getTime() <= (now.getTime() + 86400000);
+          }
+          // 'Sticky' posts do not have an expiration date
+          return true;
+        });
+
+        // Remove all notifications a user has dismissed in the past
+        // Then sort by reverse chronological order
+        localNotifications = localNotifications.filter(function(notif, ind){
+          return self.dismissedNotifications().indexOf(notif.id) == -1;
+        }).sort(function(o1, o2){
+          return new Date(o1["date-posted"]).getTime() - new Date(o2["date-posted"]).getTime();
+        });
+
+        callbackFn(localNotifications);
+      });
+  }
+
+  private dismissedNotifications() {
+    return this.getSettings().notificationsDismissed;
+  }
+
 
   /************************************************************************
    * Settings Methods
@@ -249,7 +271,7 @@ class AppManager {
         { name : "Ahrefs", isActive : false, authToken : "", type : "link" },
         { name : "SEMRush", isActive : true, authToken : "", type : "keywords" }
       ],
-      // notifications : []
+      notificationsDismissed : [],
       "APP_VERSION" : APP_VERSION
     };
   }

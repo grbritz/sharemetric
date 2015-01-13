@@ -106,7 +106,7 @@ class SocialAPIContainer {
   }
 
   public toJSON() : any {
-    return this.apis.map(function(api, idnex, apis) {
+    return this.apis.map(function(api, index, apis) {
       return api.toJSON();
     });
   }
@@ -470,7 +470,7 @@ class MozAPI extends AuthenticatedAPI {
         anchor  : "Anchor Text"
       },
       {
-        href    : "https://freshwebexplorer.moz.com/results?q=%5B%22url%3A" + encodedURL + "%22%2C%22rd%3A" + this.appManager.getDomainOf(this.appManager.getURL()) + "%22%5D&time=last-four-weeks&sort=published&order=desc",
+        href    : "https://freshwebexplorer.moz.com/results?q=%5B%22url%3A" + encodedURL + "%22%2C%22rd%3A" + getDomainOf(this.appManager.getURL()) + "%22%5D&time=last-four-weeks&sort=published&order=desc",
         anchor  : "Fresh Web Explorer"
       }
     ];

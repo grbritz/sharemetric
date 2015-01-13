@@ -17,3 +17,7 @@ function abbreviateNumber(count) {
     abbrCount = Math.ceil(abbrCount); // Round up to integer
     return abbrCount + symbol;
 }
+function getDomainOf(url) {
+    var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
+    return matches && matches[1];
+}

@@ -23,6 +23,7 @@ class PopupViewModel {
   semrush : any;
 
   showResearch : boolean;
+  notifications : KnockoutObservableArray<any>;
   
   constructor(appManager) {
     ga("send", "event", "Extension Usage", "Popup Loaded");
@@ -38,6 +39,10 @@ class PopupViewModel {
     this.URL = ko.observable(appManager.URL);
     this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
     this.showResearch = this.appManager.getSettings().meta.showResearch;
+    this.notifications = ko.observableArray();
+    
+    this.appManager.getNotifications(self.setNotifications.bind(self));
+
     self.queryAPIs();
   }
 
@@ -86,7 +91,23 @@ class PopupViewModel {
         anchor: "Google Cache"
       }
     ];
+  }
 
+  public popNotification() {
+    console.debug("Popped notification");
+    console.log(this);
+    var notif = this.notifications.shift();
+    var appSettings = this.appManager.getSettings();
+    appSettings.notificationsDismissed.push(notif.id);
+    this.appManager.updateSettings(appSettings);
+  }
+
+  public setNotifications(notifications) {
+    var self = this;
+    self.notifications.removeAll();
+    notifications.forEach(function(notif, index, arr) {
+      self.notifications.push(notif);
+    });
   }
 }
 
