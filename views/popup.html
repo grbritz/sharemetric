@@ -18,11 +18,13 @@
   <body class="popup">
     <div class="container">
       <div class="row" id="head">
-        <h1><a href="http://www.contentharmony.com">
-        <img src="/images/content-harmony-header.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric</h1>
-        <p><strong>Data for: </strong><span id="url" data-bind="text: URL"></span></p>
-        <image id="refresh-page" src="/images/reload_refresh.png" alt="refresh popup results" 
-        data-bind="click: refreshPopup" />
+        <div class="col-xs-12">
+          <h1><a href="http://www.contentharmony.com">
+          <img src="/images/content-harmony-header.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric</h1>
+          <p><strong>Data for: </strong><span id="url" data-bind="text: URL"></span></p>
+          <image id="refresh-page" src="/images/reload_refresh.png" alt="refresh popup results" 
+          data-bind="click: refreshPopup" />
+        </div>
       </div>
       <hr />
       <div class="row social">
@@ -144,7 +146,10 @@
         <h2>Research</h2>
         <ul class="horizontal">
           <!-- ko foreach: researchLinks() -->
-          <li><a data-bind="attr: { href: href }, text: anchor"></a></li>
+          <li><a data-bind="attr: { href: href }, text: anchor" target="_blank"></a></li>
+            <!-- ko if: $index() != 2  -->
+            <li class="spacer">|</li>
+            <!-- /ko  -->
           <!-- /ko -->
         </ul>
       </div>

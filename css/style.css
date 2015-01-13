@@ -3,9 +3,6 @@ body.popup {
 	color:#555;
 }
 
-#head{
-	margin:10px 0px;
-}
 
 #head h1 a img {
 	padding-right: 10px;
@@ -29,6 +26,10 @@ hr {
 	margin-bottom:5px;
 	height: 2px;
 	background: #e5e5e5;
+}
+
+#url {
+	font-size: 90%;
 }
 
 .social-metric {

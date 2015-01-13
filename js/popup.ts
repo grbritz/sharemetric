@@ -23,7 +23,6 @@ class PopupViewModel {
   semrush : any;
 
   showResearch : boolean;
-  researchLinks : any;
   
   constructor(appManager) {
     ga("send", "event", "Extension Usage", "Popup Loaded");
@@ -39,7 +38,6 @@ class PopupViewModel {
     this.URL = ko.observable(appManager.URL);
     this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
     this.showResearch = this.appManager.getSettings().meta.showResearch;
-    this.buildResearchLinks();
     self.queryAPIs();
   }
 
@@ -71,10 +69,10 @@ class PopupViewModel {
     }
   }
 
-  private buildResearchLinks() {
+  public researchLinks() {
     var self = this;
     var encodedURL = encodeURIComponent(self.appManager.getURL());
-    self.researchLinks = [
+    return [
       { 
         href: "http://www.google.com/webmasters/tools/richsnippets?url=" + encodedURL ,
         anchor: "Schema & Rich Snippets"

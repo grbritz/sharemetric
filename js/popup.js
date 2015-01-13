@@ -45,6 +45,24 @@ var PopupViewModel = (function () {
             self.semrush.queryData();
         }
     };
+    PopupViewModel.prototype.researchLinks = function () {
+        var self = this;
+        var encodedURL = encodeURIComponent(self.appManager.getURL());
+        return [
+            {
+                href: "http://www.google.com/webmasters/tools/richsnippets?url=" + encodedURL,
+                anchor: "Schema & Rich Snippets"
+            },
+            {
+                href: "http://centralops.net/co/DomainDossier.aspx?addr=" + encodedURL + "&dom_whois=true&dom_dns=true&traceroute=true&net_whois=true&svc_scan=true",
+                anchor: "WHOIS"
+            },
+            {
+                href: "http://webcache.googleusercontent.com/search?q=cache:" + encodedURL,
+                anchor: "Google Cache"
+            }
+        ];
+    };
     return PopupViewModel;
 })();
 var vm;
