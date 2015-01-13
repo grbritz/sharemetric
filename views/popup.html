@@ -138,6 +138,17 @@
         </div> <!-- #/semrush -->
       </div> <!-- #/keywords -->
       <!-- /ko -->
+      <!-- ko if: showResearch -->
+      <hr />
+      <div class="row research">
+        <h2>Research</h2>
+        <ul class="horizontal">
+          <!-- ko foreach: researchLinks() -->
+          <li><a data-bind="attr: { href: href }, text: anchor"></a></li>
+          <!-- /ko -->
+        </ul>
+      </div>
+      <!-- /ko -->
       <hr />
       <div class="row" id="footer">
         <ul class="horizontal">

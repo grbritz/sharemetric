@@ -12,7 +12,7 @@
 
 class PopupViewModel {
   private appManager : any; // Main data model
-  showResearch : boolean;
+  
   hasLinks : boolean;
   
   URL : KnockoutObservable<string>;
@@ -21,6 +21,9 @@ class PopupViewModel {
   moz : any;
   ahrefs : any;
   semrush : any;
+
+  showResearch : boolean;
+  researchLinks : any;
   
   constructor(appManager) {
     ga("send", "event", "Extension Usage", "Popup Loaded");
@@ -36,7 +39,7 @@ class PopupViewModel {
     this.URL = ko.observable(appManager.URL);
     this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
     this.showResearch = this.appManager.getSettings().meta.showResearch;
-
+    this.buildResearchLinks();
     self.queryAPIs();
   }
 
@@ -66,6 +69,26 @@ class PopupViewModel {
     if(self.semrush.isActive()) {
       self.semrush.queryData();
     }
+  }
+
+  private buildResearchLinks() {
+    var self = this;
+    var encodedURL = encodeURIComponent(self.appManager.getURL());
+    self.researchLinks = [
+      { 
+        href: "http://www.google.com/webmasters/tools/richsnippets?url=" + encodedURL ,
+        anchor: "Schema & Rich Snippets"
+      },
+      {
+        href: "http://centralops.net/co/DomainDossier.aspx?addr=" + encodedURL + "&dom_whois=true&dom_dns=true&traceroute=true&net_whois=true&svc_scan=true",
+        anchor: "WHOIS"
+      },
+      {
+        href: "http://webcache.googleusercontent.com/search?q=cache:" + encodedURL,
+        anchor: "Google Cache"
+      }
+    ];
+
   }
 }
 
