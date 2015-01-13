@@ -1,7 +1,7 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='./apis.ts' />
-
+/// <reference path='./util.ts' />
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -52,7 +52,8 @@ class OptionsViewModel {
     appSettings.apis.push(this.semrush.toJSON());
     
     this.appManager.updateSettings(appSettings);
-    this.displaySettings();
+    // this.displaySettings();
+    window.location.reload();
   }
 }
 

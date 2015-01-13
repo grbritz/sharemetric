@@ -8,6 +8,9 @@
     <script src="/lib/js/knockout-3.2.0.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="/lib/js/bootstrap.min.js"></script>
+    <script src="/lib/js/hmac-sha1.js"></script>
+    <script src="/lib/js/enc-base64-min.js"></script>
+    <script src="/js/util.js"></script>
     <script src="/js/apis.js"></script>
     <script src="/js/popup.js"></script>
     
@@ -37,7 +40,7 @@
       </div>
       <!-- ko if: hasLinks -->
       <hr />
-      <div class="row links">
+      <div id="links" class="row">
         <h2>Links:</h2>
         <!-- ko if: moz.isActive() -->
         <div id="moz" class="col-xs-12" data-bind="with: moz">
@@ -47,40 +50,93 @@
             </div>
             <div class="api-data col-xs-6"> <!-- api data -->
               <div class="row">
-                <div class="col-xs-4">
-                  PA: <strong data-bind="text: pa "></strong>
+                <div class="col-xs-6">
+                  PA: <strong data-bind="text: pa"></strong>
                 </div>
-                <div class="col-xs-4 col-xs-offset-2">
-                  PLRDs: <strong data-bind="text: plrd "></strong>
-                </div>
-              </div>
-              <div class="row">
-                <a data-bind="attr: { href: osePageMetrics }" target="_blank">View OSE Page Metrics</a>
-              </div>
-              <div class="row">
-                <div class="col-xs-4">
-                  DA: <strong data-bind="text: da "></strong>
-                </div>
-                <div class="col-xs-4 col-xs-offset-2">
-                  DLRDs: <strong data-bind="text: dlrd "></strong>
+                <div class="col-xs-6">
+                  PLRDs: <strong data-bind="text: plrd"></strong>
                 </div>
               </div>
               <div class="row">
-                <a data-bind="attr: { href: oseDomainMetrics }" target="_blank">View OSE Domain Metrics</a>
+               <div class="col-xs-12">
+                  <a data-bind="attr: { href: osePageMetrics }" target="_blank">View OSE Page Metrics</a> 
+               </div>
+              </div>
+              <div class="row">
+                <div class="col-xs-6">
+                  DA: <strong data-bind="text: da"></strong>
+                </div>
+                <div class="col-xs-6">
+                  DLRDs: <strong data-bind="text: dlrd"></strong>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xs-12">
+                  <a data-bind="attr: { href: oseDomainMetrics }" target="_blank">View OSE Domain Metrics</a>
+                </div>
               </div>
             </div> <!-- /.api data -->
-            <div class="col-xs-3 col-xs-offset-1"> <!-- right col links -->
+            <div class="col-xs-4"> <!-- right col links -->
               <ul class="list-unstyled">
                 <li><strong>View More:</strong></li>
-                <li data-bind="foreach: viewMoreLinks">
+                <!-- ko foreach: viewMoreLinks() -->
+                <li>
                   <a data-bind="attr: { href: href }, text: anchor" target="_blank"></a> 
                 </li>
+                <!-- /ko -->
               </ul>
             </div>
           </div>
         </div> <!-- #/moz -->
         <!-- /ko -->
-      </div>
+      </div> <!-- #/links -->
+      <!-- /ko -->
+      <!-- ko if: semrush.isActive -->
+      <hr />
+      <div id="keywords" class="row">
+        <h2>Keywords</h2>
+        <div id="semrush" data-bind="with: semrush">
+          <div class="col-xs-2"> <!-- logo -->
+            <img data-bind="attr: {src: iconPath}" />
+          </div>
+          <div class="col-xs-10">
+            <h5>Top Organic Search Visibility For This Page:</h5>
+            <!-- ko if: isLoaded -->
+            <table>
+              <thead>
+                <tr>
+                  <th></th> <!-- for indexes -->
+                  <th>Keyword:</th>
+                  <th>Rank:</th>
+                  <th>Volume:</th>
+                  <th>CPC:</th>
+                </tr>
+              </thead>
+              <tbody>
+              <!-- ko foreach: resultRows -->
+                <tr>
+                  <td><span data-bind="text: $index() + 1"></span>.</td>
+                  <td data-bind="text: Keyword"></td>
+                  <td class="text-center" data-bind="text: Rank"></td>
+                  <td class="text-center" data-bind="text: Volume"></td>
+                  <td class="text-center" data-bind="text: CPC"></td>
+                </tr>
+              <!-- /ko -->  
+              </tbody>
+            </table>
+            <!-- /ko -->
+            <!-- ko ifnot: isLoaded -->
+            Loading...
+            <!-- /ko -->
+            <table>
+              
+            </table>
+            <p>
+              <a data-bind="attr: {href: reportURL }" target="_blank">View Full Report For This URL</a>
+            </p>
+          </div>
+        </div> <!-- #/semrush -->
+      </div> <!-- #/keywords -->
       <!-- /ko -->
       <hr />
       <div class="row" id="footer">
@@ -116,36 +172,29 @@
 
     <script type="text/html" id="facebook-template">
       <span data-bind="text: totalCount"></span>
-      <br/>
-      <span class="indent inline-block">
+      <p class="indent">
         Likes: 
         <span data-bind="text: likes" />
-      </span>
-      
-      <br/>
-      <span class="indent inline-block">
+      </p>
+      <p class="indent">
         Shares: 
         <span data-bind="text: shares" />
-      </span>
-      
-      <br/>
-      <span class="indent inline-block">
+      </p>
+      <p class="indent">
         Comments: 
         <span data-bind="text: comments" />
-      </span>
+      </p>
       
     </script>
     <script type="text/html" id="reddit-template">
       <span data-bind="text: totalCount()"></span>
        (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor" target="_blank"></a>)
-       <br />
-      <span class="indent inline-block">
-        Ups: <span class="indent" data-bind="text: ups()"></span>
-      </span>
-       <br />
-      <span class="indent inline-block">
-        Downs: <span class="indent" data-bind="text: downs()"></span>
-      </span>
+      <p class="indent">
+        Ups: <span data-bind="text: ups()"></span>
+      </p>
+      <p class="indent">
+        Downs: <span data-bind="text: downs()"></span>
+      </p>
     </script>
     
   </body>

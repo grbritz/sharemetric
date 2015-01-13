@@ -8,6 +8,7 @@
 	<script src="/lib/js/jquery-2.1.0.min.js"></script>
 	<script src="/lib/js/bootstrap.min.js"></script>
   <script src="/lib/js/knockout-3.2.0.js"></script>
+	<script src="/js/util.js"></script>
 	<script src="/js/apis.js"></script>
 	<script src="/js/options.js"></script>
 </head>
@@ -31,13 +32,13 @@
 			<div class="col-sm-8 inner-col-wrap">
 				<p>
 					<label>
-						<input type="radio" name="autoloadSocial" data-bind="checked: autoloadSocial" value="false" />
-						Check share counts when icon is clicked
+						<input type="radio" data-bind="checked: autoloadSocial" value="false" />
+						Check share counts when extension icon in toolbar is clicked
 					</label>
 				</p>
 				<p>
 					<label>
-					  <input type="radio"  name="autoloadSocial" data-bind="checked: autoloadSocial" value="true" />
+					  <input type="radio" data-bind="checked: autoloadSocial" value="true" />
 						Check share counts on page load
 					</label>
 				</p>
@@ -92,7 +93,7 @@
 						</label>
 					</div> 
 				</div> <!- #/ahrefs -> -->
-				<button class="save-options">Update</button>
+				<button class="save-options" data-bind="click: saveOptions">Update</button>
 			</div> <!-- .col-sm-6 -->
 		</div> <!-- #/links -->
 		<hr />
@@ -112,7 +113,7 @@
 						</label>
 					</div>
 				</div> <!-- #/semrush -->
-				<button class="save-options">Update</button>
+				<button class="save-options" data-bind="click: saveOptions">Update</button>
 			</div> <!-- #/col-sm-6 -->
 		</div> <!-- #/keywords -->
 		<hr />
@@ -124,7 +125,7 @@
 					Enable page research links (WHOIS, Schema.org, and Google Cache)
 				</label>
 				<div>
-					<button class="save-options">Update</button>    
+					<button class="save-options" data-bind="click: saveOptions">Update</button>    
 				</div>
 			</div> <!-- /.col-sm-6 -->
 		</div> <!-- #/research -->

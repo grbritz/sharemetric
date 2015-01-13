@@ -1,11 +1,14 @@
-/// <reference path='../lib/ts/jquery.d.ts' />
-/// <reference path='../lib/ts/knockout.d.ts' />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+/// <reference path='../lib/ts/jquery.d.ts' />
+/// <reference path='../lib/ts/knockout.d.ts' />
+/// <reference path='../lib/ts/cryptojs.d.ts' />
+/// <reference path='../lib/ts/purl-jquery.d.ts' />
+/// <reference path='./util.ts' />
 var ga = function () {
     var any = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -49,6 +52,7 @@ var SocialAPIContainer = (function () {
     function SocialAPIContainer(APIList, appManager) {
         var self = this;
         self.apis = [];
+        self.appManager = appManager;
         APIList.forEach(function (apiSettings, index, APIList) {
             apiSettings["appManager"] = appManager;
             switch (apiSettings.name) {
@@ -84,6 +88,7 @@ var SocialAPIContainer = (function () {
     }
     SocialAPIContainer.prototype.queryAll = function () {
         var self = this;
+        self.appManager.setBadgeCount(0);
         self.apis.forEach(function (api, index, apis) {
             api.queryData();
         });
@@ -346,10 +351,10 @@ var MozAPI = (function (_super) {
         _super.call(this, json);
         this.mozID = ko.observable(json.mozID);
         this.mozSecret = ko.observable(json.mozSecret);
-        this.pa = ko.observable(-1);
-        this.plrd = ko.observable(-1);
-        this.da = ko.observable(-1);
-        this.dlrd = ko.observable(-1);
+        this.pa = ko.observable("-" + 1);
+        this.plrd = ko.observable("-" + 1);
+        this.da = ko.observable("-" + 1);
+        this.dlrd = ko.observable("-" + 1);
         this.osePageMetrics = "http://www.opensiteexplorer.org/links?site=" + encodeURIComponent(this.appManager.getURL());
         this.oseDomainMetrics = "http://www.opensiteexplorer.org/links?page=1&site=" + encodeURIComponent(this.appManager.getURL()) + "&sort=page_authority&filter=&source=&target=domain&group=0";
     }
@@ -385,21 +390,26 @@ var MozAPI = (function (_super) {
         };
     };
     MozAPI.prototype.queryData = function () {
-        this.clearCounts();
-        this.numAuthAttempts += 1;
-        $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + this.genQueryURL(), {}, this.queryCallback.bind(this), "json").fail(this.queryFail.bind(this));
+        var self = this;
+        self.clearCounts();
+        self.numAuthAttempts += 1;
+        $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + self.genQueryURL(), {}, self.queryCallback.bind(self), "json").fail(self.queryFail.bind(self));
     };
     MozAPI.prototype.queryCallback = function (results) {
-        this.pa(results.upa);
-        this.da(results.pda);
-        this.dlrd(results.pid);
-        this.plrd(results.uipl);
+        this.pa(abbreviateNumber(results.upa));
+        this.da(abbreviateNumber(results.pda));
+        this.dlrd(abbreviateNumber(results.pid));
+        this.plrd(abbreviateNumber(results.uipl));
         this.isAuthenticated = true;
         this.numAuthAttempts = 0;
         this.querySuccess();
     };
     MozAPI.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
         this.isAuthenticated = false;
+        console.log("Moz query fail");
+        console.log(jqXHR);
+        console.log("textStatus: " + textStatus);
+        console.log("errorThrown: " + errorThrown);
         if (jqXHR.status == 401) {
             ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
         }
@@ -422,10 +432,10 @@ var MozAPI = (function (_super) {
         return encodeURIComponent(CryptoJS.HmacSHA1(sig, this.mozSecret()).toString(CryptoJS.enc.Base64));
     };
     MozAPI.prototype.clearCounts = function () {
-        this.pa(-1);
-        this.plrd(-1);
-        this.da(-1);
-        this.dlrd(-1);
+        this.pa("-" + 1);
+        this.plrd("-" + 1);
+        this.da("-" + 1);
+        this.dlrd("-" + 1);
     };
     return MozAPI;
 })(AuthenticatedAPI);
@@ -608,18 +618,21 @@ var SEMRush = (function (_super) {
         _super.call(this, json);
         this.resultRows = ko.observableArray([]);
         this.authToken = ko.observable(json.authToken);
+        this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
     }
     SEMRush.prototype.toJSON = function () {
         var self = this;
         return {
             name: self.name,
             isActive: self.isActive(),
-            authToken: self.authToken,
+            authToken: self.authToken(),
             type: "keywords"
         };
     };
     SEMRush.prototype.queryData = function () {
         var self = this;
+        self.isLoaded(false);
+        console.debug("SEMRush queryData");
         $.get("http://us.api.semrush.com/", {
             "action": "report",
             "type": "url_organic",
@@ -632,9 +645,11 @@ var SEMRush = (function (_super) {
     };
     SEMRush.prototype.queryCallback = function (results) {
         this.resultRows.removeAll();
+        this.isLoaded(true);
+        console.debug("SEMRush queryCallback");
         if (results != "ERROR 50 :: NOTHING FOUND") {
             var lines = results.split("\n");
-            for (var i = 0; i < lines.length; i++) {
+            for (var i = 1; i < lines.length; i++) {
                 var parts = lines[i].split(";");
                 var row = {
                     Keyword: parts[0],
@@ -646,6 +661,13 @@ var SEMRush = (function (_super) {
             }
         }
         ga('send', 'event', 'API Load', 'API Load - SEMRush', this.appManager.getRedactedURL());
+    };
+    SEMRush.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
+        console.debug("SEMRush queryFail");
+        console.log(jqXHR);
+        console.log("textStatus: " + textStatus);
+        console.log("errorThrown: " + errorThrown);
+        ga('send', 'event', 'Error', 'API Error - SEMRush', jqXHR.status);
     };
     return SEMRush;
 })(API);

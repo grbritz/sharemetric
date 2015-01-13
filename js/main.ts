@@ -2,6 +2,7 @@
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/cryptojs.d.ts' />
 /// <reference path='../lib/ts/purl-jquery.d.ts' />
+/// <reference path='./util.ts' />
 /// <reference path='./apis.ts' />
 declare var chrome : any;
 var ga = function(...any) {};
@@ -128,13 +129,22 @@ class AppManager {
    ************************************************************************/
 
   public getURL() : string {
-    return this.URL;
+      return this.URL;  
+  }
+
+  public reloadURL(callback : any) {
+    var self = this;
+    chrome.tabs.query({"active" : true, "currentWindow" : true}, function(tabs){
+      var URL = tabs[0].url;
+      self.URL = URL;
+      callback();
+    });
   }
 
   public setURL(url : string) {
     this.URL = url;
     this.setBadgeCount(0);
-    if(this.autoloadSocial) {
+    if(this.autoloadSocial()) {
       this.socialAPIContainer.queryAll();
     }
 
@@ -160,9 +170,9 @@ class AppManager {
    * Badge Count Methods
    ************************************************************************/
 
-  private setBadgeCount(count : number) {
+  public setBadgeCount(count : number) {
     this.badgeCount = count;
-    chrome.browserAction.setBadgeText({'text' : this.formatBadgeCount(this.badgeCount)});
+    chrome.browserAction.setBadgeText({'text' : abbreviateNumber(this.badgeCount)});
   }
 
   public increaseBadgeCount(count : number) {
@@ -206,7 +216,7 @@ class AppManager {
     // To simplify things, we will always read our settings functionally
     // If there are settings in local storage, we will use those, if there arent, we
     // will use the default settings
-    
+
     if(window.localStorage.getItem("ShareMetric")) {
       var settings = JSON.parse(window.localStorage.getItem("ShareMetric"));
       if(settings["APP_VERSION"] != APP_VERSION) {
@@ -235,9 +245,9 @@ class AppManager {
         { name : "StumbleUpon", isActive : true, type: "social" },
         { name : "Pinterest",   isActive : true, type: "social" },
         { name : "Delicious",   isActive : false, type: "social" },
-        { name : "Moz", isActive : true, mozID : "", mozSecret : "", type : "link" },
+        { name : "Moz", isActive : false, mozID : "", mozSecret : "", type : "link" },
         { name : "Ahrefs", isActive : false, authToken : "", type : "link" },
-        { name : "SEMRush", isActive : false, authToken : "", type : "keywords" }
+        { name : "SEMRush", isActive : true, authToken : "", type : "keywords" }
       ],
       // notifications : []
       "APP_VERSION" : APP_VERSION

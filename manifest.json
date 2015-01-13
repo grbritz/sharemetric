@@ -16,7 +16,7 @@
 			"default_title" : ""
  		},
 	"background"		: {
-			"scripts": ["/lib/js/jquery-2.1.0.min.js", "/lib/js/hmac-sha1.js", "/lib/js/enc-base64-min.js", "/lib/js/purl.js", "/lib/js/knockout-3.2.0.js", "js/apis.js", "/js/main.js"]
+			"scripts": ["/lib/js/jquery-2.1.0.min.js", "/lib/js/hmac-sha1.js", "/lib/js/enc-base64-min.js", "/lib/js/purl.js", "/lib/js/knockout-3.2.0.js", "js/util.js", "js/apis.js", "/js/main.js"]
 		},
 	"permissions"		: [
 		"http://*/*", "https://*/*", "tabs", "storage"

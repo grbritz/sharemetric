@@ -1,6 +1,8 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
-
+/// <reference path='../lib/ts/cryptojs.d.ts' />
+/// <reference path='../lib/ts/purl-jquery.d.ts' />
+/// <reference path='./util.ts' />
 var ga = function(...any) {};
 class API {
   name : string;
@@ -53,10 +55,12 @@ class SocialAPIContainer {
   apis : any;
   firstHalf : any;
   secondHalf : any;
+  appManager : any;
 
   constructor(APIList, appManager) {
     var self = this;
     self.apis = [];
+    self.appManager = appManager;
     
     APIList.forEach(function(apiSettings, index, APIList) {
       apiSettings["appManager"] = appManager;
@@ -95,6 +99,7 @@ class SocialAPIContainer {
 
   public queryAll() {
     var self = this;
+    self.appManager.setBadgeCount(0);
     self.apis.forEach(function(api, index, apis) {
       api.queryData();
     });
@@ -425,10 +430,10 @@ class AuthenticatedAPI extends API {
 class MozAPI extends AuthenticatedAPI {
   public mozID : KnockoutObservable<string>;
   public mozSecret : KnockoutObservable<string>;
-  public pa : KnockoutObservable<number>;
-  public plrd : KnockoutObservable<number>;
-  public da : KnockoutObservable<number>;
-  public dlrd : KnockoutObservable<number>;
+  public pa : KnockoutObservable<string>;
+  public plrd : KnockoutObservable<string>;
+  public da : KnockoutObservable<string>;
+  public dlrd : KnockoutObservable<string>;
 
   public osePageMetrics : string;
   public oseDomainMetrics : string;
@@ -440,10 +445,10 @@ class MozAPI extends AuthenticatedAPI {
     super(json);
     this.mozID = ko.observable(json.mozID);
     this.mozSecret = ko.observable(json.mozSecret);
-    this.pa = ko.observable(-1);
-    this.plrd = ko.observable(-1);
-    this.da = ko.observable(-1);
-    this.dlrd = ko.observable(-1);
+    this.pa = ko.observable("-" +1);
+    this.plrd = ko.observable("-" +1);
+    this.da = ko.observable("-" +1);
+    this.dlrd = ko.observable("-" +1);
 
     this.osePageMetrics = "http://www.opensiteexplorer.org/links?site=" + encodeURIComponent(this.appManager.getURL());
 
@@ -483,21 +488,22 @@ class MozAPI extends AuthenticatedAPI {
   }
 
   public queryData() {
-    this.clearCounts();
-    this.numAuthAttempts += 1;
+    var self = this;
+    self.clearCounts();
+    self.numAuthAttempts += 1;
 
-    $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + this.genQueryURL(),
+    $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + self.genQueryURL(),
           {},
-          this.queryCallback.bind(this),
+          self.queryCallback.bind(self),
           "json")
-     .fail(this.queryFail.bind(this));
+     .fail(self.queryFail.bind(self));
   }
 
   public queryCallback(results : any) {
-    this.pa(results.upa);
-    this.da(results.pda);
-    this.dlrd(results.pid);
-    this.plrd(results.uipl);
+    this.pa(abbreviateNumber(results.upa));
+    this.da(abbreviateNumber(results.pda));
+    this.dlrd(abbreviateNumber(results.pid));
+    this.plrd(abbreviateNumber(results.uipl));
     this.isAuthenticated = true;
     this.numAuthAttempts = 0;
     this.querySuccess();
@@ -505,6 +511,11 @@ class MozAPI extends AuthenticatedAPI {
 
   public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
     this.isAuthenticated = false;
+    console.log("Moz query fail");
+    console.log(jqXHR);
+    console.log("textStatus: " + textStatus);
+    console.log("errorThrown: " + errorThrown);
+
     if(jqXHR.status == 401) {
       ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
     }
@@ -531,10 +542,10 @@ class MozAPI extends AuthenticatedAPI {
   }
 
   private clearCounts() {
-    this.pa(-1);
-    this.plrd(-1);
-    this.da(-1);
-    this.dlrd(-1);
+    this.pa("-" + 1);
+    this.plrd("-" + 1);
+    this.da("-" + 1);
+    this.dlrd("-" + 1);
   }
 }
 
@@ -764,6 +775,7 @@ class SEMRush extends API {
 
   public resultRows : KnockoutObservableArray<any>;
   public authToken : KnockoutObservable<string>;
+  reportURL : string
 
 
   constructor(json) {
@@ -773,6 +785,7 @@ class SEMRush extends API {
 
     this.resultRows = ko.observableArray([]);
     this.authToken = ko.observable(json.authToken);
+    this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
   }
 
   public toJSON() {
@@ -780,14 +793,15 @@ class SEMRush extends API {
     return {
       name        : self.name,
       isActive    : self.isActive(),
-      authToken   : self.authToken,
+      authToken   : self.authToken(),
       type        : "keywords"
     };
   }
 
   public queryData() {
     var self = this;
-    
+    self.isLoaded(false);
+    console.debug("SEMRush queryData");
     $.get("http://us.api.semrush.com/", {
           "action"    : "report",
           "type"      : "url_organic",
@@ -802,10 +816,13 @@ class SEMRush extends API {
 
   public queryCallback(results : any) {
     this.resultRows.removeAll();
+    this.isLoaded(true);
+    console.debug("SEMRush queryCallback");
     if(results != "ERROR 50 :: NOTHING FOUND") {
       var lines = results.split("\n");
       
-      for (var i = 0; i < lines.length; i++) {
+
+      for (var i = 1; i < lines.length; i++) {
         var parts = lines[i].split(";");
         var row = {
           Keyword : parts[0],
@@ -820,8 +837,12 @@ class SEMRush extends API {
     ga('send', 'event', 'API Load', 'API Load - SEMRush', this.appManager.getRedactedURL());
   }
 
-  // private queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
-  //   ga('send', 'event', 'Error', 'API Error - SEMRush', jqXHR.status);
-  // }
+  public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
+    console.debug("SEMRush queryFail");
+    console.log(jqXHR);
+    console.log("textStatus: " + textStatus);
+    console.log("errorThrown: " + errorThrown);
+    ga('send', 'event', 'Error', 'API Error - SEMRush', jqXHR.status);
+  }
 }
 

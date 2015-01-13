@@ -25,22 +25,27 @@ h2 {
 }
 
 hr {
-	/*margin-top: 0px;*/
-	margin-bottom:10px;
+	margin-top: 5px;
+	margin-bottom:5px;
 	height: 2px;
 	background: #e5e5e5;
 }
 
-.social-source{
-	padding:5px;	
+.social-metric {
+	margin-bottom: 3px;
 }
 
-.social-source img{
-	padding-right:5px;	
+
+.social-metric img{
+	padding-right:2px;	
 }
 
-.social-source span.total-count, .child-metric{
+.social-metric span.total-count, .child-metric{
 	color:#999;	
+}
+
+.social-metric p {
+	margin: 0px 0px -2px 0px;
 }
 
 #facebook > span{
@@ -139,15 +144,15 @@ ul.horizontal li.spacer {
 	color:#aaa;
 }
 
-.links {
+#links {
 	font-size:90%;
 }
 
-.keywords table {
+#keywords table {
 	font-size:90%;
 }
 
-.keywords table td, .keywords table th {
+#keywords table td, #keywords table th {
 	padding: 0px 5px;
 }
 

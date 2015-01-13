@@ -1,6 +1,8 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='./apis.ts' />
+/// <reference path='./util.ts' />
+/// 
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -14,20 +16,34 @@ var PopupViewModel = (function () {
         this.appManager = appManager;
         // Load in appManager settings
         this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
-        this.socialAPIContainer.queryAll();
         this.moz = new MozAPI(this.appManager.moz());
         this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
         this.semrush = new SEMRush(this.appManager.semrush());
         this.URL = ko.observable(appManager.URL);
         this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
         this.showResearch = this.appManager.getSettings().meta.showResearch;
+        self.queryAPIs();
     }
     PopupViewModel.prototype.refreshPopup = function () {
         var self = this;
-        self.URL(self.appManager.getURL());
-        self.socialAPIContainer.queryAll();
-        //TODO: query non-social apis too
+        self.appManager.reloadURL(function () {
+            self.URL(self.appManager.getURL());
+        });
+        self.queryAPIs();
         ga('send', 'event', 'Popup Interaction', 'Refresh Popup', self.appManager.getRedactedURL());
+    };
+    PopupViewModel.prototype.queryAPIs = function () {
+        var self = this;
+        self.socialAPIContainer.queryAll();
+        if (self.moz.isActive()) {
+            self.moz.queryData();
+        }
+        if (self.ahrefs.isActive()) {
+            self.ahrefs.queryData();
+        }
+        if (self.semrush.isActive()) {
+            self.semrush.queryData();
+        }
     };
     return PopupViewModel;
 })();
