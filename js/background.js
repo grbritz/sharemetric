@@ -547,7 +547,7 @@ var ga = function () {
 };
 // TODO: Disable debugs 
 // console.debug = function() {};
-var APP_VERSION = "2.0.1";
+var APP_VERSION = "2.0.2";
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -767,7 +767,18 @@ var AppManager = (function () {
         // It is used when the APP_VERSION changes in a way that modifies the data stored to storage
         // and those changes need to be applied on top of the user's stored preferences.
         // TODO: Don't just return default settings every update
-        return this.defaultSettings();
+        // Remove ahrefs
+        var apis = this.getSettings().apis.filter(function (api, index, apis) {
+            return api.name != "Ahrefs";
+        }).forEach(function (api, index, apis) {
+            // Disable 
+            if (api.name == "SEMRush") {
+                api.isActive = false;
+            }
+        });
+        var settings = this.getSettings();
+        settings.apis = apis;
+        return settings;
     };
     return AppManager;
 })();
