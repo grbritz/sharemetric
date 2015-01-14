@@ -23,10 +23,9 @@ var PopupViewModel = (function (_super) {
         // Load in appManager settings
         this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
         this.moz = new MozAPI(this.appManager.moz());
-        this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
         this.semrush = new SEMRush(this.appManager.semrush());
         this.URL = ko.observable(appManager.URL);
-        this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
+        this.hasLinks = this.appManager.moz().isActive;
         this.showResearch = this.appManager.getSettings().meta.showResearch;
         this.showSpecialMessage = ko.observable(this.appManager.getSettings().meta.showSpecialMessage);
         self.queryAPIs();
@@ -44,9 +43,6 @@ var PopupViewModel = (function (_super) {
         self.socialAPIContainer.queryAll();
         if (self.moz.isActive()) {
             self.moz.queryData();
-        }
-        if (self.ahrefs.isActive()) {
-            self.ahrefs.queryData();
         }
         if (self.semrush.isActive()) {
             self.semrush.queryData();

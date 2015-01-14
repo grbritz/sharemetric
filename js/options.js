@@ -28,7 +28,6 @@ var OptionsViewModel = (function (_super) {
         this.showResearch = ko.observable(appSettings.meta.showResearch);
         this.socialAPIContainer = new SocialAPIContainer(this.appManager.socialAPIs(), this.appManager);
         this.moz = new MozAPI(this.appManager.moz());
-        this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
         this.semrush = new SEMRush(this.appManager.semrush());
     };
     OptionsViewModel.prototype.saveOptions = function () {
@@ -38,7 +37,6 @@ var OptionsViewModel = (function (_super) {
         appSettings.meta.showResearch = this.showResearch();
         appSettings.apis = this.socialAPIContainer.toJSON();
         appSettings.apis.push(this.moz.toJSON());
-        appSettings.apis.push(this.ahrefs.toJSON());
         appSettings.apis.push(this.semrush.toJSON());
         this.appManager.updateSettings(appSettings);
         // this.displaySettings();

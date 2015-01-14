@@ -19,7 +19,6 @@ class PopupViewModel extends NotificationViewModel {
   socialAPIContainer : any;
 
   moz : any;
-  ahrefs : any;
   semrush : any;
 
   showResearch : boolean;
@@ -33,11 +32,10 @@ class PopupViewModel extends NotificationViewModel {
     // Load in appManager settings
     this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
     this.moz = new MozAPI(this.appManager.moz());
-    this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
     this.semrush = new SEMRush(this.appManager.semrush()); 
 
     this.URL = ko.observable(appManager.URL);
-    this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
+    this.hasLinks = this.appManager.moz().isActive;
     this.showResearch = this.appManager.getSettings().meta.showResearch;
     this.showSpecialMessage = ko.observable(this.appManager.getSettings().meta.showSpecialMessage);
     self.queryAPIs();
@@ -60,10 +58,6 @@ class PopupViewModel extends NotificationViewModel {
     
     if(self.moz.isActive()) {
       self.moz.queryData();
-    }
-
-    if(self.ahrefs.isActive()) {
-      self.ahrefs.queryData();
     }
 
     if(self.semrush.isActive()) {

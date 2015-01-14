@@ -13,7 +13,6 @@
 class OptionsViewModel extends NotificationViewModel {
   socialAPIContainer : any;
   moz : any;
-  ahrefs : any;
   semrush : any;
 
   autoloadSocial : KnockoutObservable<boolean>;
@@ -34,7 +33,6 @@ class OptionsViewModel extends NotificationViewModel {
     this.socialAPIContainer = new SocialAPIContainer(this.appManager.socialAPIs(), this.appManager);
 
     this.moz = new MozAPI(this.appManager.moz());
-    this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
     this.semrush = new SEMRush(this.appManager.semrush()); 
   }
 
@@ -47,7 +45,6 @@ class OptionsViewModel extends NotificationViewModel {
 
     appSettings.apis = this.socialAPIContainer.toJSON();
     appSettings.apis.push(this.moz.toJSON());
-    appSettings.apis.push(this.ahrefs.toJSON());
     appSettings.apis.push(this.semrush.toJSON());
     
     this.appManager.updateSettings(appSettings);
