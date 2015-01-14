@@ -722,6 +722,7 @@ var AppManager = (function () {
         // To act in accordance with how getSettings is implemented,
         // updateSettings must immediately update the settings in localstorage
         window.localStorage["ShareMetric"] = JSON.stringify(settings);
+        // In case autoloadSocial is going
         this.buildSocialAPIContainer();
     };
     AppManager.prototype.getSettings = function () {
@@ -766,18 +767,27 @@ var AppManager = (function () {
         // This function accepts a settings object (that was saved to local storage)
         // It is used when the APP_VERSION changes in a way that modifies the data stored to storage
         // and those changes need to be applied on top of the user's stored preferences.
-        // TODO: Don't just return default settings every update
+        if (settings["APP_VERSION"] == undefined) {
+            this.updateSettings(this.defaultSettings());
+            return this.defaultSettings();
+        }
         // Remove ahrefs
-        var apis = this.getSettings().apis.filter(function (api, index, apis) {
+        var apis = settings.apis.filter(function (api, index, apis) {
             return api.name != "Ahrefs";
-        }).forEach(function (api, index, apis) {
-            // Disable 
-            if (api.name == "SEMRush") {
-                api.isActive = false;
-            }
         });
-        var settings = this.getSettings();
+        if (settings["APP_VERSION"] == "2.0.0" || settings["APP_VERSION"] == "2.0.1") {
+            // Set default for SEMRush to be
+            apis.forEach(function (api, index, apis) {
+                // Disable 
+                if (api.name == "SEMRush") {
+                    api.isActive = false;
+                }
+            });
+        }
         settings.apis = apis;
+        settings["APP_VERSION"] = APP_VERSION;
+        // Must always update the settings to avoid infinite loops
+        this.updateSettings(settings);
         return settings;
     };
     return AppManager;
