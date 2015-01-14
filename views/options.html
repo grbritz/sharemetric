@@ -76,6 +76,7 @@
 							Enable Moz metrics (requires <a href="http://moz.com/products/api/keys">Moz API key and secret</a>)
 						</label>
 					</div>
+					<!-- ko if: isActive -->
 					<div class="form-group">
 						<label>Moz AccessID <br />
 							<input class="form-control" type="text" data-bind="value: mozID" />
@@ -86,6 +87,7 @@
 							<input class="form-control" type="text" data-bind="value: mozSecret" />
 						</label>
 					</div>
+					<!-- /ko -->
 				</div> <!-- #/moz -->
 				<button class="save-options" data-bind="click: saveOptions">Update</button>
 			</div> <!-- .col-sm-6 -->
@@ -101,11 +103,13 @@
 							Enable SEMRush metrics (requires <a href="http://www.semrush.com/api.html">SEMRush API key</a>)
 						</label>
 					</div>
+					<!-- ko if: isActive -->
 					<div class="form-group">
 						<label>SEMRush API Key <br />
 							<input class="form-control" type="text" data-bind="value: authToken" />
 						</label>
 					</div>
+					<!-- /ko -->
 				</div> <!-- #/semrush -->
 				<button class="save-options" data-bind="click: saveOptions">Update</button>
 			</div> <!-- #/col-sm-6 -->
