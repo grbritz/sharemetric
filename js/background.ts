@@ -10,7 +10,7 @@ var ga = function(...any) {};
 // TODO: Disable debugs 
 // console.debug = function() {};
 
-var APP_VERSION = "2.0.1";
+var APP_VERSION = "2.0.2";
 
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -276,7 +276,20 @@ class AppManager {
     // and those changes need to be applied on top of the user's stored preferences.
     
     // TODO: Don't just return default settings every update
-    return this.defaultSettings();
+    
+    // Remove ahrefs
+    var apis = this.getSettings().apis.filter(function(api, index, apis) {
+      return api.name != "Ahrefs";
+    }).forEach(function(api, index, apis) {
+      // Disable 
+      if(api.name == "SEMRush") {
+        api.isActive = false;
+      }
+    });
+
+    var settings = this.getSettings();
+    settings.apis = apis;
+    return settings;
   }
 }
 
