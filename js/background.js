@@ -379,15 +379,6 @@ var Delicious = (function (_super) {
 /**************************************************************************************************
 * Link APIs
 **************************************************************************************************/
-var AuthenticatedAPI = (function (_super) {
-    __extends(AuthenticatedAPI, _super);
-    function AuthenticatedAPI(json) {
-        _super.call(this, json);
-        this.isAuthenticated = false;
-        this.numAuthAttempts = 0;
-    }
-    return AuthenticatedAPI;
-})(API);
 var MozAPI = (function (_super) {
     __extends(MozAPI, _super);
     function MozAPI(json) {
@@ -437,7 +428,6 @@ var MozAPI = (function (_super) {
     MozAPI.prototype.queryData = function () {
         var self = this;
         self.clearCounts();
-        self.numAuthAttempts += 1;
         $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + self.genQueryURL(), {}, self.queryCallback.bind(self), "json").fail(self.queryFail.bind(self));
     };
     MozAPI.prototype.queryCallback = function (results) {
@@ -445,16 +435,10 @@ var MozAPI = (function (_super) {
         this.da(abbreviateNumber(results.pda));
         this.dlrd(abbreviateNumber(results.pid));
         this.plrd(abbreviateNumber(results.uipl));
-        this.isAuthenticated = true;
-        this.numAuthAttempts = 0;
         this.querySuccess();
     };
     MozAPI.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
-        this.isAuthenticated = false;
-        console.log("Moz query fail");
-        console.log(jqXHR);
-        console.log("textStatus: " + textStatus);
-        console.log("errorThrown: " + errorThrown);
+        console.debug("Moz query fail");
         if (jqXHR.status == 401) {
             ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
         }
@@ -468,13 +452,14 @@ var MozAPI = (function (_super) {
     MozAPI.prototype.genQueryURL = function () {
         var APICols = 34359738368 + 68719476736 + 1024 + 8192; // PA + PLRDs + DA + DLRDs
         var date = new Date();
-        var expiresAt = date.getTime() + 360;
+        var expiresAt = date.getTime() + 300;
         var signature = this.genSignature(expiresAt);
-        return encodeURIComponent(this.appManager.getURL()) + "?Cols=" + APICols + "&AccessID=" + this.mozID + "&Expires=" + expiresAt + "&Signature=" + signature;
+        return encodeURIComponent(this.appManager.getURL()) + "?Cols=" + APICols + "&AccessID=" + this.mozID() + "&Expires=" + expiresAt + "&Signature=" + signature;
     };
     MozAPI.prototype.genSignature = function (expiresAt) {
-        var sig = this.mozID + "\n" + expiresAt;
-        return encodeURIComponent(CryptoJS.HmacSHA1(sig, this.mozSecret()).toString(CryptoJS.enc.Base64));
+        var sig = this.mozID() + "\n" + expiresAt;
+        var hmac = CryptoJS.HmacSHA1(sig, this.mozSecret());
+        return encodeURIComponent(hmac.toString(CryptoJS.enc.Base64));
     };
     MozAPI.prototype.clearCounts = function () {
         this.pa("-" + 1);
@@ -483,7 +468,7 @@ var MozAPI = (function (_super) {
         this.dlrd("-" + 1);
     };
     return MozAPI;
-})(AuthenticatedAPI);
+})(API);
 var AhrefsAPI = (function (_super) {
     __extends(AhrefsAPI, _super);
     function AhrefsAPI(json) {
@@ -494,6 +479,8 @@ var AhrefsAPI = (function (_super) {
         this.prd = ko.observable(-1);
         this.domainRank = ko.observable(-1);
         this.drd = ko.observable(-1);
+        this.isAuthenticated = false;
+        this.numAuthAttempts = 0;
         if (this.isActive() && !this.authToken) {
             // If this was created as an active and
             // did not have a saved auth token
@@ -651,7 +638,7 @@ var AhrefsAPI = (function (_super) {
         return this.urlRank() != -1 && this.prd() != -1 && this.domainRank() != -1 && this.drd() != -1;
     };
     return AhrefsAPI;
-})(AuthenticatedAPI);
+})(API);
 /**************************************************************************************************
 * Keywords APIs
 **************************************************************************************************/

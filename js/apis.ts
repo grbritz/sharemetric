@@ -414,18 +414,7 @@ class Delicious extends SocialAPI {
 * Link APIs
 **************************************************************************************************/
 
-class AuthenticatedAPI extends API {
-  public isAuthenticated : boolean;
-  public numAuthAttempts : number;
-
-  constructor(json) {
-    super(json);
-    this.isAuthenticated = false;
-    this.numAuthAttempts = 0;
-  }
-}
-
-class MozAPI extends AuthenticatedAPI {
+class MozAPI extends API {
   public mozID : KnockoutObservable<string>;
   public mozSecret : KnockoutObservable<string>;
   public pa : KnockoutObservable<string>;
@@ -488,7 +477,6 @@ class MozAPI extends AuthenticatedAPI {
   public queryData() {
     var self = this;
     self.clearCounts();
-    self.numAuthAttempts += 1;
 
     $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + self.genQueryURL(),
           {},
@@ -502,18 +490,12 @@ class MozAPI extends AuthenticatedAPI {
     this.da(abbreviateNumber(results.pda));
     this.dlrd(abbreviateNumber(results.pid));
     this.plrd(abbreviateNumber(results.uipl));
-    this.isAuthenticated = true;
-    this.numAuthAttempts = 0;
     this.querySuccess();
   }
 
   public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
-    this.isAuthenticated = false;
-    console.log("Moz query fail");
-    console.log(jqXHR);
-    console.log("textStatus: " + textStatus);
-    console.log("errorThrown: " + errorThrown);
-
+    console.debug("Moz query fail");
+    
     if(jqXHR.status == 401) {
       ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
     }
@@ -528,15 +510,16 @@ class MozAPI extends AuthenticatedAPI {
   private genQueryURL() {
     var APICols = 34359738368 + 68719476736 + 1024 + 8192; // PA + PLRDs + DA + DLRDs
     var date = new Date();
-    var expiresAt = date.getTime() + 360;
+    var expiresAt = date.getTime() + 300;
     var signature = this.genSignature(expiresAt);
-    return encodeURIComponent(this.appManager.getURL()) + "?Cols=" + APICols + "&AccessID=" + this.mozID
+    return encodeURIComponent(this.appManager.getURL()) + "?Cols=" + APICols + "&AccessID=" + this.mozID()
            + "&Expires=" + expiresAt + "&Signature=" + signature;
    }
 
   private genSignature(expiresAt : number) {
-    var sig = this.mozID + "\n" + expiresAt;
-    return encodeURIComponent(CryptoJS.HmacSHA1(sig, this.mozSecret()).toString(CryptoJS.enc.Base64));
+    var sig = this.mozID() + "\n" + expiresAt;
+    var hmac = CryptoJS.HmacSHA1(sig, this.mozSecret());
+    return encodeURIComponent(hmac.toString(CryptoJS.enc.Base64));
   }
 
   private clearCounts() {
@@ -547,7 +530,10 @@ class MozAPI extends AuthenticatedAPI {
   }
 }
 
-class AhrefsAPI extends AuthenticatedAPI {
+class AhrefsAPI extends API {
+  public isAuthenticated : boolean;
+  public numAuthAttempts : number;
+
   private urlRank : KnockoutObservable<number>;
   private prd : KnockoutObservable<number>;
   private domainRank : KnockoutObservable<number>;
@@ -563,6 +549,9 @@ class AhrefsAPI extends AuthenticatedAPI {
     this.prd = ko.observable(-1);
     this.domainRank = ko.observable(-1);
     this.drd = ko.observable(-1);
+
+    this.isAuthenticated = false;
+    this.numAuthAttempts = 0;
     
     if(this.isActive() && !this.authToken) {
       // If this was created as an active and
