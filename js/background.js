@@ -730,7 +730,7 @@ var ga = function () {
 };
 // TODO: Disable debugs 
 // console.debug = function() {};
-var APP_VERSION = "2.0.0";
+var APP_VERSION = "2.0.1";
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -933,7 +933,8 @@ var AppManager = (function () {
         return {
             meta: {
                 autoloadSocial: "true",
-                showResearch: "true"
+                showResearch: "true",
+                showSpecialMessage: "true"
             },
             apis: [
                 { name: "Facebook", isActive: true, type: "social" },
@@ -946,7 +947,7 @@ var AppManager = (function () {
                 { name: "Delicious", isActive: false, type: "social" },
                 { name: "Moz", isActive: false, mozID: "", mozSecret: "", type: "link" },
                 { name: "Ahrefs", isActive: false, authToken: "", type: "link" },
-                { name: "SEMRush", isActive: true, authToken: "", type: "keywords" }
+                { name: "SEMRush", isActive: false, authToken: "", type: "keywords" }
             ],
             notificationsDismissed: [],
             "APP_VERSION": APP_VERSION
@@ -956,7 +957,8 @@ var AppManager = (function () {
         // This function accepts a settings object (that was saved to local storage)
         // It is used when the APP_VERSION changes in a way that modifies the data stored to storage
         // and those changes need to be applied on top of the user's stored preferences.
-        return settings;
+        // TODO: Don't just return default settings every update
+        return this.defaultSettings();
     };
     return AppManager;
 })();

@@ -23,6 +23,7 @@ class PopupViewModel extends NotificationViewModel {
   semrush : any;
 
   showResearch : boolean;
+  showSpecialMessage : KnockoutObservable<boolean>;
   
   constructor(appManager) {
     super(appManager);
@@ -38,6 +39,7 @@ class PopupViewModel extends NotificationViewModel {
     this.URL = ko.observable(appManager.URL);
     this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
     this.showResearch = this.appManager.getSettings().meta.showResearch;
+    this.showSpecialMessage = ko.observable(this.appManager.getSettings().meta.showSpecialMessage);
     self.queryAPIs();
   }
 
@@ -86,6 +88,13 @@ class PopupViewModel extends NotificationViewModel {
         anchor: "Google Cache"
       }
     ];
+  }
+
+  public hideSpecialMessage() {
+    this.showSpecialMessage(false);
+    var appSettings = this.appManager.getSettings();
+    appSettings.meta.showSpecialMessage = false;
+    this.appManager.updateSettings(appSettings);
   }
 
   public openOptions() {

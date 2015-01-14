@@ -28,7 +28,7 @@
       </div>
       <hr />
       <div class="row social">
-        <h2>Social:</h2>
+        <h2>Social</h2>
         <!-- ko with: socialAPIContainer -->
         <div class="col-xs-6">
           <!-- ko template: { name: 'social-column', foreach: firstHalf } -->
@@ -40,10 +40,25 @@
         </div>
         <!-- /ko -->
       </div>
+      <!-- ko if: showSpecialMessage -->
+      <hr />
+      <div id="specialMessage" class="row">
+        <h2>Welcome to ShareMetric</h2>
+        <div class="col-xs-12">
+          <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true" data-bind="click: $root.hideSpecialMessage.bind($root)">&times;</button>
+            <p>
+              If you just want to check social media stats, you can X out of this message.
+              <br><br>If you'd like to set up Link metrics from Moz or Keyword metrics from SEMRush, click here to <a data-ga-action="Options" data-bind="click: openOptions" href="#">configure Options</a>.
+            </p>
+          </div>
+        </div>
+      </div> <!-- #specialMessage  -->
+      <!-- /ko -->
       <!-- ko if: hasLinks -->
       <hr />
       <div id="links" class="row">
-        <h2>Links:</h2>
+        <h2>Links</h2>
         <!-- ko if: moz.isActive() -->
         <div id="moz" class="col-xs-12" data-bind="with: moz">
           <div class="row">
@@ -96,7 +111,7 @@
       <!-- ko if: semrush.isActive -->
       <hr />
       <div id="keywords" class="row">
-        <h2>Keywords:</h2>
+        <h2>Keywords</h2>
         <div id="semrush" data-bind="with: semrush">
           <div class="col-xs-2"> <!-- logo -->
             <img data-bind="attr: {src: iconPath}" />
@@ -143,7 +158,7 @@
       <!-- ko if: showResearch -->
       <hr />
       <div class="row research">
-        <h2>Research:</h2>
+        <h2>Research</h2>
         <ul class="horizontal">
           <!-- ko foreach: researchLinks() -->
           <li><a data-bind="attr: { href: href }, text: anchor" target="_blank"></a></li>
@@ -157,7 +172,7 @@
       <!-- ko if: notifications().length > 0 -->
       <hr />
       <div class="row notifications">
-        <h2>Notifications:</h2>
+        <h2>Notifications</h2>
         <div class="col-xs-12">
           <div class="alert alert-info alert-dismissable" data-bind="with: notifications()[0]">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true" data-bind="click: $root.popNotification.bind($root)">&times;</button>

@@ -10,7 +10,7 @@ var ga = function(...any) {};
 // TODO: Disable debugs 
 // console.debug = function() {};
 
-var APP_VERSION = "2.0.0";
+var APP_VERSION = "2.0.1";
 
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -256,7 +256,8 @@ class AppManager {
     return {
       meta : {
         autoloadSocial : "true",
-        showResearch   : "true"
+        showResearch   : "true",
+        showSpecialMessage : "true"
       },
       apis : [
         { name : "Facebook",    isActive : true, type: "social" },
@@ -280,12 +281,9 @@ class AppManager {
     // This function accepts a settings object (that was saved to local storage)
     // It is used when the APP_VERSION changes in a way that modifies the data stored to storage
     // and those changes need to be applied on top of the user's stored preferences.
-    if(settings["APP_VERSION"] == undefined) {
-      return this.defaultSettings();
-    }
-    else {
-      return settings;  
-    }
+    
+    // TODO: Don't just return default settings every update
+    return this.defaultSettings();
   }
 }
 

@@ -1,20 +1,19 @@
-/// <reference path='../lib/ts/jquery.d.ts' />
-/// <reference path='../lib/ts/knockout.d.ts' />
-/// <reference path='./apis.ts' />
-/// <reference path='./util.ts' />
-/// 
-// TODO: Reactivate GA
-// (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-// new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-// j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-// 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-// })(window,document,'script','dataLayer','GTM-MBCM4N');
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+/// <reference path='../lib/ts/jquery.d.ts' />
+/// <reference path='../lib/ts/knockout.d.ts' />
+/// <reference path='./apis.ts' />
+/// <reference path='./util.ts' />
+// TODO: Reactivate GA
+// (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+// new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+// j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+// 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+// })(window,document,'script','dataLayer','GTM-MBCM4N');
 var PopupViewModel = (function (_super) {
     __extends(PopupViewModel, _super);
     function PopupViewModel(appManager) {
@@ -29,6 +28,7 @@ var PopupViewModel = (function (_super) {
         this.URL = ko.observable(appManager.URL);
         this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
         this.showResearch = this.appManager.getSettings().meta.showResearch;
+        this.showSpecialMessage = ko.observable(this.appManager.getSettings().meta.showSpecialMessage);
         self.queryAPIs();
     }
     PopupViewModel.prototype.refreshPopup = function () {
@@ -69,6 +69,16 @@ var PopupViewModel = (function (_super) {
                 anchor: "Google Cache"
             }
         ];
+    };
+    PopupViewModel.prototype.hideSpecialMessage = function () {
+        this.showSpecialMessage(false);
+        var appSettings = this.appManager.getSettings();
+        appSettings.meta.showSpecialMessage = false;
+        this.appManager.updateSettings(appSettings);
+    };
+    PopupViewModel.prototype.openOptions = function () {
+        var url = chrome.extension.getURL("/views/options.html");
+        chrome.tabs.create({ "url": url });
     };
     return PopupViewModel;
 })(NotificationViewModel);
