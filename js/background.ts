@@ -280,7 +280,12 @@ class AppManager {
     // This function accepts a settings object (that was saved to local storage)
     // It is used when the APP_VERSION changes in a way that modifies the data stored to storage
     // and those changes need to be applied on top of the user's stored preferences.
-    return settings;
+    if(settings["APP_VERSION"] == undefined) {
+      return this.defaultSettings();
+    }
+    else {
+      return settings;  
+    }
   }
 }
 
