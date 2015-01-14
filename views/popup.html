@@ -155,11 +155,14 @@
       </div>
       <!-- /ko -->
       <!-- ko if: notifications().length > 0 -->
-      <div clas="row notifications">
+      <hr />
+      <div class="row notifications">
         <h2>Notifications:</h2>
-        <div class="alert alert-info alert-dismissable" data-bind="with: notifications()[0]">
-          <button type="button" class="close" data-dismiss="alert" aria-hidden="true" data-bind="click: $root.popNotification.bind($root)">&times;</button>
-          <p data-bind="html: message"></p>
+        <div class="col-xs-12">
+          <div class="alert alert-info alert-dismissable" data-bind="with: notifications()[0]">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true" data-bind="click: $root.popNotification.bind($root)">&times;</button>
+            <p data-bind="html: message"></p>
+          </div>
         </div>
       </div>
       <!-- /ko  -->

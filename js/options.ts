@@ -2,6 +2,7 @@
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='./apis.ts' />
 /// <reference path='./util.ts' />
+/// 
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -9,9 +10,7 @@
 // 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 // })(window,document,'script','dataLayer','GTM-MBCM4N');
 
-class OptionsViewModel {
-  appManager : any;
-
+class OptionsViewModel extends NotificationViewModel {
   socialAPIContainer : any;
   moz : any;
   ahrefs : any;
@@ -21,8 +20,8 @@ class OptionsViewModel {
   showResearch : KnockoutObservable<boolean>;
 
   constructor(appManager) {
+    super(appManager);
     ga("send", "event", "Extension Usage", "Options Page Loaded");
-    this.appManager = appManager;
     this.displaySettings();
   }
 

@@ -103,7 +103,7 @@ class AppManager {
 
   private autoloadSocial() : boolean {
     var settings = this.getSettings();
-    return settings.meta.autoloadSocial === true || settings.meta.autoloadSocial === "true";
+    return settings.meta.autoloadSocial === "true";
   }
 
   private numActiveSocialAPIs() : number {
@@ -255,8 +255,8 @@ class AppManager {
   private defaultSettings() : any {
     return {
       meta : {
-        autoloadSocial : true,
-        showResearch   : true
+        autoloadSocial : "true",
+        showResearch   : "true"
       },
       apis : [
         { name : "Facebook",    isActive : true, type: "social" },
@@ -269,7 +269,7 @@ class AppManager {
         { name : "Delicious",   isActive : false, type: "social" },
         { name : "Moz", isActive : false, mozID : "", mozSecret : "", type : "link" },
         { name : "Ahrefs", isActive : false, authToken : "", type : "link" },
-        { name : "SEMRush", isActive : true, authToken : "", type : "keywords" }
+        { name : "SEMRush", isActive : false, authToken : "", type : "keywords" }
       ],
       notificationsDismissed : [],
       "APP_VERSION" : APP_VERSION

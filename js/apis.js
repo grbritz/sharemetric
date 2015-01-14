@@ -29,7 +29,6 @@ var API = (function () {
     API.prototype.queryData = function () {
     };
     API.prototype.querySuccess = function () {
-        // TODO: Why is this necessary?
         this.isLoaded(true);
         ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
     };

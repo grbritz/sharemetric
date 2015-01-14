@@ -8,8 +8,7 @@ class API {
   name : string;
   public isActive : KnockoutObservable<boolean>;
   appManager : any;
-  
-  //TODO: Isloaded does not appear to be data binding properly or some such
+
   public isLoaded : KnockoutObservable<boolean>;
   public iconPath : string;
 
@@ -29,7 +28,6 @@ class API {
   public queryData() {}
 
   public querySuccess() {
-    // TODO: Why is this necessary?
     this.isLoaded(true);
     ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL()); 
   }

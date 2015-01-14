@@ -9,11 +9,18 @@
 // j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 // 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 // })(window,document,'script','dataLayer','GTM-MBCM4N');
-var PopupViewModel = (function () {
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var PopupViewModel = (function (_super) {
+    __extends(PopupViewModel, _super);
     function PopupViewModel(appManager) {
+        _super.call(this, appManager);
         ga("send", "event", "Extension Usage", "Popup Loaded");
         var self = this;
-        this.appManager = appManager;
         // Load in appManager settings
         this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
         this.moz = new MozAPI(this.appManager.moz());
@@ -22,8 +29,6 @@ var PopupViewModel = (function () {
         this.URL = ko.observable(appManager.URL);
         this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
         this.showResearch = this.appManager.getSettings().meta.showResearch;
-        this.notifications = ko.observableArray();
-        this.appManager.getNotifications(self.setNotifications.bind(self));
         self.queryAPIs();
     }
     PopupViewModel.prototype.refreshPopup = function () {
@@ -65,23 +70,8 @@ var PopupViewModel = (function () {
             }
         ];
     };
-    PopupViewModel.prototype.popNotification = function () {
-        console.debug("Popped notification");
-        console.log(this);
-        var notif = this.notifications.shift();
-        var appSettings = this.appManager.getSettings();
-        appSettings.notificationsDismissed.push(notif.id);
-        this.appManager.updateSettings(appSettings);
-    };
-    PopupViewModel.prototype.setNotifications = function (notifications) {
-        var self = this;
-        self.notifications.removeAll();
-        notifications.forEach(function (notif, index, arr) {
-            self.notifications.push(notif);
-        });
-    };
     return PopupViewModel;
-})();
+})(NotificationViewModel);
 var vm;
 $(document).ready(function () {
     var backgroundPage = chrome.extension.getBackgroundPage();

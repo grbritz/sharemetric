@@ -1,3 +1,26 @@
+/// <reference path='../lib/ts/jquery.d.ts' />
+/// <reference path='../lib/ts/knockout.d.ts' />
+var NotificationViewModel = (function () {
+    function NotificationViewModel(appManager) {
+        this.appManager = appManager;
+        this.notifications = ko.observableArray();
+        this.appManager.getNotifications(this.setNotifications.bind(this));
+    }
+    NotificationViewModel.prototype.popNotification = function () {
+        var notif = this.notifications.shift();
+        var appSettings = this.appManager.getSettings();
+        appSettings.notificationsDismissed.push(notif.id);
+        this.appManager.updateSettings(appSettings);
+    };
+    NotificationViewModel.prototype.setNotifications = function (notifications) {
+        var self = this;
+        self.notifications.removeAll();
+        notifications.forEach(function (notif, index, arr) {
+            self.notifications.push(notif);
+        });
+    };
+    return NotificationViewModel;
+})();
 function abbreviateNumber(count) {
     var abbrCount = count, symbol = "";
     if (count > 1000) {
@@ -52,7 +75,6 @@ var API = (function () {
     API.prototype.queryData = function () {
     };
     API.prototype.querySuccess = function () {
-        // TODO: Why is this necessary?
         this.isLoaded(true);
         ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
     };
@@ -787,7 +809,7 @@ var AppManager = (function () {
     };
     AppManager.prototype.autoloadSocial = function () {
         var settings = this.getSettings();
-        return settings.meta.autoloadSocial === true || settings.meta.autoloadSocial === "true";
+        return settings.meta.autoloadSocial === "true";
     };
     AppManager.prototype.numActiveSocialAPIs = function () {
         return this.activeSocialAPIs().length;
@@ -910,8 +932,8 @@ var AppManager = (function () {
     AppManager.prototype.defaultSettings = function () {
         return {
             meta: {
-                autoloadSocial: true,
-                showResearch: true
+                autoloadSocial: "true",
+                showResearch: "true"
             },
             apis: [
                 { name: "Facebook", isActive: true, type: "social" },

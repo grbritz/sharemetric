@@ -15,16 +15,18 @@
 <body>
 	<div class="container">
 		<div class="row" id="head">
-			<h1>
-				<a data-ga-action="Content Harmony" href="http://www.contentharmony.com"><img src="/images/content-harmony-options.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric
-			</h1>
-			<ul class="horizontal" style="padding-left:0px">
-				<li><a data-ga-action="Report An Issue" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
-				<li class="spacer">|</li>
-				<li><a data-ga-action="Request a Feature" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
-				<li class="spacer">|</li>
-				<li><a data-ga-action="Show Some Love" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
-			</ul>
+			<div class="col-xs-12">
+				<h1>
+					<a data-ga-action="Content Harmony" href="http://www.contentharmony.com"><img src="/images/content-harmony-options.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric
+				</h1>
+				<ul class="horizontal" style="padding-left:0px">
+					<li><a data-ga-action="Report An Issue" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
+					<li class="spacer">|</li>
+					<li><a data-ga-action="Request a Feature" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
+					<li class="spacer">|</li>
+					<li><a data-ga-action="Show Some Love" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
+				</ul>
+			</div>
 		</div>
 		<hr />
 		<div class="row outer-row-wrap">
@@ -32,13 +34,13 @@
 			<div class="col-sm-8 inner-col-wrap">
 				<p>
 					<label>
-						<input type="radio" data-bind="checked: autoloadSocial" value="false" />
+						<input type="radio" value="false" data-bind="checked: autoloadSocial"  />
 						Check share counts when extension icon in toolbar is clicked
 					</label>
 				</p>
 				<p>
 					<label>
-					  <input type="radio" data-bind="checked: autoloadSocial" value="true" />
+					  <input type="radio" value="true" data-bind="checked: autoloadSocial"  />
 						Check share counts on page load
 					</label>
 				</p>
@@ -129,13 +131,18 @@
 				</div>
 			</div> <!-- /.col-sm-6 -->
 		</div> <!-- #/research -->
-		<hr />
-		<!-- <div id="notifications" class="row">
-			<h2>Notifications</h2>
-			<div class="col-sm-12 col-sm-12">
-
-			</div>
-		</div> -->
+		<!-- ko if: notifications().length > 0 -->
+    <hr />
+    <div class="row notifications">
+      <h2>Notifications:</h2>
+      <div class="col-xs-12">
+        <div class="alert alert-info alert-dismissable" data-bind="with: notifications()[0]">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true" data-bind="click: $root.popNotification.bind($root)">&times;</button>
+          <p data-bind="html: message"></p>
+        </div>
+      </div>
+    </div>
+    <!-- /ko  -->
 		<hr />
 		<div class="row" id="foot">
 			<h2>Credits</h2>

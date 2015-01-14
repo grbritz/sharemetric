@@ -1,3 +1,30 @@
+/// <reference path='../lib/ts/jquery.d.ts' />
+/// <reference path='../lib/ts/knockout.d.ts' />
+class NotificationViewModel {
+  appManager : any; // Main data model
+  notifications : KnockoutObservableArray<any>;
+
+  constructor(appManager) {
+    this.appManager = appManager;
+    this.notifications = ko.observableArray();
+    this.appManager.getNotifications(this.setNotifications.bind(this));
+  }
+
+  public popNotification() {
+    var notif = this.notifications.shift();
+    var appSettings = this.appManager.getSettings();
+    appSettings.notificationsDismissed.push(notif.id);
+    this.appManager.updateSettings(appSettings);
+  }
+
+  public setNotifications(notifications) {
+    var self = this;
+    self.notifications.removeAll();
+    notifications.forEach(function(notif, index, arr) {
+      self.notifications.push(notif);
+    });
+  }
+}
 
 function abbreviateNumber(count : number) : string {
   var abbrCount = count,
