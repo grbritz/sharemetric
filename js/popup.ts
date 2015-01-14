@@ -2,7 +2,9 @@
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='./apis.ts' />
 /// <reference path='./util.ts' />
-/// 
+declare var chrome : any;
+
+
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -84,6 +86,11 @@ class PopupViewModel extends NotificationViewModel {
         anchor: "Google Cache"
       }
     ];
+  }
+
+  public openOptions() {
+    var url = chrome.extension.getURL("/views/options.html");
+    chrome.tabs.create({"url" : url});
   }
 }
 
