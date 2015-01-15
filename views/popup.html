@@ -118,8 +118,9 @@
             <img data-bind="attr: {src: iconPath}" />
           </div>
           <div class="col-xs-10">
-            <h5>Top Organic Search Visibility For This Page:</h5>
+            <h4>Top Organic Search Visibility For This Page</h4>
             <!-- ko if: isLoaded -->
+              <!-- ko if: resultRows().length > 0 -->
             <table>
               <thead>
                 <tr>
@@ -142,6 +143,10 @@
               <!-- /ko -->  
               </tbody>
             </table>
+              <!-- /ko  -->
+              <!-- ko if: resultRows().length == 0 -->
+              No data found
+              <!-- /ko -->
             <!-- /ko -->
             <!-- ko ifnot: isLoaded -->
             Loading...
