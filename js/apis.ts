@@ -530,7 +530,7 @@ class MozAPI extends API {
   }
 }
 
-class AhrefsAPI extends API {
+class AhrefsAPI extends LinksAPI {
   public isAuthenticated : boolean;
   public numAuthAttempts : number;
 
