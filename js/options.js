@@ -1,163 +1,54 @@
-//Analytics
-(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MBCM4N');
-
-var bg;
-$(document).ready(function(){
-	bg = chrome.extension.getBackgroundPage();
-	displayOptions();
-
-	bindIsActive("links", "moz");
-	bindIsActive("links", "ahrefs");
-	bindIsActive("keywords", "semrush");
-
-	function bindIsActive(apiType, apiName) {
-		$("input[name='"+ apiType+"."+ apiName +".isActive']").click(function(){
-			if($(this).attr("checked") == "checked") {
-				$(this).removeAttr("checked");
-				$("." + apiName).slideUp();
-
-			}
-			else {
-				$(this).attr("checked", "checked");
-				$("." + apiName).slideDown();
-			}
-		});
-	}
-	$(".save-options").click(function(){
-		saveOptions();
-	});
-
-	bg.app.displayNotifications($("#notifications .col-sm-12"), "Options Interaction");
-
-	var tid = setInterval(function() {
-		if(document.readyState !== "complete") return;
-		clearInterval(tid);
-		bindGA();
-	}, 100);
+/// <reference path='../lib/ts/jquery.d.ts' />
+/// <reference path='../lib/ts/knockout.d.ts' />
+/// <reference path='./apis.ts' />
+/// <reference path='./util.ts' />
+/// 
+// TODO: Reactivate GA
+// (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+// new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+// j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+// 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+// })(window,document,'script','dataLayer','GTM-MBCM4N');
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var OptionsViewModel = (function (_super) {
+    __extends(OptionsViewModel, _super);
+    function OptionsViewModel(appManager) {
+        _super.call(this, appManager);
+        var self = this;
+        var appSettings = this.appManager.getSettings();
+        ga("send", "event", "Extension Usage", "Options Page Loaded");
+        this.autoloadSocial = ko.observable(appSettings.meta.autoloadSocial);
+        this.showResearch = ko.observable(appSettings.meta.showResearch);
+        this.socialAPIContainer = new SocialAPIContainer(this.appManager.socialAPIs(), this.appManager);
+        this.moz = new MozAPI(this.appManager.moz());
+        this.semrush = new SEMRush(this.appManager.semrush());
+        this.showResearch.subscribe(function (value) {
+            recordOptionsToggleInteraction(value, "research");
+        });
+        this.autoloadSocial.subscribe(function (value) {
+            recordOptionsToggleInteraction(value, "autoloadSocial");
+        });
+    }
+    OptionsViewModel.prototype.saveOptions = function () {
+        ga("send", "event", "Options Interaction", "Options Updated");
+        var appSettings = this.appManager.getSettings();
+        appSettings.meta.autoloadSocial = this.autoloadSocial();
+        appSettings.meta.showResearch = this.showResearch();
+        appSettings.apis = this.socialAPIContainer.toJSON();
+        appSettings.apis.push(this.moz.toJSON());
+        appSettings.apis.push(this.semrush.toJSON());
+        this.appManager.updateSettings(appSettings);
+        window.location.reload();
+    };
+    return OptionsViewModel;
+})(ParentViewModel);
+$(document).ready(function () {
+    var appManager = chrome.extension.getBackgroundPage().appManager;
+    var vm = new OptionsViewModel(appManager);
+    ko.applyBindings(vm);
 });
-
-/**
- * Persists a user's options
- */
-function saveOptions(){
-	var options = bg.app.getOptions();
-	
-	options.social.autoLoad = $("input[name='social.autoLoad']").is(":checked");
-	options.showResearch = $("input[name='showResearch']").is(":checked");
-
-	$.each(options.social.apis, function(key, ele) {
-		options.social.apis[key].isActive = $("input[name='social.apis." + key +"']").is(":checked");
-	});
-
-	options.links.moz.isActive = $("input[name='links.moz.isActive']").is(":checked");
-	options.links.moz.id = $("input[name='links.moz.id']").val();
-	options.links.moz.secret = $("input[name='links.moz.secret']").val();
-
-	// options.links.ahrefs.isActive = $("input[name='links.ahrefs.isActive']").is(":checked");
-	// if(!options.links.ahrefs.token) {
-	// 	options.links.ahrefs.token = null;
-	// }
-
-	options.keywords.semrush.isActive = $("input[name='keywords.semrush.isActive']").is(":checked");
-	options.keywords.semrush.token = $("input[name='keywords.semrush.token']").val();
-
-
-	bg.app.saveOptions(options);
-	alert("Options updated!");
-}
-
-/**
- * Displays the option values the user has already saved/chosen
- */
-function displayOptions() {
-	var options = bg.app.getOptions();
-	if(options.social.autoLoad){
-		$("input[name='social.autoLoad']").attr("checked", "checked");
-	}
-	if(options.showResearch) {
-		$("input[name='showResearch']").attr("checked", "checked");
-	}
-
-	$.each(options.social.apis, function(key, ele) {
-		if(ele.isActive) {
-			$("input[name='social.apis." + key +"']").attr("checked", "checked");
-		}
-	});
-
-	$.each(options.links, function(linkName, ele) {
-		if(ele.isActive) {
-			$("input[name='links." + linkName + ".isActive']").attr("checked", "checked");
-			$("." + linkName).slideDown();
-			$.each(ele, function(key, val) {
-				if(key != "isActive"){
-					$("input[name='links." + linkName + "." + key + "']").val(val);	
-				}
-			});
-		}
-		else {
-			$("." + linkName).hide();
-		}
-	});
-	
-	if(options.keywords.semrush.isActive){
-		$("input[name='keywords.semrush.isActive']").attr("checked", "checked");	
-	}
-	else {
-		$(".semrush").hide();
-	}
-
-	$("input[name='keywords.semrush.token']").val(options.keywords.semrush.token);
-}
-
-/**
- * Binds google analytics tracking events
- */
-function bindGA(){
-	ga("send", "event", "Extension Usage", "Options Page Loaded");
-
-	$("#social-apis input").click(function(){
-		var serviceName = $(this).attr("name").split(".").pop();
-		if($(this).is(":checked")){
-			ga("send", "event", "Options Interaction", "Service Activated", serviceName);
-		}
-		else {
-			ga("send", "event", "Options Interaction", "Service Deactivated", serviceName);
-		}
-	});
-
-	$("input[name='links.moz.isActive']").add("input[name='links.ahrefs.isActive']")
-	.add("input[name='keywords.semrush.isActive']").click(function(){
-		var serviceName = $(this).attr("name").split(".")[1];
-		if($(this).is(":checked")){
-			ga("send", "event", "Options Interaction", "Service Activated", serviceName);
-		}
-		else {
-			ga("send", "event", "Options Interaction", "Service Deactivated", serviceName);
-		}
-	});
-
-	$("input[name=showResearch]").click(function(){
-		if($(this).is(":checked")){
-			ga("send", "event", "Options Interaction", "Service Activated", "research");
-		}
-		else {
-			ga("send", "event", "Options Interaction", "Service Deactivated", "research");
-		}
-	});
-
-	$(".save-options").click(function(){
-		ga("send", "event", "Options Interaction", "Options Updated");
-	});
-
-	$("#foot a").click(function(){
-		ga("send", "event", "Options Interaction", "Link Clicked - Options Footer -" + $(this).data("ga-action"));
-	});
-
-	$("#head a").click(function(){
-		ga("send", "event", "Options Interaction", "Link Clicked - Options Header -" + $(this).data("ga-action"));
-	});
-}

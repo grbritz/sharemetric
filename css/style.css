@@ -3,8 +3,10 @@ body.popup {
 	color:#555;
 }
 
-#head{
-	margin:10px 0px;
+
+#head {
+	margin-top: 10px;
+	margin-bottom: -10px;
 }
 
 #head h1 a img {
@@ -24,16 +26,32 @@ h2 {
 	
 }
 
-.social-source{
-	padding:5px;	
+hr {
+	margin-top: 10px;
+	margin-bottom:10px;
+	height: 1px;
+	background: #e5e5e5;
 }
 
-.social-source img{
-	padding-right:5px;	
+#url {
+	font-size: 90%;
 }
 
-.social-source span.total-count, .child-metric{
+.social-metric {
+	margin-bottom: 3px;
+}
+
+
+.social-metric img{
+	padding-right:2px;	
+}
+
+.social-metric span.total-count, .child-metric{
 	color:#999;	
+}
+
+.social-metric p {
+	margin: 0px 0px -2px 0px;
 }
 
 #facebook > span{
@@ -92,8 +110,13 @@ a{
 }
 
 .indent {
-	text-indent:15px;
+	text-indent:35px;
 }
+
+.inline-block {
+	display: inline-block;
+}
+
 
 .link-label {
 	font-size:18px;
@@ -101,7 +124,7 @@ a{
 	padding-right:5px;
 }
 
-.link-label .loading, .social-metric .loading {
+.api-loading, .link-label .loading, .social-metric .loading {
 	background-image: url('/images/loading-icon.gif');
 	background-repeat: no-repeat;
 	display: inline-block;
@@ -127,15 +150,18 @@ ul.horizontal li.spacer {
 	color:#aaa;
 }
 
-.links {
+#links {
+}
+
+.link-metric {
+	font-size: 108%;
+}
+
+#keywords table {
 	font-size:90%;
 }
 
-.keywords table {
-	font-size:90%;
-}
-
-.keywords table td, .keywords table th {
+#keywords table td, #keywords table th {
 	padding: 0px 5px;
 }
 
