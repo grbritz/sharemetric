@@ -22,6 +22,10 @@ var API = (function () {
         this.isActive = ko.observable(json.isActive);
         this.iconPath = json.iconPath;
         this.isLoaded = ko.observable(false);
+        var self = this;
+        this.isActive.subscribe(function (value) {
+            recordOptionsToggleInteraction(value, self.name);
+        });
     }
     API.prototype.getName = function () {
         return this.name;
@@ -30,10 +34,12 @@ var API = (function () {
     };
     API.prototype.querySuccess = function () {
         this.isLoaded(true);
-        ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
+        ga('send', 'event', 'Services', this.name, this.appManager.getRedactedURL());
     };
     API.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
-        ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
+        ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+        ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+        ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
     };
     API.prototype.toJSON = function () {
         var self = this;
@@ -109,7 +115,7 @@ var SocialAPI = (function (_super) {
     SocialAPI.prototype.querySuccess = function () {
         this.isLoaded(true);
         this.appManager.increaseBadgeCount(this.totalCount());
-        ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
+        ga('send', 'event', 'Services', 'Social', this.name + " Loaded");
     };
     SocialAPI.prototype.toJSON = function () {
         var self = this;
@@ -333,6 +339,17 @@ var Delicious = (function (_super) {
 /**************************************************************************************************
 * Link APIs
 **************************************************************************************************/
+var LinksAPI = (function (_super) {
+    __extends(LinksAPI, _super);
+    function LinksAPI(json) {
+        _super.call(this, json);
+    }
+    LinksAPI.prototype.querySuccess = function () {
+        this.isLoaded(true);
+        ga('send', 'event', 'Services', 'Links', this.name + " Loaded");
+    };
+    return LinksAPI;
+})(API);
 var MozAPI = (function (_super) {
     __extends(MozAPI, _super);
     function MozAPI(json) {
@@ -393,15 +410,9 @@ var MozAPI = (function (_super) {
     };
     MozAPI.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
         console.debug("Moz query fail");
-        if (jqXHR.status == 401) {
-            ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
-        }
-        else if (jqXHR.status == 503) {
-            ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - too many requests made");
-        }
-        else {
-            ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status);
-        }
+        ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+        ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+        ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
     };
     MozAPI.prototype.genQueryURL = function () {
         var APICols = 34359738368 + 68719476736 + 1024 + 8192; // PA + PLRDs + DA + DLRDs
@@ -422,7 +433,7 @@ var MozAPI = (function (_super) {
         this.dlrd("-" + 1);
     };
     return MozAPI;
-})(API);
+})(LinksAPI);
 /**************************************************************************************************
 * Keywords APIs
 **************************************************************************************************/
@@ -476,14 +487,13 @@ var SEMRush = (function (_super) {
                 this.resultRows.push(row);
             }
         }
-        ga('send', 'event', 'API Load', 'API Load - SEMRush', this.appManager.getRedactedURL());
+        ga('send', 'event', 'Services', 'Keywords', this.name + " Loaded");
     };
     SEMRush.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
         console.debug("SEMRush queryFail");
-        console.log(jqXHR);
-        console.log("textStatus: " + textStatus);
-        console.log("errorThrown: " + errorThrown);
-        ga('send', 'event', 'Error', 'API Error - SEMRush', jqXHR.status);
+        ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+        ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+        ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
     };
     return SEMRush;
 })(API);

@@ -18,8 +18,8 @@ var PopupViewModel = (function (_super) {
     __extends(PopupViewModel, _super);
     function PopupViewModel(appManager) {
         _super.call(this, appManager);
-        ga("send", "event", "Extension Usage", "Popup Loaded");
         var self = this;
+        ga("send", "event", "Extension Usage", "Popup Loaded", self.appManager.getRedactedURL());
         // Load in appManager settings
         this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
         this.moz = new MozAPI(this.appManager.moz());
@@ -73,11 +73,12 @@ var PopupViewModel = (function (_super) {
         this.appManager.updateSettings(appSettings);
     };
     PopupViewModel.prototype.openOptions = function () {
+        ga("send", "event", "Popup Interaction", "Open options");
         var url = chrome.extension.getURL("/views/options.html");
         chrome.tabs.create({ "url": url });
     };
     return PopupViewModel;
-})(NotificationViewModel);
+})(ParentViewModel);
 var vm;
 $(document).ready(function () {
     var backgroundPage = chrome.extension.getBackgroundPage();

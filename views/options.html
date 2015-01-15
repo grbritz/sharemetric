@@ -18,14 +18,14 @@
 		<div class="row" id="head">
 			<div class="col-xs-12">
 				<h1>
-					<a data-ga-action="Content Harmony" href="http://www.contentharmony.com"><img src="/images/content-harmony-options.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric
+					<a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Header', 'Content Harmony')" href="http://www.contentharmony.com"><img src="/images/content-harmony-options.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric
 				</h1>
 				<ul class="horizontal" style="padding-left:0px">
-					<li><a data-ga-action="Report An Issue" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
+					<li><a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Header', 'Report An Issue')" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
 					<li class="spacer">|</li>
-					<li><a data-ga-action="Request a Feature" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
+					<li><a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Header', 'Request a Feature')" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
 					<li class="spacer">|</li>
-					<li><a data-ga-action="Show Some Love" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
+					<li><a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Header', 'Show Some Love')" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
 				</ul>
 			</div>
 		</div>
@@ -144,7 +144,13 @@
 		<div class="row" id="foot">
 			<h2>Credits</h2>
 			<div class="col-sm-12 col-md-12">
-				 <p>The ShareMetric extension was created by <a data-ga-action="Graeme Britz" href="http://graemebritz.com">Graeme Britz</a> and <a data-ga-action="Kane Jamison" href="http://kanejamison.com">Kane Jamison</a> at <a data-ga-action="Content Harmony" href="http://contentharmony.com">Content Harmony</a>. Full documentation for this extension can be found at <a data-ga-action="ShareMetric Documentation" href="http://contentharmony.com/tools/sharemetric">here</a>.</p>
+				 <p>The ShareMetric extension was created by 
+				 <a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Footer', 'Graeme Britz')" href="http://graemebritz.com">Graeme Britz</a> 
+				 and 
+				 <a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Footer', 'Kane Jamison')" href="http://kanejamison.com">Kane Jamison</a> 
+				 at 
+				 <a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Footer', 'Content Harmony')" href="http://contentharmony.com">Content Harmony</a>. Full documentation for this extension can be found at 
+				 <a data-ga-action="ShareMetric Documentation" href="http://contentharmony.com/tools/sharemetric">here</a>.</p>
 			</div>
 		</div>
 	</div>

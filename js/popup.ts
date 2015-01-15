@@ -12,7 +12,7 @@ declare var chrome : any;
 // 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 // })(window,document,'script','dataLayer','GTM-MBCM4N');
 
-class PopupViewModel extends NotificationViewModel {
+class PopupViewModel extends ParentViewModel {
   hasLinks : boolean;
   
   URL : KnockoutObservable<string>;
@@ -26,8 +26,8 @@ class PopupViewModel extends NotificationViewModel {
   
   constructor(appManager) {
     super(appManager);
-    ga("send", "event", "Extension Usage", "Popup Loaded");
     var self = this;
+    ga("send", "event", "Extension Usage", "Popup Loaded", self.appManager.getRedactedURL());
     
     // Load in appManager settings
     this.socialAPIContainer = new SocialAPIContainer(appManager.activeSocialAPIs(), appManager);
@@ -92,6 +92,7 @@ class PopupViewModel extends NotificationViewModel {
   }
 
   public openOptions() {
+    ga("send", "event", "Popup Interaction", "Open options");
     var url = chrome.extension.getURL("/views/options.html");
     chrome.tabs.create({"url" : url});
   }

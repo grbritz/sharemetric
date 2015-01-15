@@ -20,7 +20,7 @@
     <div class="container">
       <div class="row" id="head">
         <div class="col-xs-12">
-          <h1><a href="http://www.contentharmony.com">
+          <h1><a data-bind="click: recordClick.bind($data, 'Popup Interaction', 'Header Link', 'Content Harmony')" href="http://www.contentharmony.com" target="_blank">
           <img src="/images/content-harmony-header.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric</h1>
           <p><strong>Data for: </strong><span id="url" data-bind="text: URL"></span></p>
           <image id="refresh-page" src="/images/reload_refresh.png" alt="refresh popup results" 
@@ -77,7 +77,7 @@
               </div>
               <div class="row">
                <div class="col-xs-12">
-                  <a data-bind="attr: { href: osePageMetrics }" target="_blank">View OSE Page Metrics</a> 
+                  <a data-bind="attr: { href: osePageMetrics }, click: $root.recordClick.bind($root, 'Popup Interaction', 'Moz Link', 'OSE Page Metrics')" target="_blank">View OSE Page Metrics</a> 
                </div>
               </div>
               <div class="row">
@@ -90,7 +90,7 @@
               </div>
               <div class="row">
                 <div class="col-xs-12">
-                  <a data-bind="attr: { href: oseDomainMetrics }" target="_blank">View OSE Domain Metrics</a>
+                  <a data-bind="attr: { href: oseDomainMetrics }, click: $root.recordClick.bind($root, 'Popup Interaction', 'Moz Link', 'OSE Domain Metrics')" target="_blank">View OSE Domain Metrics</a>
                 </div>
               </div>
             </div> <!-- /.api data -->
@@ -99,7 +99,7 @@
                 <li><strong>View More:</strong></li>
                 <!-- ko foreach: viewMoreLinks() -->
                 <li>
-                  <a data-bind="attr: { href: href }, text: anchor" target="_blank"></a> 
+                  <a data-bind="attr: { href: href }, text: anchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Moz Link', anchor)" target="_blank"></a>
                 </li>
                 <!-- /ko -->
               </ul>
@@ -146,11 +146,8 @@
             <!-- ko ifnot: isLoaded -->
             Loading...
             <!-- /ko -->
-            <table>
-              
-            </table>
             <p>
-              <a data-bind="attr: {href: reportURL }" target="_blank">View Full Report For This URL</a>
+              <a data-bind="attr: {href: reportURL }, click: $root.recordClick.bind($root, 'Popup Interaction', 'SEMRush Link', 'Full Report')" target="_blank">View Full Report For This URL</a>
             </p>
           </div>
         </div> <!-- #/semrush -->
@@ -162,7 +159,7 @@
         <h2>Research</h2>
         <ul class="horizontal">
           <!-- ko foreach: researchLinks() -->
-          <li><a data-bind="attr: { href: href }, text: anchor" target="_blank"></a></li>
+          <li><a data-bind="attr: { href: href }, text: anchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Research Link', anchor)" target="_blank"></a></li>
             <!-- ko if: $index() != 2  -->
             <li class="spacer">|</li>
             <!-- /ko  -->
@@ -187,11 +184,11 @@
         <ul class="horizontal">
           <li><a data-ga-action="Options" id="options-link" data-bind="click: openOptions" href="#">Options</a></li>
           <li class="spacer">|</li>
-          <li><a data-ga-action="Report An Issue" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
+          <li><a data-bind="click: recordClick.bind($data, 'Popup Interaction', 'Footer Link', 'Report An Issue')" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
           <li class="spacer">|</li>
-          <li><a data-ga-action="Request a Feature" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
+          <li><a data-bind="click: recordClick.bind($data, 'Popup Interaction', 'Footer Link', 'Request a Feature')"  target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
           <li class="spacer">|</li>
-          <li><a data-ga-action="Show Some Love" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
+          <li><a data-bind="click: recordClick.bind($data, 'Popup Interaction', 'Footer Link', 'Show Some Love')" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
         </ul>
       </div>
     </div>
@@ -211,7 +208,7 @@
     
     <script type="text/html" id="social-template-with-link">
       <span data-bind="text: totalCount()"></span>
-       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor" target="_blank"></a>)
+       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
     </script>
 
     <script type="text/html" id="facebook-template">
@@ -232,7 +229,7 @@
     </script>
     <script type="text/html" id="reddit-template">
       <span data-bind="text: totalCount()"></span>
-       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor" target="_blank"></a>)
+       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
       <p class="indent">
         Ups: <span data-bind="text: ups()"></span>
       </p>

@@ -10,7 +10,7 @@
 // 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 // })(window,document,'script','dataLayer','GTM-MBCM4N');
 
-class OptionsViewModel extends NotificationViewModel {
+class OptionsViewModel extends ParentViewModel {
   socialAPIContainer : any;
   moz : any;
   semrush : any;
@@ -20,12 +20,9 @@ class OptionsViewModel extends NotificationViewModel {
 
   constructor(appManager) {
     super(appManager);
-    ga("send", "event", "Extension Usage", "Options Page Loaded");
-    this.displaySettings();
-  }
-
-  private displaySettings() {
+    var self = this;
     var appSettings = this.appManager.getSettings();
+    ga("send", "event", "Extension Usage", "Options Page Loaded");
     
     this.autoloadSocial = ko.observable(appSettings.meta.autoloadSocial);
     this.showResearch = ko.observable(appSettings.meta.showResearch);
@@ -34,6 +31,16 @@ class OptionsViewModel extends NotificationViewModel {
 
     this.moz = new MozAPI(this.appManager.moz());
     this.semrush = new SEMRush(this.appManager.semrush()); 
+
+
+    this.showResearch.subscribe(function(value) {
+      recordOptionsToggleInteraction(value, "research");
+    });
+    
+    this.autoloadSocial.subscribe(function(value) {
+      recordOptionsToggleInteraction(value, "autoloadSocial");
+    });
+
   }
 
   public saveOptions() {
@@ -48,7 +55,6 @@ class OptionsViewModel extends NotificationViewModel {
     appSettings.apis.push(this.semrush.toJSON());
     
     this.appManager.updateSettings(appSettings);
-    // this.displaySettings();
     window.location.reload();
   }
 }
