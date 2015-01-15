@@ -213,7 +213,7 @@
     
     <script type="text/html" id="social-template-with-link">
       <span data-bind="text: totalCount()"></span>
-       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
+       (<a data-bind="attr: { href: detailsHref() }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
     </script>
 
     <script type="text/html" id="facebook-template">
@@ -234,7 +234,7 @@
     </script>
     <script type="text/html" id="reddit-template">
       <span data-bind="text: totalCount()"></span>
-       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
+       (<a data-bind="attr: { href: detailsHref() }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
       <p class="indent">
         Ups: <span data-bind="text: ups()"></span>
       </p>

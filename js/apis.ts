@@ -360,7 +360,8 @@ class Pinterest extends SocialAPI {
   }
 
   public detailsHref() {
-    return "http://www.pinterest.com/source/" + this.appManager.getURL()
+    var url = $.url(this.appManager.getURL());
+    return "http://www.pinterest.com/source/";
   }
 
   public queryData() {

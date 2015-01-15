@@ -353,7 +353,8 @@ var Pinterest = (function (_super) {
         this.detailsAnchor = "details";
     }
     Pinterest.prototype.detailsHref = function () {
-        return "http://www.pinterest.com/source/" + this.appManager.getURL();
+        var url = $.url(this.appManager.getURL());
+        return "http://www.pinterest.com/source/";
     };
     Pinterest.prototype.queryData = function () {
         this.isLoaded(false);
