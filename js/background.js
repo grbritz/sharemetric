@@ -737,7 +737,7 @@ var ga = function () {
 };
 // TODO: Disable debugs 
 // console.debug = function() {};
-var APP_VERSION = "2.0.2";
+var APP_VERSION = "2.0.3";
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -969,6 +969,7 @@ var AppManager = (function () {
             this.updateSettings(this.defaultSettings());
             return this.defaultSettings();
         }
+        settings.apis.push({ name: "Ahrefs", isActive: false, authToken: "", type: "link" });
         // Must always update the settings to avoid infinite loops
         settings["APP_VERSION"] = APP_VERSION;
         this.updateSettings(settings);

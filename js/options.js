@@ -26,7 +26,7 @@ var OptionsViewModel = (function (_super) {
         this.showResearch = ko.observable(appSettings.meta.showResearch);
         this.socialAPIContainer = new SocialAPIContainer(this.appManager.socialAPIs(), this.appManager);
         this.moz = new MozAPI(this.appManager.moz());
-        this.ahrefs = new MozAPI(this.appManager.ahrefs());
+        this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
         this.semrush = new SEMRush(this.appManager.semrush());
         this.showResearch.subscribe(function (value) {
             recordOptionsToggleInteraction(value, "research");
