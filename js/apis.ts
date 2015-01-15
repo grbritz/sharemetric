@@ -1,7 +1,6 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/cryptojs.d.ts' />
-/// <reference path='../lib/ts/purl-jquery.d.ts' />
 /// <reference path='./util.ts' />
 var ga = function(...any) {};
 class API {
