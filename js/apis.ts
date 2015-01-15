@@ -551,7 +551,8 @@ class SEMRush extends API {
 
   public resultRows : KnockoutObservableArray<any>;
   public authToken : KnockoutObservable<string>;
-  reportURL : string
+  reportURL : string;
+  reportDomain : string;
 
 
   constructor(json) {
@@ -563,8 +564,8 @@ class SEMRush extends API {
     this.authToken = ko.observable(json.authToken);
     
     var url = $.url(this.appManager.getURL());
-    this.reportURL = "http://www.semrush.com/info/" + url.attr('host') + url.attr('relative') ;
-    // this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
+    this.reportDomain = "http://www.semrush.com/info/" + url.attr('host');
+    this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
   }
 
   public toJSON() {

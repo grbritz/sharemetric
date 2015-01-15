@@ -508,8 +508,8 @@ var SEMRush = (function (_super) {
         this.resultRows = ko.observableArray([]);
         this.authToken = ko.observable(json.authToken);
         var url = $.url(this.appManager.getURL());
-        this.reportURL = "http://www.semrush.com/info/" + url.attr('host') + url.attr('relative');
-        // this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
+        this.reportDomain = "http://www.semrush.com/info/" + url.attr('host');
+        this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
     }
     SEMRush.prototype.toJSON = function () {
         var self = this;

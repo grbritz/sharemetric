@@ -7,17 +7,15 @@
 declare var chrome : any;
 var ga = function(...any) {};
 
-// TODO: Disable debugs 
 // console.debug = function() {};
 
 var APP_VERSION = "2.0.2";
 
-// TODO: Reactivate GA
-// (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-// new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-// j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-// 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-// })(window,document,'script','dataLayer','GTM-MBCM4N');
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MBCM4N');
 
 /****
  * Listeners for active tab changes and new page loads
@@ -281,25 +279,7 @@ class AppManager {
       return this.defaultSettings();
     }
 
-
-    // Remove ahrefs
-    var apis = settings.apis.filter(function(api, index, apis) {
-      return api.name != "Ahrefs";
-    });
-
-    if(settings["APP_VERSION"] == "2.0.0" || settings["APP_VERSION"] == "2.0.1") {
-      // Set default for SEMRush to be
-      apis.forEach(function(api, index, apis) {
-        // Disable 
-        if(api.name == "SEMRush") {
-          api.isActive = false;
-        }
-      });
-    }
-    
-    settings.apis = apis;
     settings["APP_VERSION"] = APP_VERSION;
-
     // Must always update the settings to avoid infinite loops
     this.updateSettings(settings); 
     return settings;

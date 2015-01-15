@@ -1,5 +1,6 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
+
 class ParentViewModel {
   appManager : any; // Main data model
   notifications : KnockoutObservableArray<any>;

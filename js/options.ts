@@ -62,6 +62,5 @@ class OptionsViewModel extends ParentViewModel {
 $(document).ready(function(){
   var appManager = chrome.extension.getBackgroundPage().appManager;
   var vm = new OptionsViewModel(appManager);
-  console.log(vm);
   ko.applyBindings(vm);
 });
