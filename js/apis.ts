@@ -18,8 +18,12 @@ class API {
     this.isActive = ko.observable(json.isActive);
     this.iconPath = json.iconPath;
     this.isLoaded = ko.observable(false);
+  
+    var self = this;
+    this.isActive.subscribe(function(value) {
+      recordOptionsToggleInteraction(value, self.name);
+    });
   }
-
 
   public getName() : string {
     return this.name;
@@ -29,11 +33,13 @@ class API {
 
   public querySuccess() {
     this.isLoaded(true);
-    ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL()); 
+    ga('send', 'event', 'Services', this.name, this.appManager.getRedactedURL()); 
   }
 
   public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
-    ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
+    ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+    ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+    ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
   }
 
   public toJSON() {
@@ -123,7 +129,7 @@ class SocialAPI extends API {
   public querySuccess() {
     this.isLoaded(true);
     this.appManager.increaseBadgeCount(this.totalCount());
-    ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
+    ga('send', 'event', 'Services', 'Social', this.name + " Loaded");
   }
 
   public toJSON() {
@@ -414,7 +420,20 @@ class Delicious extends SocialAPI {
 * Link APIs
 **************************************************************************************************/
 
-class MozAPI extends API {
+class LinksAPI extends API {
+  constructor(json) {
+    super(json);
+  }
+
+  public querySuccess() {
+    this.isLoaded(true);
+    ga('send', 'event', 'Services', 'Links', this.name + " Loaded"); 
+  }
+
+}
+
+
+class MozAPI extends LinksAPI {
   public mozID : KnockoutObservable<string>;
   public mozSecret : KnockoutObservable<string>;
   public pa : KnockoutObservable<string>;
@@ -495,16 +514,9 @@ class MozAPI extends API {
 
   public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
     console.debug("Moz query fail");
-    
-    if(jqXHR.status == 401) {
-      ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
-    }
-    else if(jqXHR.status == 503) {
-      ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - too many requests made");
-    }
-    else {
-      ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status);
-    }  
+    ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+    ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+    ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
   }
 
   private genQueryURL() {
@@ -550,8 +562,8 @@ class AhrefsAPI extends LinksAPI {
     this.domainRank = ko.observable(-1);
     this.drd = ko.observable(-1);
 
-    this.isAuthenticated = false;
-    this.numAuthAttempts = 0;
+    // this.isAuthenticated = false;
+    // this.numAuthAttempts = 0;
     
     if(this.isActive() && !this.authToken) {
       // If this was created as an active and
@@ -821,15 +833,15 @@ class SEMRush extends API {
         this.resultRows.push(row);
       }
     }
-    ga('send', 'event', 'API Load', 'API Load - SEMRush', this.appManager.getRedactedURL());
+    
+    ga('send', 'event', 'Services', 'Keywords', this.name + " Loaded");
   }
 
   public queryFail(jqXHR : any, textStatus : string, errorThrown : string) {
     console.debug("SEMRush queryFail");
-    console.log(jqXHR);
-    console.log("textStatus: " + textStatus);
-    console.log("errorThrown: " + errorThrown);
-    ga('send', 'event', 'Error', 'API Error - SEMRush', jqXHR.status);
+    ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+    ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+    ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
   }
 }
 

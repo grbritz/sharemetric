@@ -22,6 +22,10 @@ var API = (function () {
         this.isActive = ko.observable(json.isActive);
         this.iconPath = json.iconPath;
         this.isLoaded = ko.observable(false);
+        var self = this;
+        this.isActive.subscribe(function (value) {
+            recordOptionsToggleInteraction(value, self.name);
+        });
     }
     API.prototype.getName = function () {
         return this.name;
@@ -30,10 +34,12 @@ var API = (function () {
     };
     API.prototype.querySuccess = function () {
         this.isLoaded(true);
-        ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
+        ga('send', 'event', 'Services', this.name, this.appManager.getRedactedURL());
     };
     API.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
-        ga('send', 'event', 'Error', 'API Error - ' + this.name, 'Request Failed - ' + textStatus);
+        ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+        ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+        ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
     };
     API.prototype.toJSON = function () {
         var self = this;
@@ -109,7 +115,7 @@ var SocialAPI = (function (_super) {
     SocialAPI.prototype.querySuccess = function () {
         this.isLoaded(true);
         this.appManager.increaseBadgeCount(this.totalCount());
-        ga('send', 'event', 'API Load', 'API Load - ' + this.name, this.appManager.getRedactedURL());
+        ga('send', 'event', 'Services', 'Social', this.name + " Loaded");
     };
     SocialAPI.prototype.toJSON = function () {
         var self = this;
@@ -333,6 +339,17 @@ var Delicious = (function (_super) {
 /**************************************************************************************************
 * Link APIs
 **************************************************************************************************/
+var LinksAPI = (function (_super) {
+    __extends(LinksAPI, _super);
+    function LinksAPI(json) {
+        _super.call(this, json);
+    }
+    LinksAPI.prototype.querySuccess = function () {
+        this.isLoaded(true);
+        ga('send', 'event', 'Services', 'Links', this.name + " Loaded");
+    };
+    return LinksAPI;
+})(API);
 var MozAPI = (function (_super) {
     __extends(MozAPI, _super);
     function MozAPI(json) {
@@ -393,15 +410,9 @@ var MozAPI = (function (_super) {
     };
     MozAPI.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
         console.debug("Moz query fail");
-        if (jqXHR.status == 401) {
-            ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - incorrect key or secret");
-        }
-        else if (jqXHR.status == 503) {
-            ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status + " - too many requests made");
-        }
-        else {
-            ga('send', 'event', 'Error', 'API Error - Moz', jqXHR.status);
-        }
+        ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+        ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+        ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
     };
     MozAPI.prototype.genQueryURL = function () {
         var APICols = 34359738368 + 68719476736 + 1024 + 8192; // PA + PLRDs + DA + DLRDs
@@ -422,177 +433,7 @@ var MozAPI = (function (_super) {
         this.dlrd("-" + 1);
     };
     return MozAPI;
-})(API);
-var AhrefsAPI = (function (_super) {
-    __extends(AhrefsAPI, _super);
-    function AhrefsAPI(json) {
-        json.name = "Ahrefs";
-        json.iconPath = "/images/icons/ahrefs.png";
-        _super.call(this, json);
-        this.urlRank = ko.observable(-1);
-        this.prd = ko.observable(-1);
-        this.domainRank = ko.observable(-1);
-        this.drd = ko.observable(-1);
-        this.isAuthenticated = false;
-        this.numAuthAttempts = 0;
-        if (this.isActive() && !this.authToken) {
-            // If this was created as an active and
-            // did not have a saved auth token
-            this.requestToken(function () {
-            });
-        }
-    }
-    AhrefsAPI.prototype.toJSON = function () {
-        var self = this;
-        return {
-            authToken: self.authToken,
-            name: self.name,
-            isActive: self.isActive(),
-            type: "link"
-        };
-    };
-    AhrefsAPI.prototype.queryData = function () {
-        var self = this;
-        self.clearCounts();
-        if (self.authToken == "") {
-            self.requestToken(self.queryData);
-        }
-        else {
-            // GET urlRank
-            $.get("http://apiv2.ahrefs.com", {
-                token: self.authToken,
-                target: self.appManager.getURL(),
-                from: "ahrefs_rank",
-                mode: "exact",
-                limit: "5",
-                output: "json"
-            }, function (results) {
-                self.urlRank = results.pages[0].ahrefs_rank;
-                if (self.allAPISLoaded()) {
-                    ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
-                }
-            }, "json").fail(self.queryFail.bind(self));
-            // GET domainRank
-            $.get("http://apiv2.ahrefs.com", {
-                token: self.authToken,
-                target: self.appManager.getURL(),
-                from: "domain_rating",
-                mode: "domain",
-                output: "json"
-            }, function (results) {
-                self.domainRank = results.domain.domain_rating;
-                if (self.allAPISLoaded()) {
-                    ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
-                }
-            }, "json").fail(self.queryFail.bind(self));
-            // GET drd
-            $.get("http://apiv2.ahrefs.com", {
-                token: self.authToken,
-                target: self.appManager.getURL(),
-                from: "refdomains",
-                mode: "domain",
-                limit: "1",
-                output: "json"
-            }, function (results) {
-                self.drd = results.stats.refdomains;
-                if (self.allAPISLoaded()) {
-                    ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
-                }
-            }, "json").fail(self.queryFail.bind(self));
-            // GET prd
-            $.get("http://apiv2.ahrefs.com", {
-                token: self.authToken,
-                target: self.appManager.getURL(),
-                from: "refdomains",
-                mode: "exact",
-                limit: "1",
-                output: "json"
-            }, function (results) {
-                self.prd = results.stats.refdomains;
-                if (self.allAPISLoaded()) {
-                    ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
-                }
-            }, "json").fail(self.queryFail.bind(self));
-        }
-    };
-    AhrefsAPI.prototype.queryFail = function () {
-        // TODO:
-        console.error("AHREFS API CALL FAILURE");
-    };
-    AhrefsAPI.prototype.requestToken = function (successCallback) {
-        var self = this;
-        var state = self.genState();
-        self.numAuthAttempts += 1;
-        self.authToken = "";
-        var requestURL = "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=";
-        requestURL += state + "&redirect_uri=http%3A%2F%2Fwww.contentharmony.com%2Ftools%2Fsharemetric%2F";
-        ga('send', 'event', 'Ahrefs Authorization', 'Authorization Requested');
-        chrome.windows.create({
-            type: "popup",
-            url: requestURL
-        }, function (window) {
-            // TODO: Why did I use setTimeout here in old version?
-            setTimeout(function () {
-                chrome.windows.update(window.id, { focused: true }, function (window) {
-                    var oAuthTabID = window.tabs[0].id;
-                    chrome.tabs.onUpdated.addListener(function (tabID, changeInfo, tab) {
-                        var url = $.url(changeInfo.url);
-                        if (tabID == oAuthTabID && url.attr('host') == "www.contentharmony.com" && url.attr('path') == "/tools/sharemetric/" && url.param('state') == state) {
-                            if (url.param('error') == 'access_denied') {
-                                self.requestTokenFail();
-                            }
-                            else {
-                                // Get that token
-                                $.post("https://ahrefs.com/oauth2/token.php", {
-                                    grant_type: "authorization_code",
-                                    code: url.param('code'),
-                                    client_id: "ShareMetric",
-                                    client_secret: "Bg6xDGYGb",
-                                    redirect_uri: "http://www.contentharmony.com/tools/sharemetric/"
-                                }, function (results) {
-                                    self.authToken = results.access_token;
-                                    ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
-                                    chrome.tabs.remove(oAuthTabID);
-                                    self.appManager.persistSettings();
-                                    // TODO: Do I need these two trackers?
-                                    self.isAuthenticated = true;
-                                    self.numAuthAttempts = 0;
-                                    if (successCallback != undefined) {
-                                        successCallback();
-                                    }
-                                }).fail(function (jqXHR, textStatus, errorThrown) {
-                                    self.requestTokenFail();
-                                });
-                            }
-                        }
-                    }); // \chrome.tabs.onUpdated.addListener
-                }); // \chrome.windows.update
-            }, 100); // \setTimout 
-        }); // \chrome.windows.create
-    };
-    AhrefsAPI.prototype.requestTokenFail = function () {
-        //TODO:
-        this.authToken = "";
-    };
-    AhrefsAPI.prototype.genState = function () {
-        // See http://stackoverflow.com/a/2117523/1408490 for more info on this function
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    };
-    AhrefsAPI.prototype.clearCounts = function () {
-        // Set to -1 as special flag that this has not loaded yet
-        this.urlRank(-1);
-        this.prd(-1);
-        this.domainRank(-1);
-        this.drd(-1);
-    };
-    AhrefsAPI.prototype.allAPISLoaded = function () {
-        return this.urlRank() != -1 && this.prd() != -1 && this.domainRank() != -1 && this.drd() != -1;
-    };
-    return AhrefsAPI;
-})(API);
+})(LinksAPI);
 /**************************************************************************************************
 * Keywords APIs
 **************************************************************************************************/
@@ -646,14 +487,13 @@ var SEMRush = (function (_super) {
                 this.resultRows.push(row);
             }
         }
-        ga('send', 'event', 'API Load', 'API Load - SEMRush', this.appManager.getRedactedURL());
+        ga('send', 'event', 'Services', 'Keywords', this.name + " Loaded");
     };
     SEMRush.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
         console.debug("SEMRush queryFail");
-        console.log(jqXHR);
-        console.log("textStatus: " + textStatus);
-        console.log("errorThrown: " + errorThrown);
-        ga('send', 'event', 'Error', 'API Error - SEMRush', jqXHR.status);
+        ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+        ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+        ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
     };
     return SEMRush;
 })(API);

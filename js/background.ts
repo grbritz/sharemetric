@@ -10,7 +10,7 @@ var ga = function(...any) {};
 // TODO: Disable debugs 
 // console.debug = function() {};
 
-var APP_VERSION = "2.0.1";
+var APP_VERSION = "2.0.2";
 
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -71,12 +71,6 @@ class AppManager {
 
   public moz() {
     var json = this.apis().filter(function(api, index, apis) { return api.name === "Moz";})[0];
-    json.appManager = this;
-    return json;
-  }
-
-  public ahrefs() {
-    var json = this.apis().filter(function(api, index, apis) { return api.name === "Ahrefs";})[0];
     json.appManager = this;
     return json;
   }
@@ -231,7 +225,9 @@ class AppManager {
     // To act in accordance with how getSettings is implemented,
     // updateSettings must immediately update the settings in localstorage
     window.localStorage["ShareMetric"] = JSON.stringify(settings);
-    this.buildSocialAPIContainer();
+    
+    // In case autoloadSocial is going
+    this.buildSocialAPIContainer(); 
   }
 
   public getSettings() : any {
@@ -269,7 +265,6 @@ class AppManager {
         { name : "Pinterest",   isActive : true, type: "social" },
         { name : "Delicious",   isActive : false, type: "social" },
         { name : "Moz", isActive : false, mozID : "", mozSecret : "", type : "link" },
-        { name : "Ahrefs", isActive : false, authToken : "", type : "link" },
         { name : "SEMRush", isActive : false, authToken : "", type : "keywords" }
       ],
       notificationsDismissed : [],
@@ -281,9 +276,33 @@ class AppManager {
     // This function accepts a settings object (that was saved to local storage)
     // It is used when the APP_VERSION changes in a way that modifies the data stored to storage
     // and those changes need to be applied on top of the user's stored preferences.
+    if(settings["APP_VERSION"] == undefined) {
+      this.updateSettings(this.defaultSettings()); 
+      return this.defaultSettings();
+    }
+
+
+    // Remove ahrefs
+    var apis = settings.apis.filter(function(api, index, apis) {
+      return api.name != "Ahrefs";
+    });
+
+    if(settings["APP_VERSION"] == "2.0.0" || settings["APP_VERSION"] == "2.0.1") {
+      // Set default for SEMRush to be
+      apis.forEach(function(api, index, apis) {
+        // Disable 
+        if(api.name == "SEMRush") {
+          api.isActive = false;
+        }
+      });
+    }
     
-    // TODO: Don't just return default settings every update
-    return this.defaultSettings();
+    settings.apis = apis;
+    settings["APP_VERSION"] = APP_VERSION;
+
+    // Must always update the settings to avoid infinite loops
+    this.updateSettings(settings); 
+    return settings;
   }
 }
 

@@ -1,6 +1,6 @@
 {  
 	"name"				: "ShareMetric",
- 	"version"			: "2.0",
+ 	"version"			: "2.0.2",
  	"manifest_version"  : 2,
 	"homepage_url"		: "http://contentharmony.com/tools/sharemetric/",
  	"description"		: "Social, link, and keyword data for your current browser URL",
@@ -21,5 +21,5 @@
 	"permissions"		: [
 		"http://*/*", "https://*/*", "tabs", "storage"
 	],
-	"content_security_policy": "script-src 'self' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js; object-src 'self'"
+	"content_security_policy": "script-src 'self' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; object-src 'self'"
  }

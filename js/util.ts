@@ -1,6 +1,6 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
-class NotificationViewModel {
+class ParentViewModel {
   appManager : any; // Main data model
   notifications : KnockoutObservableArray<any>;
 
@@ -15,6 +15,7 @@ class NotificationViewModel {
     var appSettings = this.appManager.getSettings();
     appSettings.notificationsDismissed.push(notif.id);
     this.appManager.updateSettings(appSettings);
+    ga("send", "event", "notifications", "notification dismissed", notif.id);
   }
 
   public setNotifications(notifications) {
@@ -23,6 +24,17 @@ class NotificationViewModel {
     notifications.forEach(function(notif, index, arr) {
       self.notifications.push(notif);
     });
+  }
+
+  // Note: this will preserve the default click behavior of whatever is clicked
+  //        e.g. if this was a link, the link will be followed
+  public recordClick(eventCategory, eventName, eventLabel) : boolean {
+    console.debug("Recording click:");
+    console.debug(eventCategory);
+    console.debug(eventName);
+    console.debug(eventLabel);
+    ga("send", "event", eventCategory, eventName, eventLabel);
+    return true;
   }
 }
 
@@ -51,4 +63,9 @@ function abbreviateNumber(count : number) : string {
 function getDomainOf(url : string) : string {
   var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
   return matches && matches[1];
+}
+
+function recordOptionsToggleInteraction(toggleVal, interactionLabel) {
+  var eventName = (toggleVal === true) ? "Service Activated" : "Service Deactivated";
+  ga("send", "event", "Options Interaction", eventName, interactionLabel);
 }

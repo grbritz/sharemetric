@@ -8,6 +8,7 @@
 	<script src="/lib/js/jquery-2.1.0.min.js"></script>
 	<script src="/lib/js/bootstrap.min.js"></script>
   <script src="/lib/js/knockout-3.2.0.js"></script>
+  <script src="/lib/js/knockout-bootstrap.min.js"></script>
 	<script src="/js/util.js"></script>
 	<script src="/js/apis.js"></script>
 	<script src="/js/options.js"></script>
@@ -17,14 +18,14 @@
 		<div class="row" id="head">
 			<div class="col-xs-12">
 				<h1>
-					<a data-ga-action="Content Harmony" href="http://www.contentharmony.com"><img src="/images/content-harmony-options.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric
+					<a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Header', 'Content Harmony')" href="http://www.contentharmony.com"><img src="/images/content-harmony-options.png" alt="Content Harmony logo">Content Harmony</a> - ShareMetric
 				</h1>
 				<ul class="horizontal" style="padding-left:0px">
-					<li><a data-ga-action="Report An Issue" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
+					<li><a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Header', 'Report An Issue')" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
 					<li class="spacer">|</li>
-					<li><a data-ga-action="Request a Feature" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
+					<li><a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Header', 'Request a Feature')" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
 					<li class="spacer">|</li>
-					<li><a data-ga-action="Show Some Love" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
+					<li><a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Header', 'Show Some Love')" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
 				</ul>
 			</div>
 		</div>
@@ -76,6 +77,7 @@
 							Enable Moz metrics (requires <a href="http://moz.com/products/api/keys">Moz API key and secret</a>)
 						</label>
 					</div>
+					<!-- ko if: isActive -->
 					<div class="form-group">
 						<label>Moz AccessID <br />
 							<input class="form-control" type="text" data-bind="value: mozID" />
@@ -86,15 +88,8 @@
 							<input class="form-control" type="text" data-bind="value: mozSecret" />
 						</label>
 					</div>
+					<!-- /ko -->
 				</div> <!-- #/moz -->
-				<!-- <div id="ahrefs" data-bind="with: ahrefs">
-					<div class="form-group">
-						<label> 
-							<input type="checkbox" data-bind="checked: isActive" />
-							Enable ahrefs metrics (requires Ahrefs oAuth authentication)
-						</label>
-					</div> 
-				</div> <!- #/ahrefs -> -->
 				<button class="save-options" data-bind="click: saveOptions">Update</button>
 			</div> <!-- .col-sm-6 -->
 		</div> <!-- #/links -->
@@ -109,11 +104,13 @@
 							Enable SEMRush metrics (requires <a href="http://www.semrush.com/api.html">SEMRush API key</a>)
 						</label>
 					</div>
+					<!-- ko if: isActive -->
 					<div class="form-group">
 						<label>SEMRush API Key <br />
 							<input class="form-control" type="text" data-bind="value: authToken" />
 						</label>
 					</div>
+					<!-- /ko -->
 				</div> <!-- #/semrush -->
 				<button class="save-options" data-bind="click: saveOptions">Update</button>
 			</div> <!-- #/col-sm-6 -->
@@ -147,7 +144,13 @@
 		<div class="row" id="foot">
 			<h2>Credits</h2>
 			<div class="col-sm-12 col-md-12">
-				 <p>The ShareMetric extension was created by <a data-ga-action="Graeme Britz" href="http://graemebritz.com">Graeme Britz</a> and <a data-ga-action="Kane Jamison" href="http://kanejamison.com">Kane Jamison</a> at <a data-ga-action="Content Harmony" href="http://contentharmony.com">Content Harmony</a>. Full documentation for this extension can be found at <a data-ga-action="ShareMetric Documentation" href="http://contentharmony.com/tools/sharemetric">here</a>.</p>
+				 <p>The ShareMetric extension was created by 
+				 <a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Footer', 'Graeme Britz')" href="http://graemebritz.com">Graeme Britz</a> 
+				 and 
+				 <a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Footer', 'Kane Jamison')" href="http://kanejamison.com">Kane Jamison</a> 
+				 at 
+				 <a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Footer', 'Content Harmony')" href="http://contentharmony.com">Content Harmony</a>. Full documentation for this extension can be found at 
+				 <a data-bind="click: recordClick.bind($data, 'Options Interaction', 'Link Clicked - Options Footer', 'ShareMetric Documentation')" href="http://contentharmony.com/tools/sharemetric">here</a>.</p>
 			</div>
 		</div>
 	</div>

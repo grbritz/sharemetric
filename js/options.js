@@ -19,18 +19,21 @@ var OptionsViewModel = (function (_super) {
     __extends(OptionsViewModel, _super);
     function OptionsViewModel(appManager) {
         _super.call(this, appManager);
-        ga("send", "event", "Extension Usage", "Options Page Loaded");
-        this.displaySettings();
-    }
-    OptionsViewModel.prototype.displaySettings = function () {
+        var self = this;
         var appSettings = this.appManager.getSettings();
+        ga("send", "event", "Extension Usage", "Options Page Loaded");
         this.autoloadSocial = ko.observable(appSettings.meta.autoloadSocial);
         this.showResearch = ko.observable(appSettings.meta.showResearch);
         this.socialAPIContainer = new SocialAPIContainer(this.appManager.socialAPIs(), this.appManager);
         this.moz = new MozAPI(this.appManager.moz());
-        this.ahrefs = new AhrefsAPI(this.appManager.ahrefs());
         this.semrush = new SEMRush(this.appManager.semrush());
-    };
+        this.showResearch.subscribe(function (value) {
+            recordOptionsToggleInteraction(value, "research");
+        });
+        this.autoloadSocial.subscribe(function (value) {
+            recordOptionsToggleInteraction(value, "autoloadSocial");
+        });
+    }
     OptionsViewModel.prototype.saveOptions = function () {
         ga("send", "event", "Options Interaction", "Options Updated");
         var appSettings = this.appManager.getSettings();
@@ -38,14 +41,12 @@ var OptionsViewModel = (function (_super) {
         appSettings.meta.showResearch = this.showResearch();
         appSettings.apis = this.socialAPIContainer.toJSON();
         appSettings.apis.push(this.moz.toJSON());
-        appSettings.apis.push(this.ahrefs.toJSON());
         appSettings.apis.push(this.semrush.toJSON());
         this.appManager.updateSettings(appSettings);
-        // this.displaySettings();
         window.location.reload();
     };
     return OptionsViewModel;
-})(NotificationViewModel);
+})(ParentViewModel);
 $(document).ready(function () {
     var appManager = chrome.extension.getBackgroundPage().appManager;
     var vm = new OptionsViewModel(appManager);
