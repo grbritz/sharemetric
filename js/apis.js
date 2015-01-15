@@ -535,50 +535,59 @@ var AhrefsAPI = (function (_super) {
         var requestURL = "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=";
         requestURL += state + "&redirect_uri=http%3A%2F%2Fwww.contentharmony.com%2Ftools%2Fsharemetric%2F";
         ga('send', 'event', 'Ahrefs Authorization', 'Authorization Requested');
-        chrome.windows.create({
-            type: "popup",
+        chrome.tabs.create({
             url: requestURL
-        }, function (window) {
-            // TODO: Why did I use setTimeout here in old version?
-            setTimeout(function () {
-                chrome.windows.update(window.id, { focused: true }, function (window) {
-                    var oAuthTabID = window.tabs[0].id;
-                    chrome.tabs.onUpdated.addListener(function (tabID, changeInfo, tab) {
-                        var url = $.url(changeInfo.url);
-                        if (tabID == oAuthTabID && url.attr('host') == "www.contentharmony.com" && url.attr('path') == "/tools/sharemetric/" && url.param('state') == state) {
-                            if (url.param('error') == 'access_denied') {
-                                self.requestTokenFail();
-                            }
-                            else {
-                                // Get that token
-                                $.post("https://ahrefs.com/oauth2/token.php", {
-                                    grant_type: "authorization_code",
-                                    code: url.param('code'),
-                                    client_id: "ShareMetric",
-                                    client_secret: "Bg6xDGYGb",
-                                    redirect_uri: "http://www.contentharmony.com/tools/sharemetric/"
-                                }, function (results) {
-                                    self.authToken = results.access_token;
-                                    ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
-                                    chrome.tabs.remove(oAuthTabID);
-                                    self.appManager.persistSettings();
-                                    if (successCallback != undefined) {
-                                        successCallback();
-                                    }
-                                }).fail(function (jqXHR, textStatus, errorThrown) {
-                                    self.requestTokenFail();
-                                });
-                            }
+        }, function (tab) {
+            var oAuthTab = tab;
+            function updateListener(tabID, changeInfo, tab) {
+                if (changeInfo == "complete" && tabID == oAuthTab.id) {
+                    var url = $.url(changeInfo.url);
+                    console.debug("ahrefs update listener fired");
+                    alert("ahrefs update listener fired");
+                    if (url.attr('host') == "www.contentharmony.com" && url.attr('path') == '/tools/sharemetric/' && url.param('state') == state) {
+                        console.debug("ahrefs case passed");
+                        alert("ahrefs case passed");
+                        if (url.param('error') == 'access_denied') {
+                            self.requestTokenFail();
                         }
-                    }); // \chrome.tabs.onUpdated.addListener
-                }); // \chrome.windows.update
-            }, 100); // \setTimout 
-        }); // \chrome.windows.create
+                        else {
+                            // // Get that token
+                            // $.post("https://ahrefs.com/oauth2/token.php", {
+                            //         grant_type    : "authorization_code",
+                            //         code          : url.param('code'),
+                            //         client_id     : "ShareMetric",
+                            //         client_secret : "Bg6xDGYGb",
+                            //         redirect_uri  : "http://www.contentharmony.com/tools/sharemetric/"},
+                            //         function(results : any) {
+                            //           self.authToken = results.access_token;
+                            //           ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
+                            //           chrome.tabs.remove(oAuthTab.id);
+                            //           console.debug("ahrefs authorized");
+                            //           alert("ahrefs authorized");
+                            //           self.appManager.persistSettings();
+                            //           if(successCallback != undefined) {
+                            //             successCallback();  
+                            //           }
+                            //         }
+                            //   ).fail(function(jqXHR : any, textStatus : string, errorThrown : string) { 
+                            //           self.requestTokenFail();
+                            //         }
+                            //   );
+                            self.requestTokenFail();
+                        }
+                        chrome.tabs.onUpdated.removeListener(updateListener);
+                    }
+                }
+            }
+            chrome.tabs.onUpdated.addListener(updateListener); // #/chrome.tabs.onUpdated.addListener
+        }); // #/chrome.tabs.create
     };
     AhrefsAPI.prototype.requestTokenFail = function () {
         //TODO:
         this.authToken = "";
         this.isActive(false);
+        console.debug("ahrefs request token fail");
+        alert("ahrefs request token fail");
     };
     AhrefsAPI.prototype.genState = function () {
         // See http://stackoverflow.com/a/2117523/1408490 for more info on this function
