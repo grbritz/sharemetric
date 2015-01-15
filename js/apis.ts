@@ -543,8 +543,6 @@ class MozAPI extends LinksAPI {
 }
 
 class AhrefsAPI extends LinksAPI {
-  public isAuthenticated : boolean;
-  public numAuthAttempts : number;
 
   private urlRank : KnockoutObservable<number>;
   private prd : KnockoutObservable<number>;
@@ -561,9 +559,6 @@ class AhrefsAPI extends LinksAPI {
     this.prd = ko.observable(-1);
     this.domainRank = ko.observable(-1);
     this.drd = ko.observable(-1);
-
-    // this.isAuthenticated = false;
-    // this.numAuthAttempts = 0;
     
     if(this.isActive() && !this.authToken) {
       // If this was created as an active and
@@ -669,14 +664,13 @@ class AhrefsAPI extends LinksAPI {
   
   public queryFail() {
     // TODO:
-    console.error("AHREFS API CALL FAILURE");
+    console.debug("AHREFS API CALL FAILURE");
   }
 
   private requestToken(successCallback : any) {
     var self = this;
     var state = self.genState();
     
-    self.numAuthAttempts += 1;
     self.authToken = "";
 
     var requestURL = "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=";
@@ -718,10 +712,6 @@ class AhrefsAPI extends LinksAPI {
                           
                           self.appManager.persistSettings();
 
-                          // TODO: Do I need these two trackers?
-                          self.isAuthenticated = true;
-                          self.numAuthAttempts = 0;
-
                           if(successCallback != undefined) {
                             successCallback();  
                           }
@@ -741,7 +731,7 @@ class AhrefsAPI extends LinksAPI {
   private requestTokenFail() {
     //TODO:
     this.authToken = "";
-
+    this.isActive(false);
   }
 
   private genState() {

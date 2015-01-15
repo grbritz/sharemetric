@@ -90,6 +90,14 @@
 					</div>
 					<!-- /ko -->
 				</div> <!-- #/moz -->
+				<div id="ahrefs" data-bind="with: ahrefs">
+					<div class="form-group">
+						<label>
+							<input type="checkbox" data-bind="checked: isActive" />
+							Enable ahrefs metrics (requires Ahrefs oAuth)
+						</label>
+					</div>
+				</div> <!-- #/ahrefs -->
 				<button class="save-options" data-bind="click: saveOptions">Update</button>
 			</div> <!-- .col-sm-6 -->
 		</div> <!-- #/links -->
