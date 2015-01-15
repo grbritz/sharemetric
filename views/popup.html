@@ -69,10 +69,10 @@
             <div class="api-data col-xs-6"> <!-- api data -->
               <div class="row">
                 <div class="col-xs-6">
-                  <span data-bind="tooltip: {title: 'Page Authority, as reported by Open Site Explorer'}">PA: <strong data-bind="text: pa"></strong></span>
+                  <span class="link-metric" data-bind="tooltip: {title: 'Page Authority, as reported by Open Site Explorer'}">PA: <strong data-bind="text: pa"></strong></span>
                 </div>
                 <div class="col-xs-6">
-                  <span data-bind="tooltip: {title: 'Number of Linking Root Domains for this Page, as reported by Open Site Explorer'}">PLRDs: <strong data-bind="text: plrd"></strong></span>
+                  <span class="link-metric" data-bind="tooltip: {title: 'Number of Linking Root Domains for this Page, as reported by Open Site Explorer'}">PLRDs: <strong data-bind="text: plrd"></strong></span>
                 </div>
               </div>
               <div class="row">
@@ -82,10 +82,10 @@
               </div>
               <div class="row">
                 <div class="col-xs-6">
-                  <span data-bind="tooltip: {title: 'Domain Authority, as reported by Open Site Explorer'}">DA: <strong data-bind="text: da"></strong></span>
+                  <span class="link-metric" data-bind="tooltip: {title: 'Domain Authority, as reported by Open Site Explorer'}">DA: <strong data-bind="text: da"></strong></span>
                 </div>
                 <div class="col-xs-6">
-                  <span data-bind="tooltip: {title: 'Number of Linking Root Domains for this Domain, as reported by Open Site Explorer'}">DLRDs: <strong data-bind="text: dlrd"></strong></span>
+                  <span class="link-metric" data-bind="tooltip: {title: 'Number of Linking Root Domains for this Domain, as reported by Open Site Explorer'}">DLRDs: <strong data-bind="text: dlrd"></strong></span>
                 </div>
               </div>
               <div class="row">
@@ -124,11 +124,11 @@
             <table>
               <thead>
                 <tr>
-                  <th></th> <!-- for indexes -->
-                  <th>Keyword:</th>
-                  <th>Rank:</th>
-                  <th>Volume:</th>
-                  <th>CPC:</th>
+                  <th>#</th> <!-- for indexes -->
+                  <th>Keyword</th>
+                  <th>Rank</th>
+                  <th>Volume</th>
+                  <th>CPC</th>
                 </tr>
               </thead>
               <tbody>

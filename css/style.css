@@ -4,6 +4,11 @@ body.popup {
 }
 
 
+#head {
+	margin-top: 10px;
+	margin-bottom: -10px;
+}
+
 #head h1 a img {
 	padding-right: 10px;
 }
@@ -22,8 +27,8 @@ h2 {
 }
 
 hr {
-	margin-top: 5px;
-	margin-bottom:5px;
+	margin-top: 10px;
+	margin-bottom:10px;
 	height: 1px;
 	background: #e5e5e5;
 }
@@ -146,7 +151,11 @@ ul.horizontal li.spacer {
 }
 
 #links {
-	font-size:90%;
+	font-size: 90%;
+}
+
+.link-metric {
+	font-size: 105%;
 }
 
 #keywords table {
