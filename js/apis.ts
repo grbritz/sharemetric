@@ -361,7 +361,7 @@ class Pinterest extends SocialAPI {
 
   public detailsHref() {
     var url = $.url(this.appManager.getURL());
-    return "http://www.pinterest.com/source/";
+    return "http://www.pinterest.com/source/" + url.attr('host');
   }
 
   public queryData() {
@@ -561,7 +561,10 @@ class SEMRush extends API {
 
     this.resultRows = ko.observableArray([]);
     this.authToken = ko.observable(json.authToken);
-    this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
+    
+    var url = $.url(this.appManager.getURL());
+    this.reportURL = "http://www.semrush.com/info/" + url.attr('host') + url.attr('relative') ;
+    // this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
   }
 
   public toJSON() {
