@@ -444,8 +444,6 @@ var AhrefsAPI = (function (_super) {
         this.prd = ko.observable(-1);
         this.domainRank = ko.observable(-1);
         this.drd = ko.observable(-1);
-        // this.isAuthenticated = false;
-        // this.numAuthAttempts = 0;
         if (this.isActive() && !this.authToken) {
             // If this was created as an active and
             // did not have a saved auth token
@@ -528,12 +526,11 @@ var AhrefsAPI = (function (_super) {
     };
     AhrefsAPI.prototype.queryFail = function () {
         // TODO:
-        console.error("AHREFS API CALL FAILURE");
+        console.debug("AHREFS API CALL FAILURE");
     };
     AhrefsAPI.prototype.requestToken = function (successCallback) {
         var self = this;
         var state = self.genState();
-        self.numAuthAttempts += 1;
         self.authToken = "";
         var requestURL = "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=";
         requestURL += state + "&redirect_uri=http%3A%2F%2Fwww.contentharmony.com%2Ftools%2Fsharemetric%2F";
@@ -565,9 +562,6 @@ var AhrefsAPI = (function (_super) {
                                     ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
                                     chrome.tabs.remove(oAuthTabID);
                                     self.appManager.persistSettings();
-                                    // TODO: Do I need these two trackers?
-                                    self.isAuthenticated = true;
-                                    self.numAuthAttempts = 0;
                                     if (successCallback != undefined) {
                                         successCallback();
                                     }
@@ -584,6 +578,7 @@ var AhrefsAPI = (function (_super) {
     AhrefsAPI.prototype.requestTokenFail = function () {
         //TODO:
         this.authToken = "";
+        this.isActive(false);
     };
     AhrefsAPI.prototype.genState = function () {
         // See http://stackoverflow.com/a/2117523/1408490 for more info on this function

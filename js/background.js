@@ -505,8 +505,6 @@ var AhrefsAPI = (function (_super) {
         this.prd = ko.observable(-1);
         this.domainRank = ko.observable(-1);
         this.drd = ko.observable(-1);
-        // this.isAuthenticated = false;
-        // this.numAuthAttempts = 0;
         if (this.isActive() && !this.authToken) {
             // If this was created as an active and
             // did not have a saved auth token
@@ -589,12 +587,11 @@ var AhrefsAPI = (function (_super) {
     };
     AhrefsAPI.prototype.queryFail = function () {
         // TODO:
-        console.error("AHREFS API CALL FAILURE");
+        console.debug("AHREFS API CALL FAILURE");
     };
     AhrefsAPI.prototype.requestToken = function (successCallback) {
         var self = this;
         var state = self.genState();
-        self.numAuthAttempts += 1;
         self.authToken = "";
         var requestURL = "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=";
         requestURL += state + "&redirect_uri=http%3A%2F%2Fwww.contentharmony.com%2Ftools%2Fsharemetric%2F";
@@ -626,9 +623,6 @@ var AhrefsAPI = (function (_super) {
                                     ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
                                     chrome.tabs.remove(oAuthTabID);
                                     self.appManager.persistSettings();
-                                    // TODO: Do I need these two trackers?
-                                    self.isAuthenticated = true;
-                                    self.numAuthAttempts = 0;
                                     if (successCallback != undefined) {
                                         successCallback();
                                     }
@@ -645,6 +639,7 @@ var AhrefsAPI = (function (_super) {
     AhrefsAPI.prototype.requestTokenFail = function () {
         //TODO:
         this.authToken = "";
+        this.isActive(false);
     };
     AhrefsAPI.prototype.genState = function () {
         // See http://stackoverflow.com/a/2117523/1408490 for more info on this function
@@ -789,6 +784,13 @@ var AppManager = (function () {
     AppManager.prototype.moz = function () {
         var json = this.apis().filter(function (api, index, apis) {
             return api.name === "Moz";
+        })[0];
+        json.appManager = this;
+        return json;
+    };
+    AppManager.prototype.ahrefs = function () {
+        var json = this.apis().filter(function (api, index, apis) {
+            return api.name === "Ahrefs";
         })[0];
         json.appManager = this;
         return json;
@@ -952,6 +954,7 @@ var AppManager = (function () {
                 { name: "Pinterest", isActive: true, type: "social" },
                 { name: "Delicious", isActive: false, type: "social" },
                 { name: "Moz", isActive: false, mozID: "", mozSecret: "", type: "link" },
+                { name: "Ahrefs", isActive: false, authToken: "", type: "link" },
                 { name: "SEMRush", isActive: false, authToken: "", type: "keywords" }
             ],
             notificationsDismissed: [],
@@ -966,22 +969,8 @@ var AppManager = (function () {
             this.updateSettings(this.defaultSettings());
             return this.defaultSettings();
         }
-        // Remove ahrefs
-        var apis = settings.apis.filter(function (api, index, apis) {
-            return api.name != "Ahrefs";
-        });
-        if (settings["APP_VERSION"] == "2.0.0" || settings["APP_VERSION"] == "2.0.1") {
-            // Set default for SEMRush to be
-            apis.forEach(function (api, index, apis) {
-                // Disable 
-                if (api.name == "SEMRush") {
-                    api.isActive = false;
-                }
-            });
-        }
-        settings.apis = apis;
-        settings["APP_VERSION"] = APP_VERSION;
         // Must always update the settings to avoid infinite loops
+        settings["APP_VERSION"] = APP_VERSION;
         this.updateSettings(settings);
         return settings;
     };
