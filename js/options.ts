@@ -10,6 +10,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-MBCM4N');
 
 ga('create', 'UA-38625564-1', 'auto');
+ga('set', 'checkProtocolTask', function(){});
+ga('send', 'pageview', '/options.html');
 
 class OptionsViewModel extends ParentViewModel {
   socialAPIContainer : any;

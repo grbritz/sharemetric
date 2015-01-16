@@ -17,6 +17,9 @@ var __extends = this.__extends || function (d, b) {
     f.parentNode.insertBefore(j, f);
 })(window, document, 'script', 'dataLayer', 'GTM-MBCM4N');
 ga('create', 'UA-38625564-1', 'auto');
+ga('set', 'checkProtocolTask', function () {
+});
+ga('send', 'pageview', '/options.html');
 var OptionsViewModel = (function (_super) {
     __extends(OptionsViewModel, _super);
     function OptionsViewModel(appManager) {
