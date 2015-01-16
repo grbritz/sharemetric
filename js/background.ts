@@ -6,8 +6,6 @@
 /// <reference path='./apis.ts' />
 declare var chrome : any;
 
-// console.debug = function() {};
-
 var APP_VERSION = "2.0.2";
 
 ga('send', 'pageview', '/background.html');
