@@ -1,6 +1,6 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
-console.debug = function() {};
+// console.debug = function() {};
 
 declare var ga : any;
 
