@@ -7,7 +7,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/cryptojs.d.ts' />
-/// <reference path='./util.ts' />
+/// <reference path='./main.ts' />
 var API = (function () {
     function API(json) {
         this.appManager = json.appManager;
@@ -356,11 +356,11 @@ var MozAPI = (function (_super) {
         this.plrd = ko.observable("-" + 1);
         this.da = ko.observable("-" + 1);
         this.dlrd = ko.observable("-" + 1);
-        this.osePageMetrics = "http://www.opensiteexplorer.org/links?site=" + encodeURIComponent(this.appManager.getURL());
-        this.oseDomainMetrics = "http://www.opensiteexplorer.org/links?page=1&site=" + encodeURIComponent(this.appManager.getURL()) + "&sort=page_authority&filter=&source=&target=domain&group=0";
+        this.pageMetrics = "http://www.opensiteexplorer.org/links?site=" + encodeURIComponent(this.appManager.getURL());
+        this.domainMetrics = "http://www.opensiteexplorer.org/links?page=1&site=" + encodeURIComponent(this.appManager.getURL()) + "&sort=page_authority&filter=&source=&target=domain&group=0";
     }
     MozAPI.prototype.viewMoreLinks = function () {
-        var encodedURL = this.appManager.getURL();
+        var encodedURL = encodeURIComponent(this.appManager.getURL());
         return [
             {
                 href: "http://www.opensiteexplorer.org/pages?site=" + encodedURL,
@@ -438,13 +438,38 @@ var AhrefsAPI = (function (_super) {
         this.prd = ko.observable(-1);
         this.domainRank = ko.observable(-1);
         this.drd = ko.observable(-1);
+        this.ahrefsAuthorizer = json.ahrefsAuthorizer;
+        this.authToken = json.authToken;
+        var url = this.appManager.getURL();
+        this.pageMetrics = "https://ahrefs.com/site-explorer/overview/prefix/" + url;
+        this.domainMetrics = "https://ahrefs.com/site-explorer/overview/subdomains/" + url;
         if (this.isActive() && !this.authToken) {
-            // If this was created as an active and
-            // did not have a saved auth token
-            this.requestToken(function () {
-            });
+            this.isActive(false);
+            this.ahrefsAuthorizer.requestToken(this.requestTokenSuccess.bind(this), this.requestTokenFail.bind(this));
         }
     }
+    AhrefsAPI.prototype.requestTokenFail = function (errorMessage) {
+        this.authToken = "";
+        this.isActive(false);
+        console.debug("Ahrefs request token fail");
+        alert("Ahrefs authentication failed. Ahrefs has been disabled. Try again by reactivating Ahrefs in the options");
+        ga('send', 'event', 'Error/API Failure', this.name, 'AuthorizationError: ' + errorMessage);
+    };
+    AhrefsAPI.prototype.requestTokenSuccess = function (authToken) {
+        this.isActive(true);
+        console.debug("requestTokenSuccess(" + authToken + ")");
+        this.authToken = authToken;
+        this.persistAuthToken(authToken);
+    };
+    AhrefsAPI.prototype.persistAuthToken = function (authToken) {
+        var settings = this.appManager.getSettings();
+        settings.apis.forEach(function (api, index, apis) {
+            if (api.name === "Ahrefs") {
+                api["authToken"] = authToken;
+            }
+        });
+        this.appManager.updateSettings(settings);
+    };
     AhrefsAPI.prototype.toJSON = function () {
         var self = this;
         return {
@@ -454,141 +479,105 @@ var AhrefsAPI = (function (_super) {
             type: "link"
         };
     };
+    AhrefsAPI.prototype.viewMoreLinks = function () {
+        var encodedURL = encodeURIComponent(this.appManager.getURL());
+        return [
+            {
+                href: "https://ahrefs.com/site-explorer/pages/subdomains/" + encodedURL,
+                anchor: "Top Pages"
+            },
+            {
+                href: "https://ahrefs.com/site-explorer/backlinks-new/subdomains/" + encodedURL,
+                anchor: "New Links"
+            },
+            {
+                href: "https://ahrefs.com/site-explorer/backlinks/subdomains/" + encodedURL,
+                anchor: "External Links"
+            },
+            {
+                href: "https://ahrefs.com/site-explorer/anchors/subdomains/" + encodedURL + "/phrases",
+                anchor: "Anchor Text"
+            }
+        ];
+    };
     AhrefsAPI.prototype.queryData = function () {
         var self = this;
         self.clearCounts();
-        if (self.authToken == "") {
-            self.requestToken(self.queryData);
-        }
-        else {
-            // GET urlRank
-            $.get("http://apiv2.ahrefs.com", {
-                token: self.authToken,
-                target: self.appManager.getURL(),
-                from: "ahrefs_rank",
-                mode: "exact",
-                limit: "5",
-                output: "json"
-            }, function (results) {
-                self.urlRank = results.pages[0].ahrefs_rank;
-                if (self.allAPISLoaded()) {
-                    ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
-                }
-            }, "json").fail(self.queryFail.bind(self));
-            // GET domainRank
-            $.get("http://apiv2.ahrefs.com", {
-                token: self.authToken,
-                target: self.appManager.getURL(),
-                from: "domain_rating",
-                mode: "domain",
-                output: "json"
-            }, function (results) {
-                self.domainRank = results.domain.domain_rating;
-                if (self.allAPISLoaded()) {
-                    ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
-                }
-            }, "json").fail(self.queryFail.bind(self));
-            // GET drd
-            $.get("http://apiv2.ahrefs.com", {
-                token: self.authToken,
-                target: self.appManager.getURL(),
-                from: "refdomains",
-                mode: "domain",
-                limit: "1",
-                output: "json"
-            }, function (results) {
-                self.drd = results.stats.refdomains;
-                if (self.allAPISLoaded()) {
-                    ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
-                }
-            }, "json").fail(self.queryFail.bind(self));
-            // GET prd
-            $.get("http://apiv2.ahrefs.com", {
-                token: self.authToken,
-                target: self.appManager.getURL(),
-                from: "refdomains",
-                mode: "exact",
-                limit: "1",
-                output: "json"
-            }, function (results) {
-                self.prd = results.stats.refdomains;
-                if (self.allAPISLoaded()) {
-                    ga('send', 'event', 'API Load', 'API Load - Ahrefs', self.appManager.getRedactedURL());
-                }
-            }, "json").fail(self.queryFail.bind(self));
-        }
-    };
-    AhrefsAPI.prototype.queryFail = function () {
-        // TODO:
-        console.debug("AHREFS API CALL FAILURE");
-    };
-    AhrefsAPI.prototype.requestToken = function (successCallback) {
-        var self = this;
-        var state = self.genState();
-        self.authToken = "";
-        var requestURL = "https://ahrefs.com/oauth2/authorize.php?response_type=code&client_id=ShareMetric&scope=api&state=";
-        requestURL += state + "&redirect_uri=http%3A%2F%2Fwww.contentharmony.com%2Ftools%2Fsharemetric%2F";
-        ga('send', 'event', 'Ahrefs Authorization', 'Authorization Requested');
-        chrome.tabs.create({
-            url: requestURL
-        }, function (tab) {
-            var oAuthTab = tab;
-            function updateListener(tabID, changeInfo, tab) {
-                if (changeInfo == "complete" && tabID == oAuthTab.id) {
-                    var url = $.url(changeInfo.url);
-                    console.debug("ahrefs update listener fired");
-                    alert("ahrefs update listener fired");
-                    if (url.attr('host') == "www.contentharmony.com" && url.attr('path') == '/tools/sharemetric/' && url.param('state') == state) {
-                        console.debug("ahrefs case passed");
-                        alert("ahrefs case passed");
-                        if (url.param('error') == 'access_denied') {
-                            self.requestTokenFail();
-                        }
-                        else {
-                            // // Get that token
-                            // $.post("https://ahrefs.com/oauth2/token.php", {
-                            //         grant_type    : "authorization_code",
-                            //         code          : url.param('code'),
-                            //         client_id     : "ShareMetric",
-                            //         client_secret : "Bg6xDGYGb",
-                            //         redirect_uri  : "http://www.contentharmony.com/tools/sharemetric/"},
-                            //         function(results : any) {
-                            //           self.authToken = results.access_token;
-                            //           ga('send', 'event', 'Ahrefs Authorization', 'Authorization Succeeded');
-                            //           chrome.tabs.remove(oAuthTab.id);
-                            //           console.debug("ahrefs authorized");
-                            //           alert("ahrefs authorized");
-                            //           self.appManager.persistSettings();
-                            //           if(successCallback != undefined) {
-                            //             successCallback();  
-                            //           }
-                            //         }
-                            //   ).fail(function(jqXHR : any, textStatus : string, errorThrown : string) { 
-                            //           self.requestTokenFail();
-                            //         }
-                            //   );
-                            self.requestTokenFail();
-                        }
-                        chrome.tabs.onUpdated.removeListener(updateListener);
-                    }
-                }
+        // GET urlRank
+        $.get("http://apiv2.ahrefs.com", {
+            token: self.authToken,
+            target: self.appManager.getURL(),
+            from: "ahrefs_rank",
+            mode: "exact",
+            limit: "5",
+            output: "json"
+        }, function (results) {
+            console.debug("Ahrefs callback (urlRank)");
+            console.log(results);
+            self.urlRank(results.pages[0].ahrefs_rank);
+            ga('send', 'event', 'Services', 'Ahrefs', 'urlRank Loaded');
+            if (self.allAPISLoaded()) {
+                ga('send', 'event', 'Services', 'Ahrefs', self.appManager.getRedactedURL());
             }
-            chrome.tabs.onUpdated.addListener(updateListener); // #/chrome.tabs.onUpdated.addListener
-        }); // #/chrome.tabs.create
+        }, "json").fail(self.queryFail.bind(self));
+        // GET domainRank
+        $.get("http://apiv2.ahrefs.com", {
+            token: self.authToken,
+            target: self.appManager.getURL(),
+            from: "domain_rating",
+            mode: "domain",
+            output: "json"
+        }, function (results) {
+            console.debug("Ahrefs callback (domainRank)");
+            console.log(results);
+            self.domainRank(results.domain.domain_rating);
+            ga('send', 'event', 'Services', 'Ahrefs', 'domainRank Loaded');
+            if (self.allAPISLoaded()) {
+                ga('send', 'event', 'Services', 'Ahrefs', self.appManager.getRedactedURL());
+            }
+        }, "json").fail(self.queryFail.bind(self));
+        // GET drd
+        $.get("http://apiv2.ahrefs.com", {
+            token: self.authToken,
+            target: self.appManager.getURL(),
+            from: "refdomains",
+            mode: "domain",
+            limit: "1",
+            output: "json"
+        }, function (results) {
+            console.debug("Ahrefs callback (drd)");
+            console.log(results);
+            self.drd(results.stats.refdomains);
+            ga('send', 'event', 'Services', 'Ahrefs', 'drd Loaded');
+            if (self.allAPISLoaded()) {
+                ga('send', 'event', 'Services', 'Ahrefs', self.appManager.getRedactedURL());
+            }
+        }, "json").fail(self.queryFail.bind(self));
+        // GET prd
+        $.get("http://apiv2.ahrefs.com", {
+            token: self.authToken,
+            target: self.appManager.getURL(),
+            from: "refdomains",
+            mode: "exact",
+            limit: "1",
+            output: "json"
+        }, function (results) {
+            console.debug("Ahrefs callback (prd)");
+            console.log(results);
+            self.prd(results.stats.refdomains);
+            ga('send', 'event', 'Services', 'Ahrefs', 'prd Loaded');
+            if (self.allAPISLoaded()) {
+                ga('send', 'event', 'Services', 'Ahrefs', self.appManager.getRedactedURL());
+            }
+        }, "json").fail(self.queryFail.bind(self));
     };
-    AhrefsAPI.prototype.requestTokenFail = function () {
-        //TODO:
-        this.authToken = "";
-        this.isActive(false);
-        console.debug("ahrefs request token fail");
-        alert("ahrefs request token fail");
-    };
-    AhrefsAPI.prototype.genState = function () {
-        // See http://stackoverflow.com/a/2117523/1408490 for more info on this function
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
+    AhrefsAPI.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
+        console.debug("AHREFS API CALL FAILURE");
+        console.debug("ErrorThrown: " + errorThrown);
+        console.debug("ResponseCode: " + jqXHR.status);
+        ga('send', 'event', 'Error/API Failure', this.name, "URL: " + this.appManager.getRedactedURL());
+        ga('send', 'event', 'Error/API Failure', this.name, 'ErrorThrown: ' + errorThrown);
+        ga('send', 'event', 'Error/API Failure', this.name, 'ResponseCode: ' + jqXHR.status);
     };
     AhrefsAPI.prototype.clearCounts = function () {
         // Set to -1 as special flag that this has not loaded yet

@@ -13,7 +13,7 @@
     <script src="/lib/js/knockout-bootstrap.min.js"></script>
     <script src="/lib/js/purl.js"></script>
     <script src="/js/ga.js"></script>
-    <script src="/js/util.js"></script>
+    <script src="/js/main.js"></script>
     <script src="/js/apis.js"></script>
     <script src="/js/popup.js"></script>
     
@@ -79,7 +79,7 @@
               </div>
               <div class="row">
                <div class="col-xs-12">
-                  <a data-bind="attr: { href: osePageMetrics }, click: $root.recordClick.bind($root, 'Popup Interaction', 'Moz Link', 'OSE Page Metrics')" target="_blank">View OSE Page Metrics</a> 
+                  <a data-bind="attr: { href: pageMetrics }, click: $root.recordClick.bind($root, 'Popup Interaction', 'Moz Link', 'OSE Page Metrics')" target="_blank">View OSE Page Metrics</a> 
                </div>
               </div>
               <div class="row">
@@ -92,7 +92,7 @@
               </div>
               <div class="row">
                 <div class="col-xs-12">
-                  <a data-bind="attr: { href: oseDomainMetrics }, click: $root.recordClick.bind($root, 'Popup Interaction', 'Moz Link', 'OSE Domain Metrics')" target="_blank">View OSE Domain Metrics</a>
+                  <a data-bind="attr: { href: domainMetrics }, click: $root.recordClick.bind($root, 'Popup Interaction', 'Moz Link', 'OSE Domain Metrics')" target="_blank">View OSE Domain Metrics</a>
                 </div>
               </div>
             </div> <!-- /.api data -->
@@ -109,6 +109,53 @@
           </div>
         </div> <!-- #/moz -->
         <!-- /ko -->
+        <!-- ko if: ahrefs.isActive() -->
+        <div id="ahrefs" class="col-xs-12" data-bind="with: ahrefs">
+          <div class="row">
+            <div class="col-xs-2"> <!-- logo -->
+              <img data-bind="attr: { src: iconPath }" />
+            </div>
+            <div class="api-data col-xs-6"> <!-- api data -->
+              <div class="row">
+                <div class="col-xs-6">
+                  <span class="link-metric" data-bind="tooltip: {title: 'URL Rank, as reported by Ahrefs'}">Url Rank: <strong data-bind="text: urlRank"></strong></span>
+                </div>
+                <div class="col-xs-6">
+                  <span class="link-metric" data-bind="tooltip: {title: 'Number of Root Domains Linking to this Page, as reported by Ahrefs'}">PRD: <strong data-bind="text: prd"></strong></span>
+                </div>
+              </div>
+              <div class="row">
+               <div class="col-xs-12">
+                  <a data-bind="attr: { href: pageMetrics }, click: $root.recordClick.bind($root, 'Popup Interaction', 'Ahrefs Link', 'URL Metrics')" target="_blank">View Page URL Metrics</a> 
+               </div>
+              </div>
+              <div class="row">
+                <div class="col-xs-6">
+                  <span class="link-metric" data-bind="tooltip: {title: 'Domain Rank, as reported by Ahrefs'}">Domain Rank: <strong data-bind="text: domainRank"></strong></span>
+                </div>
+                <div class="col-xs-6">
+                  <span class="link-metric" data-bind="tooltip: {title: 'Number of Root Domains Linking to this Domain, as reported by Ahrefs'}">DRD: <strong data-bind="text: drd"></strong></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xs-12">
+                  <a data-bind="attr: { href: domainMetrics }, click: $root.recordClick.bind($root, 'Popup Interaction', 'Ahrefs Link', 'Domain Metrics')" target="_blank">View Full Domain Metrics</a>
+                </div>
+              </div>
+            </div> <!-- /.api data -->
+            <div class="col-xs-4"> <!-- right col links -->
+              <ul class="list-unstyled">
+                <li><strong>View More:</strong></li>
+                <!-- ko foreach: viewMoreLinks() -->
+                <li>
+                  <a data-bind="attr: { href: href }, text: anchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Ahrefs Link', anchor)" target="_blank"></a>
+                </li>
+                <!-- /ko -->
+              </ul>
+            </div>
+          </div>
+        </div> <!-- #/moz -->
+        <!-- /ko  --> <!-- /if ahrefs is active -->
       </div> <!-- #/links -->
       <!-- /ko -->
       <!-- ko if: semrush.isActive -->

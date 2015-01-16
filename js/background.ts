@@ -2,7 +2,7 @@
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/cryptojs.d.ts' />
 /// <reference path='../lib/ts/purl-jquery.d.ts' />
-/// <reference path='./util.ts' />
+/// <reference path='./main.ts' />
 /// <reference path='./apis.ts' />
 declare var chrome : any;
 
@@ -68,9 +68,10 @@ class AppManager {
   public ahrefs() {
     var json = this.apis().filter(function(api, index, apis) { return api.name === "Ahrefs";})[0];
     json.appManager = this;
+    json.ahrefsAuthorizer = new AhrefsAuthorizer(this);
     return json;
   }
-
+  
   public semrush() {
     var json = this.apis().filter(function(api, index, apis) { return api.name === "SEMRush";})[0];
     json.appManager = this;
