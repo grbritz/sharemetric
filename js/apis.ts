@@ -2,7 +2,6 @@
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/cryptojs.d.ts' />
 /// <reference path='./util.ts' />
-var ga = function(...any) {};
 class API {
   name : string;
   public isActive : KnockoutObservable<boolean>;
@@ -359,7 +358,8 @@ class Pinterest extends SocialAPI {
   }
 
   public detailsHref() {
-    return "http://www.pinterest.com/source/" + this.appManager.getURL()
+    var url = $.url(this.appManager.getURL());
+    return "http://www.pinterest.com/source/" + url.attr('host');
   }
 
   public queryData() {
@@ -778,7 +778,8 @@ class SEMRush extends API {
 
   public resultRows : KnockoutObservableArray<any>;
   public authToken : KnockoutObservable<string>;
-  reportURL : string
+  reportURL : string;
+  reportDomain : string;
 
 
   constructor(json) {
@@ -788,6 +789,9 @@ class SEMRush extends API {
 
     this.resultRows = ko.observableArray([]);
     this.authToken = ko.observable(json.authToken);
+    
+    var url = $.url(this.appManager.getURL());
+    this.reportDomain = "http://www.semrush.com/info/" + url.attr('host');
     this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
   }
 

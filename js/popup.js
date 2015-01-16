@@ -14,6 +14,9 @@ var __extends = this.__extends || function (d, b) {
 // j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 // 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 // })(window,document,'script','dataLayer','GTM-MBCM4N');
+// ga('create', 'UA-38625564-1', 'auto');
+// ga('set', 'checkProtocolTask', function(){});
+ga('send', 'pageview', '/popup.html');
 var PopupViewModel = (function (_super) {
     __extends(PopupViewModel, _super);
     function PopupViewModel(appManager) {

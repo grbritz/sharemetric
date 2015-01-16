@@ -11,6 +11,8 @@
     <script src="/lib/js/hmac-sha1.js"></script>
     <script src="/lib/js/enc-base64-min.js"></script>
     <script src="/lib/js/knockout-bootstrap.min.js"></script>
+    <script src="/lib/js/purl.js"></script>
+    <script src="/js/ga.js"></script>
     <script src="/js/util.js"></script>
     <script src="/js/apis.js"></script>
     <script src="/js/popup.js"></script>
@@ -152,7 +154,7 @@
             Loading...
             <!-- /ko -->
             <p>
-              <a data-bind="attr: {href: reportURL }, click: $root.recordClick.bind($root, 'Popup Interaction', 'SEMRush Link', 'Full Report')" target="_blank">View Full Report For This URL</a>
+              View full report for this <a data-bind="attr: {href: reportURL}, click: $root.recordClick.bind($root, 'Popup Interaction', 'SEMRush Link', 'URL Report')" target="_blank">URL</a> or <a data-bind="attr: {href: reportDomain}, click: $root.recordClick.bind($root, 'Popup Interaction', 'SEMRush Link', 'Domain Report')" target="_blank">Domain</a>
             </p>
           </div>
         </div> <!-- #/semrush -->
@@ -189,9 +191,9 @@
         <ul class="horizontal">
           <li><a data-ga-action="Options" id="options-link" data-bind="click: openOptions" href="#">Options</a></li>
           <li class="spacer">|</li>
-          <li><a data-bind="click: recordClick.bind($data, 'Popup Interaction', 'Footer Link', 'Report An Issue')" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Issue">Report An Issue</a></li>
+          <li><a data-bind="click: recordClick.bind($data, 'Popup Interaction', 'Footer Link', 'Report An Issue')" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact">Report An Issue</a></li>
           <li class="spacer">|</li>
-          <li><a data-bind="click: recordClick.bind($data, 'Popup Interaction', 'Footer Link', 'Request a Feature')"  target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact?feedback=Feature">Request A Feature</a></li>
+          <li><a data-bind="click: recordClick.bind($data, 'Popup Interaction', 'Footer Link', 'Request a Feature')"  target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#contact">Request A Feature</a></li>
           <li class="spacer">|</li>
           <li><a data-bind="click: recordClick.bind($data, 'Popup Interaction', 'Footer Link', 'Show Some Love')" target="_blank" href="http://www.contentharmony.com/tools/sharemetric/#love">Show Some Love</a></li>
         </ul>
@@ -213,7 +215,7 @@
     
     <script type="text/html" id="social-template-with-link">
       <span data-bind="text: totalCount()"></span>
-       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
+       (<a data-bind="attr: { href: detailsHref() }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
     </script>
 
     <script type="text/html" id="facebook-template">
@@ -234,7 +236,7 @@
     </script>
     <script type="text/html" id="reddit-template">
       <span data-bind="text: totalCount()"></span>
-       (<a data-bind="attr: { href: detailsHref(), }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
+       (<a data-bind="attr: { href: detailsHref() }, text: detailsAnchor, click: $root.recordClick.bind($root, 'Popup Interaction', 'Social Link', name)" target="_blank"></a>)
       <p class="indent">
         Ups: <span data-bind="text: ups()"></span>
       </p>
@@ -243,5 +245,6 @@
       </p>
     </script>
     
+
   </body>
 </html>

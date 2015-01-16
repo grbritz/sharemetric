@@ -1,5 +1,11 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
+console.debug = function() {};
+
+declare var ga : any;
+
+ga('send', 'pageview', '/init.html');
+
 class ParentViewModel {
   appManager : any; // Main data model
   notifications : KnockoutObservableArray<any>;

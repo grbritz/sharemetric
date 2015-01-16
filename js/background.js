@@ -1,5 +1,8 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
+console.debug = function () {
+};
+ga('send', 'pageview', '/init.html');
 var ParentViewModel = (function () {
     function ParentViewModel(appManager) {
         this.appManager = appManager;
@@ -68,14 +71,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/cryptojs.d.ts' />
-/// <reference path='../lib/ts/purl-jquery.d.ts' />
 /// <reference path='./util.ts' />
-var ga = function () {
-    var any = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        any[_i - 0] = arguments[_i];
-    }
-};
 var API = (function () {
     function API(json) {
         this.appManager = json.appManager;
@@ -353,7 +349,8 @@ var Pinterest = (function (_super) {
         this.detailsAnchor = "details";
     }
     Pinterest.prototype.detailsHref = function () {
-        return "http://www.pinterest.com/source/" + this.appManager.getURL();
+        var url = $.url(this.appManager.getURL());
+        return "http://www.pinterest.com/source/" + url.attr('host');
     };
     Pinterest.prototype.queryData = function () {
         this.isLoaded(false);
@@ -680,6 +677,8 @@ var SEMRush = (function (_super) {
         _super.call(this, json);
         this.resultRows = ko.observableArray([]);
         this.authToken = ko.observable(json.authToken);
+        var url = $.url(this.appManager.getURL());
+        this.reportDomain = "http://www.semrush.com/info/" + url.attr('host');
         this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
     }
     SEMRush.prototype.toJSON = function () {
@@ -738,21 +737,8 @@ var SEMRush = (function (_super) {
 /// <reference path='../lib/ts/purl-jquery.d.ts' />
 /// <reference path='./util.ts' />
 /// <reference path='./apis.ts' />
-var ga = function () {
-    var any = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        any[_i - 0] = arguments[_i];
-    }
-};
-// TODO: Disable debugs 
-// console.debug = function() {};
-var APP_VERSION = "2.0.3";
-// TODO: Reactivate GA
-// (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-// new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-// j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-// 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-// })(window,document,'script','dataLayer','GTM-MBCM4N');
+var APP_VERSION = "2.1.0";
+ga('send', 'pageview', '/background.html');
 /****
  * Listeners for active tab changes and new page loads
  ****/

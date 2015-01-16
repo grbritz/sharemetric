@@ -1,5 +1,8 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
+console.debug = function () {
+};
+ga('send', 'pageview', '/init.html');
 var ParentViewModel = (function () {
     function ParentViewModel(appManager) {
         this.appManager = appManager;

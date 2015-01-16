@@ -7,14 +7,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/cryptojs.d.ts' />
-/// <reference path='../lib/ts/purl-jquery.d.ts' />
 /// <reference path='./util.ts' />
-var ga = function () {
-    var any = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        any[_i - 0] = arguments[_i];
-    }
-};
 var API = (function () {
     function API(json) {
         this.appManager = json.appManager;
@@ -292,7 +285,8 @@ var Pinterest = (function (_super) {
         this.detailsAnchor = "details";
     }
     Pinterest.prototype.detailsHref = function () {
-        return "http://www.pinterest.com/source/" + this.appManager.getURL();
+        var url = $.url(this.appManager.getURL());
+        return "http://www.pinterest.com/source/" + url.attr('host');
     };
     Pinterest.prototype.queryData = function () {
         this.isLoaded(false);
@@ -619,6 +613,8 @@ var SEMRush = (function (_super) {
         _super.call(this, json);
         this.resultRows = ko.observableArray([]);
         this.authToken = ko.observable(json.authToken);
+        var url = $.url(this.appManager.getURL());
+        this.reportDomain = "http://www.semrush.com/info/" + url.attr('host');
         this.reportURL = "http://www.semrush.com/info/" + encodeURIComponent(this.appManager.getURL());
     }
     SEMRush.prototype.toJSON = function () {

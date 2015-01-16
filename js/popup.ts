@@ -4,7 +4,6 @@
 /// <reference path='./util.ts' />
 declare var chrome : any;
 
-
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -12,6 +11,10 @@ declare var chrome : any;
 // 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 // })(window,document,'script','dataLayer','GTM-MBCM4N');
 
+
+// ga('create', 'UA-38625564-1', 'auto');
+// ga('set', 'checkProtocolTask', function(){});
+ga('send', 'pageview', '/popup.html');
 class PopupViewModel extends ParentViewModel {
   hasLinks : boolean;
   
