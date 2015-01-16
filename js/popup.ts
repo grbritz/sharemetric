@@ -17,6 +17,7 @@ declare var chrome : any;
 ga('send', 'pageview', '/popup.html');
 class PopupViewModel extends ParentViewModel {
   hasLinks : boolean;
+  bothLinksActive : boolean;
   
   URL : KnockoutObservable<string>;
   socialAPIContainer : any;
@@ -41,6 +42,8 @@ class PopupViewModel extends ParentViewModel {
 
     this.URL = ko.observable(appManager.URL);
     this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
+    this.bothLinksActive = this.appManager.moz().isActive && this.appManager.ahrefs().isActive;
+
     this.showResearch = this.appManager.getSettings().meta.showResearch;
     this.showSpecialMessage = ko.observable(this.appManager.getSettings().meta.showSpecialMessage);
     self.queryAPIs();

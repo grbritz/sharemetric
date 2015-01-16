@@ -541,10 +541,10 @@ class MozAPI extends LinksAPI {
 
 class AhrefsAPI extends LinksAPI {
 
-  private urlRank : KnockoutObservable<number>;
-  private prd : KnockoutObservable<number>;
-  private domainRank : KnockoutObservable<number>;
-  private drd : KnockoutObservable<number>;
+  private urlRank : KnockoutObservable<string>;
+  private prd : KnockoutObservable<string>;
+  private domainRank : KnockoutObservable<string>;
+  private drd : KnockoutObservable<string>;
 
   private ahrefsAuthorizer : any;
   private authToken : string;
@@ -553,10 +553,10 @@ class AhrefsAPI extends LinksAPI {
     json.name = "Ahrefs";
     json.iconPath = "/images/icons/ahrefs.png";
     super(json);
-    this.urlRank = ko.observable(-1);
-    this.prd = ko.observable(-1);
-    this.domainRank = ko.observable(-1);
-    this.drd = ko.observable(-1);
+    this.urlRank = ko.observable("-" + 1);
+    this.prd = ko.observable("-" + 1);
+    this.domainRank = ko.observable("-" + 1);
+    this.drd = ko.observable("-" + 1);
     this.ahrefsAuthorizer = json.ahrefsAuthorizer;
     this.authToken = json.authToken;
 
@@ -640,16 +640,16 @@ class AhrefsAPI extends LinksAPI {
       ga('send', 'event', 'Services', 'Ahrefs', queryField + ' Loaded');
       switch(queryField) {
         case "urlRank":
-          this.urlRank(results.pages[0].ahrefs_rank);
+          this.urlRank(abbreviateNumber(results.pages[0].ahrefs_rank));
           break;
         case "domainRank":
-          this.domainRank(results.domain.domain_rating);
+          this.domainRank(abbreviateNumber(results.domain.domain_rating));
           break;
         case "prd":
-          this.prd(results.stats.refdomains);
+          this.prd(abbreviateNumber(results.stats.refdomains));
           break;
         case "drd":
-          this.drd(results.stats.refdomains);
+          this.drd(abbreviateNumber(results.stats.refdomains));
           break;
       }
 
@@ -731,14 +731,14 @@ class AhrefsAPI extends LinksAPI {
 
   private clearCounts() {
     // Set to -1 as special flag that this has not loaded yet
-    this.urlRank(-1); 
-    this.prd(-1); 
-    this.domainRank(-1); 
-    this.drd(-1); 
+    this.urlRank("-" + 1); 
+    this.prd("-" + 1); 
+    this.domainRank("-" + 1); 
+    this.drd("-" + 1); 
   }
 
   private allAPISLoaded() {
-    return this.urlRank() != -1 && this.prd() != -1 && this.domainRank() != -1 && this.drd() != -1;
+    return this.urlRank() != "-1" && this.prd() != "-1" && this.domainRank() != "-1" && this.drd() != "-1";
   }
 }
 

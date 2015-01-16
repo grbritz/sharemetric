@@ -30,6 +30,7 @@ var PopupViewModel = (function (_super) {
         this.semrush = new SEMRush(this.appManager.semrush());
         this.URL = ko.observable(appManager.URL);
         this.hasLinks = this.appManager.moz().isActive || this.appManager.ahrefs().isActive;
+        this.bothLinksActive = this.appManager.moz().isActive && this.appManager.ahrefs().isActive;
         this.showResearch = this.appManager.getSettings().meta.showResearch;
         this.showSpecialMessage = ko.observable(this.appManager.getSettings().meta.showSpecialMessage);
         self.queryAPIs();
