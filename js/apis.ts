@@ -3,7 +3,6 @@
 /// <reference path='../lib/ts/cryptojs.d.ts' />
 /// <reference path='../lib/ts/purl-jquery.d.ts' />
 /// <reference path='./util.ts' />
-var ga = function(...any) {};
 class API {
   name : string;
   public isActive : KnockoutObservable<boolean>;

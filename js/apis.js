@@ -9,12 +9,6 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path='../lib/ts/cryptojs.d.ts' />
 /// <reference path='../lib/ts/purl-jquery.d.ts' />
 /// <reference path='./util.ts' />
-var ga = function () {
-    var any = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        any[_i - 0] = arguments[_i];
-    }
-};
 var API = (function () {
     function API(json) {
         this.appManager = json.appManager;

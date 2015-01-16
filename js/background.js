@@ -1,5 +1,22 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
+console.debug = function () {
+};
+var ga = function () {
+    var any = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        any[_i - 0] = arguments[_i];
+    }
+};
+(function (w, d, s, l, i) {
+    w[l] = w[l] || [];
+    w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+    var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+    j.async = true;
+    j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+    f.parentNode.insertBefore(j, f);
+})(window, document, 'script', 'dataLayer', 'GTM-MBCM4N');
+ga('create', 'UA-38625564-1', 'auto');
 var ParentViewModel = (function () {
     function ParentViewModel(appManager) {
         this.appManager = appManager;
@@ -70,12 +87,6 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path='../lib/ts/cryptojs.d.ts' />
 /// <reference path='../lib/ts/purl-jquery.d.ts' />
 /// <reference path='./util.ts' />
-var ga = function () {
-    var any = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        any[_i - 0] = arguments[_i];
-    }
-};
 var API = (function () {
     function API(json) {
         this.appManager = json.appManager;
@@ -583,6 +594,7 @@ var APP_VERSION = "2.0.2";
     j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
     f.parentNode.insertBefore(j, f);
 })(window, document, 'script', 'dataLayer', 'GTM-MBCM4N');
+ga('create', 'UA-38625564-1', 'auto');
 /****
  * Listeners for active tab changes and new page loads
  ****/

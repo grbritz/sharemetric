@@ -2,13 +2,14 @@
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='./apis.ts' />
 /// <reference path='./util.ts' />
-/// 
-// TODO: Reactivate GA
-// (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-// new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-// j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-// 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-// })(window,document,'script','dataLayer','GTM-MBCM4N');
+
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MBCM4N');
+
+ga('create', 'UA-38625564-1', 'auto');
 
 class OptionsViewModel extends ParentViewModel {
   socialAPIContainer : any;
