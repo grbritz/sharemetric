@@ -393,7 +393,15 @@ var MozAPI = (function (_super) {
     MozAPI.prototype.queryData = function () {
         var self = this;
         self.clearCounts();
-        $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + self.genQueryURL(), {}, self.queryCallback.bind(self), "json").fail(self.queryFail.bind(self));
+        this.pa("999M");
+        this.da("999M");
+        this.dlrd("999M");
+        this.plrd("999M");
+        // $.get("http://lsapi.seomoz.com/linkscape/url-metrics/" + self.genQueryURL(),
+        //       {},
+        //       self.queryCallback.bind(self),
+        //       "json")
+        //  .fail(self.queryFail.bind(self));
     };
     MozAPI.prototype.queryCallback = function (results) {
         this.pa(abbreviateNumber(results.upa));
@@ -529,49 +537,60 @@ var AhrefsAPI = (function (_super) {
     AhrefsAPI.prototype.queryData = function () {
         var self = this;
         self.clearCounts();
-        // GET urlRank
-        $.get("http://apiv2.ahrefs.com", {
-            token: self.authToken,
-            target: self.appManager.getURL(),
-            from: "ahrefs_rank",
-            mode: "exact",
-            limit: "5",
-            output: "json"
-        }, function (results) {
-            self.queryCallback(results, "urlRank");
-        }, "json").fail(self.queryFail.bind(self));
-        // GET domainRank
-        $.get("http://apiv2.ahrefs.com", {
-            token: self.authToken,
-            target: self.appManager.getURL(),
-            from: "domain_rating",
-            mode: "domain",
-            output: "json"
-        }, function (results) {
-            self.queryCallback(results, "domainRank");
-        }, "json").fail(self.queryFail.bind(self));
-        // GET drd
-        $.get("http://apiv2.ahrefs.com", {
-            token: self.authToken,
-            target: self.appManager.getURL(),
-            from: "refdomains",
-            mode: "domain",
-            limit: "1",
-            output: "json"
-        }, function (results) {
-            self.queryCallback(results, "drd");
-        }, "json").fail(self.queryFail.bind(self));
-        // GET prd
-        $.get("http://apiv2.ahrefs.com", {
-            token: self.authToken,
-            target: self.appManager.getURL(),
-            from: "refdomains",
-            mode: "exact",
-            limit: "1",
-            output: "json"
-        }, function (results) {
-            self.queryCallback(results, "prd");
-        }, "json").fail(self.queryFail.bind(self));
+        this.urlRank("999M");
+        this.prd("999M");
+        this.domainRank("999M");
+        this.drd("999M");
+        // // GET urlRank
+        // $.get("http://apiv2.ahrefs.com", {
+        //       token     : self.authToken,
+        //       target    : self.appManager.getURL(),
+        //       from      : "ahrefs_rank",
+        //       mode      : "exact",
+        //       limit     : "5",
+        //       output    : "json"  
+        //     }, function(results){
+        //       self.queryCallback(results, "urlRank");
+        //     }, "json")
+        //  .fail(self.queryFail.bind(self));
+        //  // GET domainRank
+        //  $.get("http://apiv2.ahrefs.com", {
+        //        token    : self.authToken,
+        //        target   : self.appManager.getURL(),
+        //        from     : "domain_rating",
+        //        mode     : "domain",
+        //        output   : "json"
+        //     },
+        //     function(results : any) {
+        //       self.queryCallback(results, "domainRank");
+        //     }, "json")
+        //  .fail(self.queryFail.bind(self));
+        //  // GET drd
+        //  $.get("http://apiv2.ahrefs.com", {
+        //     token       : self.authToken,
+        //     target      : self.appManager.getURL(),
+        //     from        : "refdomains",
+        //     mode        : "domain",
+        //     limit       : "1",
+        //     output      : "json"
+        //   },
+        //   function(results : any) {
+        //     self.queryCallback(results, "drd");
+        //   }, "json")
+        //  .fail(self.queryFail.bind(self));
+        //  // GET prd
+        // $.get("http://apiv2.ahrefs.com", {
+        //       token     : self.authToken,
+        //       target    : self.appManager.getURL(),
+        //       from      : "refdomains",
+        //       mode      : "exact",
+        //       limit     : "1",
+        //       output    : "json"
+        //   },
+        //   function(results : any) {
+        //    self.queryCallback(results, "prd");
+        //   }, "json")
+        // .fail(self.queryFail.bind(self));
     };
     AhrefsAPI.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {
         console.debug("AHREFS API CALL FAILURE");
