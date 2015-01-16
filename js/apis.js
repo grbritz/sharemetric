@@ -500,6 +500,32 @@ var AhrefsAPI = (function (_super) {
             }
         ];
     };
+    AhrefsAPI.prototype.queryCallback = function (results, queryField) {
+        console.debug("Ahrefs callback (" + queryField + ")");
+        console.log(results);
+        if (results.error != undefined) {
+        }
+        else {
+            ga('send', 'event', 'Services', 'Ahrefs', queryField + ' Loaded');
+            switch (queryField) {
+                case "urlRank":
+                    this.urlRank(results.pages[0].ahrefs_rank);
+                    break;
+                case "domainRank":
+                    this.domainRank(results.domain.domain_rating);
+                    break;
+                case "prd":
+                    this.prd(results.stats.refdomains);
+                    break;
+                case "drd":
+                    this.drd(results.stats.refdomains);
+                    break;
+            }
+            if (this.allAPISLoaded()) {
+                ga('send', 'event', 'Services', 'Ahrefs', this.appManager.getRedactedURL());
+            }
+        }
+    };
     AhrefsAPI.prototype.queryData = function () {
         var self = this;
         self.clearCounts();
@@ -512,13 +538,7 @@ var AhrefsAPI = (function (_super) {
             limit: "5",
             output: "json"
         }, function (results) {
-            console.debug("Ahrefs callback (urlRank)");
-            console.log(results);
-            self.urlRank(results.pages[0].ahrefs_rank);
-            ga('send', 'event', 'Services', 'Ahrefs', 'urlRank Loaded');
-            if (self.allAPISLoaded()) {
-                ga('send', 'event', 'Services', 'Ahrefs', self.appManager.getRedactedURL());
-            }
+            self.queryCallback(results, "urlRank");
         }, "json").fail(self.queryFail.bind(self));
         // GET domainRank
         $.get("http://apiv2.ahrefs.com", {
@@ -528,13 +548,7 @@ var AhrefsAPI = (function (_super) {
             mode: "domain",
             output: "json"
         }, function (results) {
-            console.debug("Ahrefs callback (domainRank)");
-            console.log(results);
-            self.domainRank(results.domain.domain_rating);
-            ga('send', 'event', 'Services', 'Ahrefs', 'domainRank Loaded');
-            if (self.allAPISLoaded()) {
-                ga('send', 'event', 'Services', 'Ahrefs', self.appManager.getRedactedURL());
-            }
+            self.queryCallback(results, "domainRank");
         }, "json").fail(self.queryFail.bind(self));
         // GET drd
         $.get("http://apiv2.ahrefs.com", {
@@ -545,13 +559,7 @@ var AhrefsAPI = (function (_super) {
             limit: "1",
             output: "json"
         }, function (results) {
-            console.debug("Ahrefs callback (drd)");
-            console.log(results);
-            self.drd(results.stats.refdomains);
-            ga('send', 'event', 'Services', 'Ahrefs', 'drd Loaded');
-            if (self.allAPISLoaded()) {
-                ga('send', 'event', 'Services', 'Ahrefs', self.appManager.getRedactedURL());
-            }
+            self.queryCallback(results, "drd");
         }, "json").fail(self.queryFail.bind(self));
         // GET prd
         $.get("http://apiv2.ahrefs.com", {
@@ -562,13 +570,7 @@ var AhrefsAPI = (function (_super) {
             limit: "1",
             output: "json"
         }, function (results) {
-            console.debug("Ahrefs callback (prd)");
-            console.log(results);
-            self.prd(results.stats.refdomains);
-            ga('send', 'event', 'Services', 'Ahrefs', 'prd Loaded');
-            if (self.allAPISLoaded()) {
-                ga('send', 'event', 'Services', 'Ahrefs', self.appManager.getRedactedURL());
-            }
+            self.queryCallback(results, "prd");
         }, "json").fail(self.queryFail.bind(self));
     };
     AhrefsAPI.prototype.queryFail = function (jqXHR, textStatus, errorThrown) {

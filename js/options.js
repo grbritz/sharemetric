@@ -39,6 +39,13 @@ var OptionsViewModel = (function (_super) {
         this.autoloadSocial.subscribe(function (value) {
             recordOptionsToggleInteraction(value, "autoloadSocial");
         });
+        this.ahrefs.isActive.subscribe(function (value) {
+            console.debug("this.ahrefs.isActive.subscribe");
+            console.debug(value);
+            if (!value) {
+                self.ahrefs.authToken = null;
+            }
+        });
     }
     OptionsViewModel.prototype.saveOptions = function () {
         ga("send", "event", "Options Interaction", "Options Updated");

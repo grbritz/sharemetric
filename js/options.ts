@@ -46,6 +46,15 @@ class OptionsViewModel extends ParentViewModel {
       recordOptionsToggleInteraction(value, "autoloadSocial");
     });
 
+
+    this.ahrefs.isActive.subscribe(function(value) {
+      console.debug("this.ahrefs.isActive.subscribe");
+      console.debug(value);
+      if(!value) {
+        self.ahrefs.authToken = null;
+      }
+    });
+
   }
 
   public saveOptions() {
