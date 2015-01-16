@@ -420,6 +420,8 @@ class Delicious extends SocialAPI {
 **************************************************************************************************/
 
 class LinksAPI extends API {
+  
+  // related to display stuff
   public pageMetrics : string;
   public domainMetrics : string;
 
