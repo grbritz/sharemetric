@@ -7,6 +7,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/cryptojs.d.ts' />
+/// <reference path='../lib/ts/moment.d.ts' />
 /// <reference path='./main.ts' />
 var API = (function () {
     function API(json) {
@@ -440,9 +441,9 @@ var AhrefsAPI = (function (_super) {
         this.drd = ko.observable("-" + 1);
         this.ahrefsAuthorizer = json.ahrefsAuthorizer;
         this.authToken = json.authToken;
-        var url = this.appManager.getURL();
-        this.pageMetrics = "https://ahrefs.com/site-explorer/overview/prefix/" + url;
-        this.domainMetrics = "https://ahrefs.com/site-explorer/overview/subdomains/" + url;
+        var url = encodeURIComponent(stripHttpFromURL(this.appManager.getURL()));
+        this.pageMetrics = "https://ahrefs.com/site-explorer/overview/prefix/?target=" + url;
+        this.domainMetrics = "https://ahrefs.com/site-explorer/overview/subdomains/?target=" + url;
         if (this.isActive() && !this.authToken) {
             this.isActive(false);
             this.ahrefsAuthorizer.requestToken(this.requestTokenSuccess.bind(this), this.requestTokenFail.bind(this));
@@ -480,22 +481,24 @@ var AhrefsAPI = (function (_super) {
         };
     };
     AhrefsAPI.prototype.viewMoreLinks = function () {
-        var encodedURL = encodeURIComponent(this.appManager.getURL());
+        var encodedURL = encodeURIComponent(stripHttpFromURL(this.appManager.getURL()));
+        var today = moment().format('YYYY-MM-DD');
+        var oneWeekAgo = moment().subtract(7, 'days').format('YYYY-MM-DD');
         return [
             {
-                href: "https://ahrefs.com/site-explorer/pages/subdomains/" + encodedURL,
+                href: "https://ahrefs.com/site-explorer/overview/domain/?target=" + encodedURL,
                 anchor: "Top Pages"
             },
             {
-                href: "https://ahrefs.com/site-explorer/backlinks-new/subdomains/" + encodedURL,
+                href: "https://ahrefs.com/site-explorer/backlinks/v2/new/domain/" + oneWeekAgo + "/" + today + "/all/all/recent-recrawl/1/ahrefs_rank_desc?target=" + encodedURL,
                 anchor: "New Links"
             },
             {
-                href: "https://ahrefs.com/site-explorer/backlinks/subdomains/" + encodedURL,
-                anchor: "External Links"
+                href: " https://ahrefs.com/site-explorer/others/broken-links/domain/all/1/ahrefs_rank_desc?target=" + encodedURL,
+                anchor: "Broken Links"
             },
             {
-                href: "https://ahrefs.com/site-explorer/anchors/subdomains/" + encodedURL + "/phrases",
+                href: " https://ahrefs.com/site-explorer/backlinks/anchors/domain/phrases/all/1/refdomains_dofollow_desc?target=" + encodedURL,
                 anchor: "Anchor Text"
             }
         ];
@@ -504,6 +507,11 @@ var AhrefsAPI = (function (_super) {
         console.debug("Ahrefs callback (" + queryField + ")");
         console.log(results);
         if (results.error != undefined) {
+            console.debug(results.error);
+            ga('send', 'event', 'Error/API Failure', 'Ahrefs', 'QueryError: ' + results.error);
+            alert("Ahrefs error: " + results.error + "\n\n Ahrefs has been disabled;");
+            this.isActive(false);
+            this.authToken = "";
         }
         else {
             ga('send', 'event', 'Services', 'Ahrefs', queryField + ' Loaded');

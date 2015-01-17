@@ -1,5 +1,6 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
+/// <reference path='../lib/ts/purl-jquery.d.ts' />
 // console.debug = function() {};
 ga('send', 'pageview', '/init.html');
 var ParentViewModel = (function () {
@@ -56,6 +57,10 @@ function abbreviateNumber(count) {
 function getDomainOf(url) {
     var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
     return matches && matches[1];
+}
+function stripHttpFromURL(url) {
+    var u = $.url(url);
+    return u.attr('host') + u.attr('relative');
 }
 function recordOptionsToggleInteraction(toggleVal, interactionLabel) {
     var eventName = (toggleVal === true) ? "Service Activated" : "Service Deactivated";

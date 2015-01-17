@@ -1,5 +1,6 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
+/// <reference path='../lib/ts/purl-jquery.d.ts' />
 // console.debug = function() {};
 
 declare var ga : any;
@@ -69,6 +70,11 @@ function abbreviateNumber(count : number) : string {
 function getDomainOf(url : string) : string {
   var matches = url.match(/^https?\:\/\/(?:www\.)?([^\/?#]+)(?:[\/?#]|$)/i);
   return matches && matches[1];
+}
+
+function stripHttpFromURL(url : string) : string {
+  var u = $.url(url);
+  return u.attr('host') + u.attr('relative');
 }
 
 function recordOptionsToggleInteraction(toggleVal, interactionLabel) {

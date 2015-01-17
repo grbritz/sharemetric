@@ -2,6 +2,7 @@
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='./apis.ts' />
 /// <reference path='./main.ts' />
+
 declare var chrome : any;
 
 // TODO: Reactivate GA

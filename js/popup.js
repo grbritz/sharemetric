@@ -1,13 +1,13 @@
+/// <reference path='../lib/ts/jquery.d.ts' />
+/// <reference path='../lib/ts/knockout.d.ts' />
+/// <reference path='./apis.ts' />
+/// <reference path='./main.ts' />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/// <reference path='../lib/ts/jquery.d.ts' />
-/// <reference path='../lib/ts/knockout.d.ts' />
-/// <reference path='./apis.ts' />
-/// <reference path='./main.ts' />
 // TODO: Reactivate GA
 // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 // new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
