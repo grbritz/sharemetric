@@ -1,7 +1,8 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/purl-jquery.d.ts' />
-// console.debug = function() {};
+console.debug = function() {};
+console.log = function() {};
 
 declare var ga : any;
 

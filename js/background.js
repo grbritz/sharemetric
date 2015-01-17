@@ -1,7 +1,6 @@
 /// <reference path='../lib/ts/jquery.d.ts' />
 /// <reference path='../lib/ts/knockout.d.ts' />
 /// <reference path='../lib/ts/cryptojs.d.ts' />
-/// <reference path='../lib/ts/purl-jquery.d.ts' />
 /// <reference path='./main.ts' />
 /// <reference path='./apis.ts' />
 var APP_VERSION = "2.1.0";

@@ -1,6 +1,6 @@
 {
   "name": "sharemetric",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Social, link, and keyword data for your current browser URL",
   "main": "index.js",
   "scripts": {
